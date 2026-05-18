@@ -134,17 +134,17 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
         </button>
 
         {/* Main bar pill */}
-        <div className="relative flex flex-1 min-w-0 items-center gap-2 rounded-full bg-slate-800 px-3 py-1.5 overflow-hidden">
+        <div className="relative flex flex-1 min-w-0 items-center gap-2 rounded-full bg-slate-800 px-3 py-1.5">
           {/* List selector or current prayer title */}
           {showPrayerTitle && currentPrayer ? (
-            <div className="flex items-center gap-1.5 min-w-0 shrink overflow-hidden">
+            <div className="flex items-center gap-1.5 min-w-0 shrink">
               <span className="text-xs text-slate-500 shrink-0">Praying</span>
               <span className="text-xs font-normal text-slate-300 truncate border-2 border-slate-500 rounded px-1.5 -my-px leading-tight">{currentPrayer.title}</span>
             </div>
           ) : (
             <button
               onClick={() => { if (!running) setDropdownOpen(!dropdownOpen) }}
-              className="flex items-center gap-1 min-w-0 shrink overflow-hidden"
+              className="flex items-center gap-1 min-w-0 shrink"
             >
               <span className={`text-xs font-semibold truncate ${hasSelection ? 'text-slate-100' : 'text-slate-500'}`}>
                 {displayName}
