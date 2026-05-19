@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useT } from '../i18n'
 import type { SurfacedPrayer } from '../lib/surfacing'
 
 type PrayerCardProps = {
@@ -8,6 +9,7 @@ type PrayerCardProps = {
 }
 
 export function PrayerCard({ surfaced, onComplete, autoFlip }: PrayerCardProps) {
+  const { t } = useT()
   const [flipping, setFlipping] = useState(false)
   const [fading, setFading] = useState(false)
   const hasAutoFlipped = useRef(false)
@@ -16,7 +18,7 @@ export function PrayerCard({ surfaced, onComplete, autoFlip }: PrayerCardProps) 
   const startDate = new Date(prayer.createdAt)
   const tallyLabel =
     prayer.prayerTally > 0
-      ? `Prayed ${prayer.prayerTally} ${prayer.prayerTally === 1 ? 'time' : 'times'} since ${startDate.toLocaleDateString('en-US')}`
+      ? t.prayedTally(prayer.prayerTally, startDate.toLocaleDateString())
       : null
 
   // Auto-flip when timer completes this prayer
@@ -46,7 +48,7 @@ export function PrayerCard({ surfaced, onComplete, autoFlip }: PrayerCardProps) 
       onClick={handleClick}
       role="button"
       tabIndex={0}
-      aria-label={`Mark ${prayer.title} as prayed`}
+      aria-label={t.markAsPrayed(prayer.title)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()

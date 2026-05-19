@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import { TimerBar } from './components/TimerBar'
@@ -6,8 +6,10 @@ import { BottomNav } from './components/BottomNav'
 import { SideMenu } from './components/SideMenu'
 import { AddModal } from './components/AddModal'
 import { ExportImportModal } from './components/ExportImportModal'
+import { LanguageModal } from './components/LanguageModal'
 import { TimerProvider } from './context/TimerContext'
 import { checkAndRestoreFromLocalStorage } from './features/backup/local-backup'
+import { I18nContext, translations, getSavedLocale, saveLocale, type Locale } from './i18n'
 import { TapPrayPage } from './routes/TapPrayPage'
 import { ListsPage } from './routes/ListsPage'
 import { ListDetailPage } from './routes/ListDetailPage'
@@ -19,6 +21,7 @@ function AppContent() {
   const [addOpen, setAddOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [exportOpen, setExportOpen] = useState(false)
+  const [langOpen, setLangOpen] = useState(false)
 
   useEffect(() => {
     checkAndRestoreFromLocalStorage().then((restored) => {
@@ -32,7 +35,12 @@ function AppContent() {
       <TimerProvider>
       <div className="flex min-h-screen flex-col bg-slate-900 text-slate-100">
         <TimerBar onMenuOpen={() => setMenuOpen(true)} />
-        <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} onExportImport={() => setExportOpen(true)} />
+        <SideMenu
+          open={menuOpen}
+          onClose={() => setMenuOpen(false)}
+          onExportImport={() => setExportOpen(true)}
+          onLanguages={() => setLangOpen(true)}
+        />
         <Routes>
           <Route path="/" element={<TapPrayPage />} />
           <Route path="/lists" element={<ListsPage />} />
@@ -52,6 +60,7 @@ function AppContent() {
 
         <AddModal open={addOpen} onClose={() => setAddOpen(false)} onAdded={() => window.dispatchEvent(new Event('prayercycles:refresh'))} />
         <ExportImportModal open={exportOpen} onClose={() => setExportOpen(false)} />
+        <LanguageModal open={langOpen} onClose={() => setLangOpen(false)} />
         <BottomNav />
       </div>
       </TimerProvider>
@@ -59,10 +68,19 @@ function AppContent() {
 }
 
 export function App() {
+  const [locale, setLocaleState] = useState<Locale>(getSavedLocale)
+
+  const setLocale = useCallback((l: Locale) => {
+    setLocaleState(l)
+    saveLocale(l)
+  }, [])
+
   return (
-    <BrowserRouter>
-      <AppContent />
-    </BrowserRouter>
+    <I18nContext.Provider value={{ locale, t: translations[locale], setLocale }}>
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </I18nContext.Provider>
   )
 }
 

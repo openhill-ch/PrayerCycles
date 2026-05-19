@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Undo2 } from 'lucide-react'
+import { useT } from '../i18n'
 import { useTimer } from '../context/TimerContext'
 import { PrayerCard } from '../components/PrayerCard'
 import { completePrayer, type SurfacedPrayer } from '../lib/surfacing'
@@ -11,6 +12,7 @@ type CompletedEntry = {
 }
 
 export function TapPrayPage() {
+  const { t } = useT()
   const { surfacedPrayers, selectedListId, refreshPrayers, currentIndex, running, timeLeft } = useTimer()
   const [completedStack, setCompletedStack] = useState<CompletedEntry[]>([])
   const [hiddenIds, setHiddenIds] = useState<Record<string, true>>({})
@@ -114,7 +116,7 @@ export function TapPrayPage() {
     <div className="flex-1 overflow-y-auto px-4 pb-24 pt-4">
       {visible.length === 0 ? (
         <div className="flex flex-col items-center justify-center pt-20 text-center">
-          <p className="text-slate-400">No prayers to show.</p>
+          <p className="text-slate-400">{t.noPrayersToShow}</p>
         </div>
       ) : (
         <div className="mx-auto columns-2 gap-3 md:columns-3 max-w-2xl [&>*]:mb-3">
@@ -133,7 +135,7 @@ export function TapPrayPage() {
         <button
           onClick={undo}
           className="fixed bottom-20 left-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-slate-700 text-slate-300 shadow-lg hover:bg-slate-600"
-          aria-label="Undo last completion"
+          aria-label={t.undoLastCompletion}
         >
           <Undo2 size={20} />
         </button>

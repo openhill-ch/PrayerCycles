@@ -5,10 +5,12 @@ import type { PrayerList, Prayer, Cadence, PersistenceUnit } from '../db/types'
 import { getList, updateList, deleteList, archiveList, reactivateList } from '../features/cycles/list-operations'
 import { getPrayersByList, createPrayer, bulkCreatePrayers } from '../features/prayers/prayer-operations'
 import { PrayerDetailModal } from '../components/PrayerDetailModal'
+import { useT } from '../i18n'
 
 export function ListDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { t } = useT()
   const [list, setList] = useState<PrayerList | null>(null)
   const [prayers, setPrayers] = useState<Prayer[]>([])
   const [selectedPrayer, setSelectedPrayer] = useState<Prayer | null>(null)
@@ -117,7 +119,7 @@ export function ListDetailPage() {
   }
 
   if (!list) {
-    return <div className="flex h-40 items-center justify-center text-slate-500">Loading...</div>
+    return <div className="flex h-40 items-center justify-center text-slate-500">{t.loading}</div>
   }
 
   function allowedUnitsForCadence(c: Cadence): PersistenceUnit[] {
@@ -127,11 +129,11 @@ export function ListDetailPage() {
     return ['wake', 'passage', 'season', 'orbit']
   }
 
-  const persistenceLabels: Record<PersistenceUnit, string> = { wake: 'day', passage: 'week', season: 'month', orbit: 'year' }
-  const persistenceLabelPlural: Record<PersistenceUnit, string> = { wake: 'days', passage: 'weeks', season: 'months', orbit: 'years' }
+  const persistenceLabels: Record<PersistenceUnit, string> = { wake: t.day, passage: t.week, season: t.month, orbit: t.year }
+  const persistenceLabelPlural: Record<PersistenceUnit, string> = { wake: t.days, passage: t.weeks, season: t.months, orbit: t.years }
   const pUnit = list.cycle.persistence.unit
   const pEvery = list.cycle.persistence.every
-  const freqLabel = pEvery === 1 ? `Every ${persistenceLabels[pUnit]}` : `Every ${pEvery} ${persistenceLabelPlural[pUnit]}`
+  const freqLabel = pEvery === 1 ? `${t.every} ${persistenceLabels[pUnit]}` : `${t.every} ${pEvery} ${persistenceLabelPlural[pUnit]}`
   const lifecycleLabel = list.cycle.lifecycle.type === 'indefinite' ? 'x ∞' : `x ${list.cycle.lifecycle.retireAfter ?? 1}`
 
 
@@ -152,7 +154,7 @@ export function ListDetailPage() {
           className="mb-4 flex items-center gap-1 text-sm text-slate-400 hover:text-slate-300"
         >
           <ArrowLeft size={16} />
-          Back to Prayer Lists
+          {t.backToPrayerLists}
         </button>
 
         {/* List info */}
@@ -166,7 +168,7 @@ export function ListDetailPage() {
                 className="w-full rounded-lg bg-white/10 px-3 py-2 text-slate-100 font-semibold text-lg outline-none focus:ring-2 focus:ring-white/30"
               />
               <textarea
-                placeholder="Description (optional)"
+                placeholder={t.descriptionOptional}
                 value={description}
                 onChange={(e) => setDescription(e.target.value.slice(0, 500))}
                 maxLength={500}
@@ -174,7 +176,7 @@ export function ListDetailPage() {
                 className="w-full rounded-lg bg-white/10 px-3 py-2 text-slate-200 text-sm outline-none focus:ring-2 focus:ring-white/30 resize-none"
               />
               <div>
-                <div className="mb-1 text-xs text-slate-300">Cycle</div>
+                <div className="mb-1 text-xs text-slate-300">{t.cycle}</div>
                 <div className="flex flex-wrap gap-1">
                   {(['daily', 'weekly', 'monthly', 'annually'] as Cadence[]).map((c) => (
                     <button
@@ -196,9 +198,9 @@ export function ListDetailPage() {
                 </div>
               </div>
               <div>
-                <div className="mb-1 text-xs text-slate-300">Frequency</div>
+                <div className="mb-1 text-xs text-slate-300">{t.frequency}</div>
                 <div className="flex flex-wrap gap-1">
-                  {([['wake', 'Wake'], ['passage', 'Passage'], ['season', 'Season'], ['orbit', 'Orbit']] as const)
+                  {([[('wake' as PersistenceUnit), t.wake], [('passage' as PersistenceUnit), t.passage], [('season' as PersistenceUnit), t.season], [('orbit' as PersistenceUnit), t.orbit]] as [PersistenceUnit, string][])
                     .filter(([unit]) => allowedUnitsForCadence(cadence).includes(unit))
                     .map(([unit, label]) => (
                     <button
@@ -212,7 +214,7 @@ export function ListDetailPage() {
                   ))}
                 </div>
                 <div className="mt-1 flex items-center gap-2 h-6">
-                  <span className="text-xs text-slate-400">Every</span>
+                  <span className="text-xs text-slate-400">{t.every}</span>
                   {cadence === 'daily' ? (
                     <span className="w-14 text-xs text-slate-100 text-center">1</span>
                   ) : (
@@ -226,29 +228,29 @@ export function ListDetailPage() {
                     />
                   )}
                   <span className="text-xs text-slate-400">
-                    {persistenceUnit === 'wake' ? (persistenceEvery === 1 ? 'day' : 'days')
-                      : persistenceUnit === 'passage' ? (persistenceEvery === 1 ? 'week' : 'weeks')
-                      : persistenceUnit === 'season' ? (persistenceEvery === 1 ? 'month' : 'months')
-                      : (persistenceEvery === 1 ? 'year' : 'years')}
+                    {persistenceUnit === 'wake' ? (persistenceEvery === 1 ? t.day : t.days)
+                      : persistenceUnit === 'passage' ? (persistenceEvery === 1 ? t.week : t.weeks)
+                      : persistenceUnit === 'season' ? (persistenceEvery === 1 ? t.month : t.months)
+                      : (persistenceEvery === 1 ? t.year : t.years)}
                   </span>
                 </div>
               </div>
               <div>
-                <div className="mb-1 text-xs text-slate-300">Lifecycle</div>
+                <div className="mb-1 text-xs text-slate-300">{t.lifecycle}</div>
                 <div className="flex gap-1">
-                  {(['indefinite', 'finite'] as const).map((l) => (
+                  {([['indefinite', t.indefinite], ['finite', t.finite]] as const).map(([l, label]) => (
                     <button
                       key={l}
                       type="button"
                       onClick={() => setLifecycleType(l)}
                       className={`rounded px-2 py-0.5 text-xs capitalize ${lifecycleType === l ? 'bg-slate-700 text-white' : 'bg-white/10 text-slate-200'}`}
                     >
-                      {l}
+                      {label}
                     </button>
                   ))}
                 </div>
                 <div className="mt-1 flex items-center gap-2 h-6">
-                  <span className="text-xs text-slate-400">Retires after</span>
+                  <span className="text-xs text-slate-400">{t.retiresAfter}</span>
                   {lifecycleType === 'indefinite' ? (
                     <span className="w-14 text-xs text-slate-100 text-center">∞</span>
                   ) : (
@@ -261,7 +263,7 @@ export function ListDetailPage() {
                       className="w-14 rounded bg-white/10 px-2 py-0.5 text-xs text-slate-100 text-center outline-none focus:ring-2 focus:ring-white/30"
                     />
                   )}
-                  <span className="text-xs text-slate-400">{lifecycleType === 'indefinite' ? 'completions' : (retireAfter === 1 ? 'completion' : 'completions')}</span>
+                  <span className="text-xs text-slate-400">{lifecycleType === 'indefinite' ? t.completions : (retireAfter === 1 ? t.completion : t.completions)}</span>
                 </div>
               </div>
               <div className="flex gap-2 pt-1">
@@ -269,13 +271,13 @@ export function ListDetailPage() {
                   onClick={handleSaveList}
                   className="rounded-lg border border-slate-600 bg-slate-700 px-3 py-1 text-sm text-slate-200 hover:bg-slate-600 transition-colors"
                 >
-                  Save
+                  {t.save}
                 </button>
                 <button
                   onClick={() => { setEditing(false); setName(list.name); setDescription(list.description) }}
                   className="rounded-lg border border-slate-600 bg-slate-700 px-3 py-1 text-sm text-slate-200 hover:bg-slate-600 transition-colors"
                 >
-                  Cancel
+                  {t.cancel}
                 </button>
               </div>
             </div>
@@ -290,9 +292,9 @@ export function ListDetailPage() {
                 <button
                   onClick={handleToggleArchive}
                   className="flex items-center gap-1.5 shrink-0 mt-1"
-                  title={list.status === 'active' ? 'Active — tap to deactivate' : 'Deactivated — tap to reactivate'}
+                  title={list.status === 'active' ? t.activeTapToDeactivate : t.deactivatedTapToReactivate}
                 >
-                  <span className="text-[10px] text-slate-500">{list.status === 'active' ? 'Active' : 'Inactive'}</span>
+                  <span className="text-[10px] text-slate-500">{list.status === 'active' ? t.active : t.inactive}</span>
                   <div className={`relative w-8 h-[18px] rounded-full transition-colors duration-200 ${list.status === 'active' ? 'bg-green-500' : 'bg-slate-600'}`}>
                     <div className={`absolute top-[2px] h-[14px] w-[14px] rounded-full bg-white shadow transition-transform duration-200 ${list.status === 'active' ? 'translate-x-[14px]' : 'translate-x-[2px]'}`} />
                   </div>
@@ -306,7 +308,7 @@ export function ListDetailPage() {
                   onClick={() => setEditing(true)}
                   className="rounded-lg border border-slate-600 bg-slate-700 px-3 py-1 text-sm text-slate-200 hover:bg-slate-600 transition-colors"
                 >
-                  Edit
+                  {t.edit}
                 </button>
                 <div>
                   {!confirmDelete ? (
@@ -315,22 +317,22 @@ export function ListDetailPage() {
                       className="flex items-center gap-1 rounded-lg border border-red-500/30 px-3 py-1 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
                     >
                       <Trash2 size={14} />
-                      Delete
+                      {t.delete}
                     </button>
                   ) : (
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-red-400">Delete?</span>
+                      <span className="text-sm text-red-400">{t.deleteConfirm}</span>
                       <button
                         onClick={handleDeleteList}
                         className="rounded-lg bg-red-600 px-2 py-1 text-xs text-white hover:bg-red-500 transition-colors"
                       >
-                        Yes
+                        {t.yes}
                       </button>
                       <button
                         onClick={() => setConfirmDelete(false)}
                         className="rounded-lg border border-slate-600 bg-slate-700 px-2 py-1 text-xs text-slate-200 hover:bg-slate-600 transition-colors"
                       >
-                        No
+                        {t.no}
                       </button>
                     </div>
                   )}
@@ -347,12 +349,12 @@ export function ListDetailPage() {
               onClick={() => setShowAddPrayer(true)}
               className="text-sm text-sky-300 hover:text-sky-200 transition-colors"
             >
-              + Add prayers to this list
+              {t.addPrayersToList}
             </button>
           ) : (
             <div className="rounded-lg bg-slate-800 p-4 space-y-3">
               <textarea
-                placeholder={"Add prayers (one per line)\ne.g.\nMom\nDad\nSister"}
+                placeholder={`${t.addPrayersPlaceholder}\n${t.addPrayersExample}`}
                 value={newPrayerText}
                 onChange={(e) => setNewPrayerText(e.target.value)}
                 rows={4}
@@ -365,13 +367,13 @@ export function ListDetailPage() {
                   disabled={!newPrayerText.trim()}
                   className="rounded-lg bg-slate-700 px-3 py-1 text-sm text-white hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  Add
+                  {t.add}
                 </button>
                 <button
                   onClick={() => { setShowAddPrayer(false); setNewPrayerText('') }}
                   className="rounded-lg border border-slate-600 bg-slate-700 px-3 py-1 text-sm text-slate-200 hover:bg-slate-600 transition-colors"
                 >
-                  Cancel
+                  {t.cancel}
                 </button>
               </div>
             </div>
@@ -381,7 +383,7 @@ export function ListDetailPage() {
         {/* Prayer list */}
         <div className="mt-4 space-y-1">
           <div className="flex gap-1 mb-2">
-            {([['original', 'Original Order'], ['az', 'A–Z'], ['za', 'Z–A'], ['most', 'Most Prayed'], ['least', 'Least Prayed']] as const).map(([mode, label]) => (
+            {([['original', t.sortOriginal], ['az', t.sortAZ], ['za', t.sortZA], ['most', t.sortMostPrayed], ['least', t.sortLeastPrayed]] as [SortMode, string][]).map(([mode, label]) => (
               <button
                 key={mode}
                 onClick={() => handleSort(mode)}
@@ -402,7 +404,7 @@ export function ListDetailPage() {
             </button>
           ))}
           {prayers.length === 0 && (
-            <p className="text-sm text-slate-500 italic pt-2">No prayers in this list yet.</p>
+            <p className="text-sm text-slate-500 italic pt-2">{t.noPrayersInList}</p>
           )}
         </div>
       </div>

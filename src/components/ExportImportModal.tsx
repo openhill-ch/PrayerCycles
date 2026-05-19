@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { X, Download, Upload, Check, AlertCircle } from 'lucide-react'
+import { useT } from '../i18n'
 import { exportData, importData } from '../features/backup/backup-operations'
 
 type ExportImportModalProps = {
@@ -8,6 +9,7 @@ type ExportImportModalProps = {
 }
 
 export function ExportImportModal({ open, onClose }: ExportImportModalProps) {
+  const { t } = useT()
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [statusMsg, setStatusMsg] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
@@ -30,10 +32,10 @@ export function ExportImportModal({ open, onClose }: ExportImportModalProps) {
       URL.revokeObjectURL(url)
       localStorage.setItem('prayercycles_last_export', String(Date.now()))
       setStatus('success')
-      setStatusMsg('Backup downloaded!')
+      setStatusMsg(t.backupDownloaded)
     } catch {
       setStatus('error')
-      setStatusMsg('Export failed.')
+      setStatusMsg(t.exportFailed)
     }
   }
 
@@ -44,11 +46,11 @@ export function ExportImportModal({ open, onClose }: ExportImportModalProps) {
       const text = await file.text()
       await importData(text)
       setStatus('success')
-      setStatusMsg('Data restored successfully!')
+      setStatusMsg(t.dataRestored)
       window.dispatchEvent(new Event('prayercycles:refresh'))
     } catch {
       setStatus('error')
-      setStatusMsg('Import failed. Is this a valid backup file?')
+      setStatusMsg(t.importFailed)
     }
     if (fileRef.current) fileRef.current.value = ''
   }
@@ -59,11 +61,11 @@ export function ExportImportModal({ open, onClose }: ExportImportModalProps) {
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center">
       <div className="w-full max-w-md rounded-t-2xl bg-slate-800 p-6 pb-24 sm:rounded-2xl sm:pb-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-100">Export / Import</h2>
+          <h2 className="text-lg font-semibold text-slate-100">{t.exportImportTitle}</h2>
           <button
             onClick={handleClose}
             className="rounded-full p-1 text-slate-400 hover:bg-slate-700"
-            aria-label="Close"
+            aria-label={t.close}
           >
             <X size={20} />
           </button>
@@ -71,7 +73,7 @@ export function ExportImportModal({ open, onClose }: ExportImportModalProps) {
 
         <div className="space-y-4">
           <p className="text-sm text-slate-400">
-            Export your prayer data as a backup file, or import a previous backup to restore.
+            {t.exportImportDesc}
           </p>
 
           <div className="flex gap-3">
@@ -80,12 +82,12 @@ export function ExportImportModal({ open, onClose }: ExportImportModalProps) {
               className="flex flex-1 flex-col items-center justify-center gap-2 rounded-xl bg-slate-600 aspect-square text-sm font-medium text-white transition-colors hover:bg-slate-500"
             >
               <Download size={28} />
-              Export
+              {t.exportBtn}
             </button>
 
             <label className="flex flex-1 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-slate-600 bg-slate-700 aspect-square text-sm font-medium text-slate-200 transition-colors hover:bg-slate-600">
               <Upload size={28} />
-              Import
+              {t.importBtn}
               <input
                 ref={fileRef}
                 type="file"

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search } from 'lucide-react'
+import { useT } from '../i18n'
 import type { PrayerList, Prayer } from '../db/types'
 import { getAllLists } from '../features/cycles/list-operations'
 import { getPrayersByList } from '../features/prayers/prayer-operations'
@@ -24,6 +25,7 @@ type ListWithPrayers = {
 }
 
 export function ListsPage() {
+  const { t } = useT()
   const [data, setData] = useState<ListWithPrayers[]>([])
   const [todayPrayers, setTodayPrayers] = useState<SurfacedPrayer[]>([])
   const [loading, setLoading] = useState(true)
@@ -57,7 +59,7 @@ export function ListsPage() {
   }, [load])
 
   if (loading) {
-    return <div className="flex h-40 items-center justify-center text-slate-500">Loading...</div>
+    return <div className="flex h-40 items-center justify-center text-slate-500">{t.loading}</div>
   }
 
   const lower = searchQuery.toLowerCase()
@@ -89,7 +91,7 @@ export function ListsPage() {
           <Search size={16} className="text-slate-500 shrink-0" />
           <input
             type="text"
-            placeholder="Search prayers..."
+            placeholder={t.searchPrayers}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="flex-1 bg-transparent text-sm text-slate-100 placeholder-slate-500 outline-none"
@@ -103,7 +105,7 @@ export function ListsPage() {
           )}
 
           {active.length === 0 && archived.length === 0 && !showTodayCard && (
-            <p className="pt-20 text-center text-slate-400">No lists yet.</p>
+            <p className="pt-20 text-center text-slate-400">{t.noListsYet}</p>
           )}
 
           {active.map(({ list, prayers }) => (
@@ -113,7 +115,7 @@ export function ListsPage() {
           {archived.length > 0 && (
             <>
               <div className="pt-4 text-xs font-medium uppercase tracking-wide text-slate-500 break-inside-avoid">
-                Deactivated
+                {t.deactivated}
               </div>
               {archived.map(({ list, prayers }) => (
                 <ListCard key={list.id} list={list} prayers={prayers} query={searchQuery} />
@@ -127,6 +129,7 @@ export function ListsPage() {
 }
 
 function TodayCard({ prayers, onSelect, query }: { prayers: SurfacedPrayer[]; onSelect: () => void; query: string }) {
+  const { t } = useT()
   const navigate = useNavigate()
   const MAX_VISIBLE = 30
   const visible = prayers.slice(0, MAX_VISIBLE)
@@ -140,9 +143,9 @@ function TodayCard({ prayers, onSelect, query }: { prayers: SurfacedPrayer[]; on
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter') { onSelect(); navigate('/') } }}
     >
-      <p className="text-xs text-emerald-400 leading-tight">Surfaced | Daily | x ∞</p>
-      <h3 className="text-lg font-semibold text-slate-100 -mt-0.5">Today's Prayers</h3>
-      <p className="text-sm text-slate-300 mt-1">One prayer surfaced from each active list, prioritizing those prayed least recently.</p>
+      <p className="text-xs text-emerald-400 leading-tight">{t.surfacedLabel}</p>
+      <h3 className="text-lg font-semibold text-slate-100 -mt-0.5">{t.todaysPrayers}</h3>
+      <p className="text-sm text-slate-300 mt-1">{t.todaysPrayersDesc}</p>
 
       <div className="mt-2 space-y-1">
         {visible.map((s) => (
@@ -151,15 +154,15 @@ function TodayCard({ prayers, onSelect, query }: { prayers: SurfacedPrayer[]; on
           </div>
         ))}
         {overflow > 0 && (
-          <div className="text-xs text-slate-400">expand</div>
+          <div className="text-xs text-slate-400">{t.expand}</div>
         )}
         {prayers.length === 0 && (
-          <div className="text-xs text-slate-400 italic">No prayers surfaced today</div>
+          <div className="text-xs text-slate-400 italic">{t.noPrayersSurfaced}</div>
         )}
       </div>
 
       <div className="mt-3 text-xs text-emerald-300 text-right">
-        {prayers.length} {prayers.length === 1 ? 'prayer' : 'prayers'}
+        {t.prayerCount(prayers.length)}
       </div>
     </div>
   )
@@ -168,6 +171,7 @@ function TodayCard({ prayers, onSelect, query }: { prayers: SurfacedPrayer[]; on
 const MAX_VISIBLE = 30
 
 function ListCard({ list, prayers, query }: { list: PrayerList; prayers: Prayer[]; query: string }) {
+  const { t } = useT()
   const navigate = useNavigate()
   const descRef = useRef<HTMLParagraphElement>(null)
   const [isClamped, setIsClamped] = useState(false)
@@ -179,10 +183,10 @@ function ListCard({ list, prayers, query }: { list: PrayerList; prayers: Prayer[
   }, [list.description])
   const pUnit = list.cycle.persistence.unit
   const pEvery = list.cycle.persistence.every
-  const unitLabels: Record<string, [string, string]> = { wake: ['day', 'days'], passage: ['week', 'weeks'], season: ['month', 'months'], orbit: ['year', 'years'] }
-  const [singular, plural] = unitLabels[pUnit] || ['day', 'days']
-  const freqLabel = pEvery === 1 ? `Every ${singular}` : `Every ${pEvery} ${plural}`
-  const lifecycleLabel = list.cycle.lifecycle.type === 'indefinite' ? 'x ∞' : `x ${list.cycle.lifecycle.retireAfter ?? 1}`
+  const unitLabels: Record<string, [string, string]> = { wake: [t.day, t.days], passage: [t.week, t.weeks], season: [t.month, t.months], orbit: [t.year, t.years] }
+  const [singular, plural] = unitLabels[pUnit] || [t.day, t.days]
+  const freqLabel = t.everyUnit(pEvery, singular, plural)
+  const lifecycleLabel = list.cycle.lifecycle.type === 'indefinite' ? t.timesInfinite : t.timesCount(list.cycle.lifecycle.retireAfter ?? 1)
   const visible = prayers.slice(0, MAX_VISIBLE)
   const overflow = prayers.length - MAX_VISIBLE
 
@@ -212,10 +216,10 @@ function ListCard({ list, prayers, query }: { list: PrayerList; prayers: Prayer[
           </div>
         ))}
         {overflow > 0 && (
-          <div className="text-xs text-slate-400">expand</div>
+          <div className="text-xs text-slate-400">{t.expand}</div>
         )}
         {prayers.length === 0 && (
-          <div className="text-xs text-slate-400 italic">No prayers yet</div>
+          <div className="text-xs text-slate-400 italic">{t.noPrayersYet}</div>
         )}
       </div>
 

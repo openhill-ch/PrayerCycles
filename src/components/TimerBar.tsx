@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { Menu, ChevronDown, Play, Pause, RotateCcw } from 'lucide-react'
 import { useTimer, TODAY_ID } from '../context/TimerContext'
+import { useT } from '../i18n'
 
 function BarTimer({
   seconds,
@@ -87,6 +88,7 @@ type TimerBarProps = {
 }
 
 export function TimerBar({ onMenuOpen }: TimerBarProps) {
+  const { t } = useT()
   const {
     lists,
     selectedListId,
@@ -112,7 +114,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
 
   const isToday = selectedListId === TODAY_ID
   const selectedList = isToday ? null : lists.find((l) => l.id === selectedListId)
-  const displayName = isToday ? "Today's Prayers" : (selectedList?.name ?? 'Select a list')
+  const displayName = isToday ? t.todaysPrayers : (selectedList?.name ?? t.selectAList)
   const hasSelection = isToday || !!selectedList
 
   const midSession = timeLeft > 0 && timeLeft < totalTime
@@ -128,7 +130,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
         <button
           onClick={onMenuOpen}
           className="rounded-full p-2 text-slate-400 hover:bg-slate-800"
-          aria-label="Open menu"
+          aria-label={t.openMenu}
         >
           <Menu size={20} />
         </button>
@@ -138,7 +140,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
           {/* List selector or current prayer title */}
           {showPrayerTitle && currentPrayer ? (
             <div className="flex items-center gap-1.5 min-w-0 shrink">
-              <span className="text-xs text-slate-500 shrink-0">Praying</span>
+              <span className="text-xs text-slate-500 shrink-0">{t.praying}</span>
               <span className="text-xs font-normal text-slate-300 truncate border-2 border-slate-500 rounded px-1.5 -my-px leading-tight">{currentPrayer.title}</span>
             </div>
           ) : (
@@ -180,9 +182,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
               onClick={() => { if (!running) setTimerMode(timerMode === 'until-done' ? 'custom' : 'until-done') }}
               disabled={running}
               className={`flex items-center ${running ? 'opacity-50' : ''}`}
-              title={timerMode === 'until-done'
-                ? 'The total timebox automatically adjusts to cover every prayer in the list based on your allotted time per prayer.'
-                : 'Total timebox is set manually. Turn on to automatically adjust based on your prayer list.'}
+              title={timerMode === 'until-done' ? t.autoToggleOnTooltip : t.autoToggleOffTooltip}
             >
               <div className={`relative w-6 h-[14px] rounded-full transition-colors duration-200 ${timerMode === 'until-done' ? 'bg-green-500' : 'bg-slate-600'}`}>
                 <div className={`absolute top-[2px] h-[10px] w-[10px] rounded-full bg-white shadow transition-transform duration-200 ${timerMode === 'until-done' ? 'translate-x-[12px]' : 'translate-x-[2px]'}`} />
@@ -201,7 +201,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
                     isToday ? 'text-sky-300' : 'text-slate-200'
                   }`}
                 >
-                  Today's Prayers
+                  {t.todaysPrayers}
                 </button>
                 {lists.length > 0 && (
                   <div className="border-t border-slate-700" />
@@ -218,7 +218,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
                   </button>
                 ))}
                 {lists.length === 0 && (
-                  <div className="px-4 py-3 text-sm text-slate-500 italic">No other lists</div>
+                  <div className="px-4 py-3 text-sm text-slate-500 italic">{t.noOtherLists}</div>
                 )}
               </div>
             </>
@@ -232,7 +232,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
               onClick={handleStart}
               disabled={!selectedListId || prayers.length === 0}
               className="rounded-full p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              aria-label="Start timer"
+              aria-label={t.startTimer}
             >
               <Play size={16} />
             </button>
@@ -240,7 +240,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
             <button
               onClick={handlePause}
               className="rounded-full p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
-              aria-label="Pause timer"
+              aria-label={t.pauseTimer}
             >
               <Pause size={16} />
             </button>
@@ -248,7 +248,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
           <button
             onClick={handleReset}
             className="rounded-full p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
-            aria-label="Reset timer"
+            aria-label={t.resetTimer}
           >
             <RotateCcw size={14} />
           </button>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
+import { useT } from '../i18n'
 import type { PrayerList, Cadence, PersistenceUnit } from '../db/types'
 import { createList, getAllLists } from '../features/cycles/list-operations'
 import { createPrayer } from '../features/prayers/prayer-operations'
@@ -13,6 +14,7 @@ type AddModalProps = {
 type Mode = 'create-list' | 'add-single'
 
 export function AddModal({ open, onClose, onAdded }: AddModalProps) {
+  const { t } = useT()
   const [mode, setMode] = useState<Mode>('create-list')
   const [lists, setLists] = useState<PrayerList[]>([])
 
@@ -89,10 +91,10 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   }
 
   const allUnits: [PersistenceUnit, string, string][] = [
-    ['wake', 'Wake', 'Every X day(s)'],
-    ['passage', 'Passage', 'Every X week(s)'],
-    ['season', 'Season', 'Every X month(s)'],
-    ['orbit', 'Orbit', 'Every X year(s)'],
+    ['wake', t.wake, t.wakeTooltip],
+    ['passage', t.passage, t.passageTooltip],
+    ['season', t.season, t.seasonTooltip],
+    ['orbit', t.orbit, t.orbitTooltip],
   ]
 
   function allowedUnits(c: Cadence): PersistenceUnit[] {
@@ -111,12 +113,12 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
       <div className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-slate-800 p-6 pb-24 sm:rounded-2xl sm:pb-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-slate-100">
-            {mode === 'create-list' ? '+ Prayer List' : '+ Prayer'}
+            {mode === 'create-list' ? t.newPrayerList : t.newPrayer}
           </h2>
           <button
             onClick={handleClose}
             className="rounded-full p-1 text-slate-400 hover:bg-slate-700"
-            aria-label="Close"
+            aria-label={t.close}
           >
             <X size={20} />
           </button>
@@ -129,14 +131,14 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
             onClick={() => setMode('create-list')}
             className={`rounded px-3 py-1 text-sm ${mode === 'create-list' ? 'bg-slate-600 text-white' : 'bg-slate-700 text-slate-400'}`}
           >
-            + Prayer List
+            {t.newPrayerList}
           </button>
           <button
             type="button"
             onClick={() => setMode('add-single')}
             className={`rounded px-3 py-1 text-sm ${mode === 'add-single' ? 'bg-slate-600 text-white' : 'bg-slate-700 text-slate-400'}`}
           >
-            + Prayer
+            {t.newPrayer}
           </button>
         </div>
 
@@ -145,7 +147,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
           <form onSubmit={handleCreateList} className="space-y-4">
             <input
               type="text"
-              placeholder="List name"
+              placeholder={t.listName}
               value={listName}
               onChange={(e) => setListName(e.target.value)}
               className="w-full rounded-lg bg-slate-700 px-3 py-2 text-slate-100 placeholder-slate-400 outline-none focus:ring-2 focus:ring-slate-500"
@@ -154,7 +156,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
 
             <div>
               <textarea
-                placeholder="Description (optional)"
+                placeholder={t.descriptionOptional}
                 value={listDescription}
                 onChange={(e) => setListDescription(e.target.value.slice(0, 500))}
                 rows={2}
@@ -165,7 +167,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
             </div>
 
             <div>
-              <div className="mb-2 text-sm text-slate-400">Cycle</div>
+              <div className="mb-2 text-sm text-slate-400">{t.cycle}</div>
               <div className="flex flex-wrap gap-2">
                 {(['daily', 'weekly', 'monthly', 'annually'] as Cadence[]).map((c) => (
                   <button
@@ -188,7 +190,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
             </div>
 
             <div>
-              <div className="mb-2 text-sm text-slate-400">Frequency</div>
+              <div className="mb-2 text-sm text-slate-400">{t.frequency}</div>
               <div className="flex flex-wrap gap-2">
                 {visibleUnits.map(([unit, label, tooltip]) => (
                   <button
@@ -203,7 +205,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                 ))}
               </div>
               <div className="mt-2 flex items-center gap-2 h-8">
-                <span className="text-sm text-slate-400">Every</span>
+                <span className="text-sm text-slate-400">{t.every}</span>
                 {cadence === 'daily' ? (
                   <span className="w-16 text-sm text-slate-100 text-center">1</span>
                 ) : (
@@ -217,16 +219,16 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                   />
                 )}
                 <span className="text-sm text-slate-400">
-                  {persistenceUnit === 'wake' ? (persistenceEvery === 1 ? 'day' : 'days')
-                    : persistenceUnit === 'passage' ? (persistenceEvery === 1 ? 'week' : 'weeks')
-                    : persistenceUnit === 'season' ? (persistenceEvery === 1 ? 'month' : 'months')
-                    : (persistenceEvery === 1 ? 'year' : 'years')}
+                  {persistenceUnit === 'wake' ? (persistenceEvery === 1 ? t.day : t.days)
+                    : persistenceUnit === 'passage' ? (persistenceEvery === 1 ? t.week : t.weeks)
+                    : persistenceUnit === 'season' ? (persistenceEvery === 1 ? t.month : t.months)
+                    : (persistenceEvery === 1 ? t.year : t.years)}
                 </span>
               </div>
             </div>
 
             <div>
-              <div className="mb-2 text-sm text-slate-400">Lifecycle</div>
+              <div className="mb-2 text-sm text-slate-400">{t.lifecycle}</div>
               <div className="flex gap-2">
                 {(['indefinite', 'finite'] as const).map((l) => (
                   <button
@@ -235,12 +237,12 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                     onClick={() => setLifecycleType(l)}
                     className={`rounded px-3 py-1 text-sm capitalize ${lifecycleType === l ? 'bg-slate-600 text-white' : 'bg-slate-700 text-slate-400'}`}
                   >
-                    {l}
+                    {l === 'indefinite' ? t.indefinite : t.finite}
                   </button>
                 ))}
               </div>
               <div className="mt-2 flex items-center gap-2 h-8">
-                <span className="text-sm text-slate-400">Retires after</span>
+                <span className="text-sm text-slate-400">{t.retiresAfter}</span>
                 {lifecycleType === 'indefinite' ? (
                   <span className="w-16 text-sm text-slate-100 text-center">∞</span>
                 ) : (
@@ -253,14 +255,14 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                     className="w-16 rounded bg-slate-700 px-2 py-1 text-sm text-slate-100 text-center outline-none focus:ring-2 focus:ring-slate-500"
                   />
                 )}
-                <span className="text-sm text-slate-400">{lifecycleType === 'indefinite' ? 'completions' : (retireAfter === 1 ? 'completion' : 'completions')}</span>
+                <span className="text-sm text-slate-400">{lifecycleType === 'indefinite' ? t.completions : (retireAfter === 1 ? t.completion : t.completions)}</span>
               </div>
             </div>
 
             <div>
-              <div className="mb-2 text-sm text-slate-400">Prayers (one per line)</div>
+              <div className="mb-2 text-sm text-slate-400">{t.prayersOnePerLine}</div>
               <textarea
-                placeholder={"Mom\nDad\nSister\nBrother"}
+                placeholder={t.prayersPlaceholder}
                 value={initialPrayers}
                 onChange={(e) => setInitialPrayers(e.target.value)}
                 rows={5}
@@ -273,7 +275,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
               disabled={!listName.trim()}
               className="w-full rounded-lg bg-slate-600 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-500 disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Create List
+              {t.createList}
             </button>
           </form>
         )}
@@ -283,14 +285,14 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
           <form onSubmit={handleAddPrayer} className="space-y-4">
             <input
               type="text"
-              placeholder="Prayer title"
+              placeholder={t.prayerTitle}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full rounded-lg bg-slate-700 px-3 py-2 text-slate-100 placeholder-slate-400 outline-none focus:ring-2 focus:ring-slate-500"
               autoFocus
             />
             <textarea
-              placeholder="Description (optional)"
+              placeholder={t.descriptionOptional}
               value={description}
               onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
               maxLength={2000}
@@ -304,7 +306,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
               disabled={selectedLists.length === 0 || !title.trim()}
               className="w-full rounded-lg bg-slate-600 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-500 disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Add Prayer
+              {t.addPrayer}
             </button>
           </form>
         )}
@@ -323,12 +325,13 @@ function ListPicker({
   selected: string[]
   onToggle: (id: string) => void
 }) {
+  const { t } = useT()
   if (lists.length === 0) {
-    return <p className="text-sm text-slate-500 italic">No lists yet. Create one first.</p>
+    return <p className="text-sm text-slate-500 italic">{t.noListsCreateFirst}</p>
   }
   return (
     <div>
-      <div className="mb-2 text-sm text-slate-400">Add to list</div>
+      <div className="mb-2 text-sm text-slate-400">{t.addToList}</div>
       <div className="flex flex-wrap gap-2">
         {lists.map((list) => (
           <button

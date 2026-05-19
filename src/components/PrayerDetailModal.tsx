@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { X, Trash2 } from 'lucide-react'
+import { useT } from '../i18n'
 import type { Prayer } from '../db/types'
 import { updatePrayer, deletePrayer } from '../features/prayers/prayer-operations'
 
@@ -10,6 +11,7 @@ type PrayerDetailModalProps = {
 }
 
 export function PrayerDetailModal({ prayer, onClose, onUpdated }: PrayerDetailModalProps) {
+  const { t } = useT()
   const [title, setTitle] = useState(prayer.title)
   const [description, setDescription] = useState(prayer.description)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -17,7 +19,7 @@ export function PrayerDetailModal({ prayer, onClose, onUpdated }: PrayerDetailMo
   const startDate = new Date(prayer.createdAt)
   const tallyLabel =
     prayer.prayerTally > 0
-      ? `${prayer.prayerTally} · since ${startDate.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })}`
+      ? `${prayer.prayerTally} · since ${startDate.toLocaleDateString()}`
       : null
 
   async function handleSave() {
@@ -41,11 +43,11 @@ export function PrayerDetailModal({ prayer, onClose, onUpdated }: PrayerDetailMo
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center">
       <div className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-slate-800 p-6 sm:rounded-2xl">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-100">Prayer</h2>
+          <h2 className="text-lg font-semibold text-slate-100">{t.prayer}</h2>
           <button
             onClick={() => { handleSave() }}
             className="rounded-full p-1 text-slate-400 hover:bg-slate-700"
-            aria-label="Close"
+            aria-label={t.close}
           >
             <X size={20} />
           </button>
@@ -60,7 +62,7 @@ export function PrayerDetailModal({ prayer, onClose, onUpdated }: PrayerDetailMo
           />
 
           <textarea
-            placeholder="Add a description..."
+            placeholder={t.addDescription}
             value={description}
             onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
             maxLength={2000}
@@ -80,22 +82,22 @@ export function PrayerDetailModal({ prayer, onClose, onUpdated }: PrayerDetailMo
                 className="flex items-center gap-1 text-sm text-red-400 hover:text-red-300"
               >
                 <Trash2 size={14} />
-                Delete
+                {t.delete}
               </button>
             ) : (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-red-400">Delete this prayer?</span>
+                <span className="text-sm text-red-400">{t.deletePrayerConfirm}</span>
                 <button
                   onClick={handleDelete}
                   className="rounded-lg bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-500"
                 >
-                  Yes
+                  {t.yes}
                 </button>
                 <button
                   onClick={() => setConfirmDelete(false)}
                   className="rounded-lg bg-slate-700 px-3 py-1 text-sm text-slate-300 hover:bg-slate-600"
                 >
-                  No
+                  {t.no}
                 </button>
               </div>
             )}
@@ -104,7 +106,7 @@ export function PrayerDetailModal({ prayer, onClose, onUpdated }: PrayerDetailMo
               onClick={handleSave}
               className="rounded-lg bg-slate-600 px-4 py-2 text-sm font-medium text-white hover:bg-slate-500"
             >
-              Save
+              {t.save}
             </button>
           </div>
         </div>

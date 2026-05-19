@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { Play, Pause, RotateCcw, Dices, ChevronDown } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import { useTimer, TODAY_ID } from '../context/TimerContext'
+import { useT } from '../i18n'
 
 function EditableTime({
   seconds,
@@ -96,6 +97,7 @@ function EditableTime({
 }
 
 export function TimerPage() {
+  const { t } = useT()
   const [localDropdown, setLocalDropdown] = useState(false)
   const {
     lists,
@@ -150,7 +152,7 @@ export function TimerPage() {
 
   const isToday = selectedListId === TODAY_ID
   const selectedList = isToday ? null : lists.find((l) => l.id === selectedListId)
-  const displayName = isToday ? "Today's Prayers" : (selectedList?.name ?? 'Select a prayer list')
+  const displayName = isToday ? t.todaysPrayers : (selectedList?.name ?? t.selectAPrayerList)
   const hasSelection = isToday || !!selectedList
   const currentPrayer = prayers.length > 0 ? (prayers[currentIndex] ?? prayers[0]) : null
   const upcomingPrayers = currentPrayer
@@ -182,7 +184,7 @@ export function TimerPage() {
             <button
               onClick={pickRandom}
               className={`rounded-lg bg-slate-800 p-3 text-slate-400 hover:text-slate-200 hover:bg-slate-700 transition-colors border border-slate-700 ${running ? 'opacity-50' : ''}`}
-              title="Pick a random list"
+              title={t.pickRandomList}
             >
               <Dices size={20} />
             </button>
@@ -197,7 +199,7 @@ export function TimerPage() {
                     isToday ? 'text-sky-300' : 'text-slate-200'
                   }`}
                 >
-                  Today's Prayers
+                  {t.todaysPrayers}
                 </button>
                 {lists.length > 0 && (
                   <div className="border-t border-slate-700" />
@@ -214,7 +216,7 @@ export function TimerPage() {
                   </button>
                 ))}
                 {lists.length === 0 && (
-                  <div className="px-4 py-3 text-sm text-slate-500 italic">No other lists</div>
+                  <div className="px-4 py-3 text-sm text-slate-500 italic">{t.noOtherLists}</div>
                 )}
               </div>
             </>
@@ -230,7 +232,7 @@ export function TimerPage() {
               {currentPrayer ? (
                 <div>
                   {running && (
-                    <div className="text-xs text-sky-300 uppercase tracking-wide mb-1">Now praying</div>
+                    <div className="text-xs text-sky-300 uppercase tracking-wide mb-1">{t.nowPraying}</div>
                   )}
                   <h3 className="text-lg font-semibold text-slate-100">{currentPrayer.title}</h3>
                   {currentPrayer.description && (
@@ -240,7 +242,7 @@ export function TimerPage() {
               ) : (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-sm text-slate-500 italic text-center">
-                    {selectedListId ? 'No prayers in this list' : 'Select a prayer list'}
+                    {selectedListId ? t.noPrayersInThisList : t.selectAPrayerList}
                   </div>
                 </div>
               )}
@@ -254,11 +256,9 @@ export function TimerPage() {
                 onClick={() => { if (!running) setTimerMode(timerMode === 'until-done' ? 'custom' : 'until-done') }}
                 disabled={running}
                 className={`absolute top-3 right-3 flex items-center gap-1.5 ${running ? 'opacity-50' : ''}`}
-                title={timerMode === 'until-done'
-                  ? 'The total timebox automatically adjusts to cover every prayer in the list based on your allotted time per prayer.'
-                  : 'Total timebox is set manually. Turn on to automatically adjust based on your prayer list.'}
+                title={timerMode === 'until-done' ? t.autoToggleOnTooltip : t.autoToggleOffTooltip}
               >
-                <span className="text-[9px] text-slate-500 whitespace-nowrap">Auto-Toggle Total Timebox</span>
+                <span className="text-[9px] text-slate-500 whitespace-nowrap">{t.totalTimebox}</span>
                 <div className={`relative w-7 h-[16px] rounded-full transition-colors duration-200 ${timerMode === 'until-done' ? 'bg-green-500' : 'bg-slate-600'}`}>
                   <div className={`absolute top-[2px] h-[12px] w-[12px] rounded-full bg-white shadow transition-transform duration-200 ${timerMode === 'until-done' ? 'translate-x-[13px]' : 'translate-x-[2px]'}`} />
                 </div>
@@ -267,7 +267,7 @@ export function TimerPage() {
               {/* Timers — same size, separated by / */}
               <div className="flex items-end gap-1">
                 <div className="text-center" title="Time per prayer — click to edit">
-                  <div className="text-[10px] text-slate-500 mb-1">Time Per Prayer</div>
+                  <div className="text-[10px] text-slate-500 mb-1">{t.timePerPrayer}</div>
                   <EditableTime
                     seconds={bigTimerValue}
                     onChangeSeconds={setPrayerIncrement}
@@ -276,7 +276,7 @@ export function TimerPage() {
                 </div>
                 <span className="text-2xl font-light text-slate-600 pb-[1px]">/</span>
                 <div className="text-center" title="Total timebox — click to edit">
-                  <div className="text-[10px] text-slate-500 mb-1">Total Timebox</div>
+                  <div className="text-[10px] text-slate-500 mb-1">{t.totalTimebox}</div>
                   <EditableTime
                     seconds={totalTimerValue}
                     onChangeSeconds={(s) => {
@@ -298,7 +298,7 @@ export function TimerPage() {
                     onClick={handleStart}
                     disabled={!selectedListId || prayers.length === 0}
                     className="rounded-full bg-slate-700 p-2.5 text-slate-100 hover:bg-slate-600 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                    aria-label="Start"
+                    aria-label={t.startTimer}
                   >
                     <Play size={20} />
                   </button>
@@ -306,7 +306,7 @@ export function TimerPage() {
                   <button
                     onClick={handlePause}
                     className="rounded-full bg-slate-700 p-2.5 text-slate-100 hover:bg-slate-600 transition-colors"
-                    aria-label="Pause"
+                    aria-label={t.pauseTimer}
                   >
                     <Pause size={20} />
                   </button>
@@ -314,7 +314,7 @@ export function TimerPage() {
                 <button
                   onClick={handleReset}
                   className="rounded-full bg-slate-700 p-2.5 text-slate-400 hover:bg-slate-600 transition-colors"
-                  aria-label="Reset"
+                  aria-label={t.resetTimer}
                 >
                   <RotateCcw size={20} />
                 </button>
@@ -326,7 +326,7 @@ export function TimerPage() {
         {/* Up next — below the timebox */}
         {upcomingPrayers.length > 0 && (
           <div className="space-y-1">
-            <div className="text-xs text-slate-500 uppercase tracking-wide px-1">Up next</div>
+            <div className="text-xs text-slate-500 uppercase tracking-wide px-1">{t.upNext}</div>
             {upcomingPrayers.slice(0, 6).map((prayer, i) => (
               <div
                 key={prayer.id}
@@ -338,14 +338,14 @@ export function TimerPage() {
             ))}
             {upcomingPrayers.length > 6 && (
               <div className="px-1 text-xs text-slate-600">
-                +{upcomingPrayers.length - 6} more
+                {t.moreItems(upcomingPrayers.length - 6)}
               </div>
             )}
           </div>
         )}
 
         {selectedListId && prayers.length === 0 && (
-          <p className="text-sm text-slate-500 italic pt-2">No prayers in this list yet.</p>
+          <p className="text-sm text-slate-500 italic pt-2">{t.noPrayersInListYet}</p>
         )}
       </div>
     </div>
