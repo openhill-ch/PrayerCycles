@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import { useT } from '../i18n'
+import { useTimer } from '../context/TimerContext'
 import type { PrayerList, Cadence, PersistenceUnit } from '../db/types'
 import { createList, getAllLists } from '../features/cycles/list-operations'
 import { createPrayer } from '../features/prayers/prayer-operations'
@@ -15,6 +16,7 @@ type Mode = 'create-list' | 'add-single'
 
 export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   const { t } = useT()
+  const { refreshLists: refreshTimerLists } = useTimer()
   const [mode, setMode] = useState<Mode>('create-list')
   const [lists, setLists] = useState<PrayerList[]>([])
 
@@ -76,6 +78,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
       listDescription.trim(),
       titles,
     )
+    refreshTimerLists()
     reset()
     onAdded()
     onClose()
