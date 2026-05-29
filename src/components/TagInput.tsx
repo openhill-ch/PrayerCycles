@@ -58,6 +58,17 @@ export function TagInput({ tags, onChange, placeholder, allTags = [], className 
       return
     }
 
+    // iOS auto-corrects double-space to ". " — treat as double-space commit
+    if (val.endsWith('. ') && !input.endsWith('.')) {
+      const tagText = val.slice(0, -2).trim()
+      if (tagText) {
+        commitTag(tagText)
+        return
+      }
+      setInput('')
+      return
+    }
+
     setInput(val)
   }
 

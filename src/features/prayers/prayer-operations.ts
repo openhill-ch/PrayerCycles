@@ -21,6 +21,7 @@ export async function createPrayer(
     totalTimePrayed: 0,
     sortOrder: {},
     tags,
+    fulfilled: false,
   }
   await db.prayers.add(prayer)
 
@@ -88,6 +89,7 @@ export async function bulkCreatePrayers(
         totalTimePrayed: 0,
         sortOrder: {},
         tags: [],
+        fulfilled: false,
       })
       newQueue.push(id)
       if (ghostOffset > 0) offsets[id] = ghostOffset
@@ -209,6 +211,16 @@ export async function addTimePrayed(prayerId: string, seconds: number): Promise<
       totalTimePrayed: (prayer.totalTimePrayed ?? 0) + seconds,
     })
   }
+  snapshotToLocalStorage()
+}
+
+export async function fulfillPrayer(id: string): Promise<void> {
+  await db.prayers.update(id, { fulfilled: true })
+  snapshotToLocalStorage()
+}
+
+export async function unfulfillPrayer(id: string): Promise<void> {
+  await db.prayers.update(id, { fulfilled: false })
   snapshotToLocalStorage()
 }
 

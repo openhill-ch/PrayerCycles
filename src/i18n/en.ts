@@ -194,4 +194,10 @@ export const en: Translations = {
   themeTug: 'Туг (Flag)',
   themeKhentii: 'Хэнтий (Khentii)',
   themeGroupMongolian: 'Mongolian',
+
+  fulfilled: 'Fulfilled',
+  markAsFulfilled: 'Mark as Fulfilled',
+  unfulfill: 'Unfulfill',
+  showFulfilled: 'Show Fulfilled',
+  fulfilledCount: (count) => `${count} fulfilled`,
 }

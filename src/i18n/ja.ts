@@ -194,4 +194,10 @@ export const ja: Translations = {
   themeTug: 'Туг (国旗)',
   themeKhentii: 'Хэнтий (ヘンティー)',
   themeGroupMongolian: 'モンゴル',
+
+  fulfilled: '成就',
+  markAsFulfilled: '成就済みにする',
+  unfulfill: '成就を取り消す',
+  showFulfilled: '成就済みを表示',
+  fulfilledCount: (count) => `${count}件成就`,
 }

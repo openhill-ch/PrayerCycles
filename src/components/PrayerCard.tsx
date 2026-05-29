@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useT } from '../i18n'
 import type { SurfacedPrayer } from '../lib/surfacing'
+import { FormattedText } from './FormattedText'
 
 type PrayerCardProps = {
   surfaced: SurfacedPrayer
@@ -63,7 +64,7 @@ export function PrayerCard({ surfaced, onComplete, autoFlip }: PrayerCardProps) 
           </div>
           <h3 className="text-lg font-semibold text-text">{prayer.title}</h3>
           {prayer.description && (
-            <p className="mt-1 text-sm text-text-secondary whitespace-pre-wrap">{prayer.description}</p>
+            <FormattedText text={prayer.description} className="mt-1 text-sm text-text-secondary" />
           )}
           {tallyLabel && (
             <div className="mt-3 text-xs text-accent-text">{tallyLabel}</div>

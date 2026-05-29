@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 import { useT } from '../i18n'
 import { useTimer } from '../context/TimerContext'
 import { TagInput } from './TagInput'
+import { DescriptionToolbar, useDescriptionKeyDown } from './DescriptionToolbar'
 import type { PrayerList, Cadence, PersistenceUnit } from '../db/types'
 import { createList, getAllLists, UNSCHEDULED_ID } from '../features/cycles/list-operations'
 import { createPrayer } from '../features/prayers/prayer-operations'
@@ -38,6 +39,8 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [selectedListId, setSelectedListId] = useState('')
+  const addDescRef = useRef<HTMLTextAreaElement>(null)
+  const handleDescKeyDown = useDescriptionKeyDown(addDescRef, description, setDescription, 2000)
   const [prayerTags, setPrayerTags] = useState<string[]>([])
 
   useEffect(() => {
@@ -307,15 +310,27 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
               className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted"
               autoFocus
             />
-            <textarea
-              placeholder={t.descriptionOptional}
-              value={description}
-              onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
-              maxLength={2000}
-              rows={3}
-              className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted resize-none"
-            />
-            <div className="text-right text-xs text-text-muted -mt-3">{description.length}/2000</div>
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <DescriptionToolbar
+                  textareaRef={addDescRef}
+                  value={description}
+                  onChange={setDescription}
+                  maxLength={2000}
+                />
+                <span className="text-xs text-text-muted">{description.length}/2000</span>
+              </div>
+              <textarea
+                ref={addDescRef}
+                placeholder={t.descriptionOptional}
+                value={description}
+                onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
+                onKeyDown={handleDescKeyDown}
+                maxLength={2000}
+                rows={3}
+                className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted resize-none"
+              />
+            </div>
 
             {/* Tags */}
             <div>

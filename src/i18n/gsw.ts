@@ -194,4 +194,10 @@ export const gsw: Translations = {
   themeTug: 'Туг (Flagge)',
   themeKhentii: 'Хэнтий (Khentii)',
   themeGroupMongolian: 'Mongolisch',
+
+  fulfilled: 'Erfüllt',
+  markAsFulfilled: 'Als erfüllt markiere',
+  unfulfill: 'Nöd erfüllt',
+  showFulfilled: 'Erfüllti aazeige',
+  fulfilledCount: (count) => `${count} erfüllt`,
 }

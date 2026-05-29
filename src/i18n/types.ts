@@ -198,4 +198,11 @@ export type Translations = {
   themeTug: string
   themeKhentii: string
   themeGroupMongolian: string
+
+  // Fulfilled
+  fulfilled: string
+  markAsFulfilled: string
+  unfulfill: string
+  showFulfilled: string
+  fulfilledCount: (count: number) => string
 }

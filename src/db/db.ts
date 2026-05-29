@@ -49,4 +49,14 @@ db.version(4).stores({
   ])
 })
 
+db.version(5).stores({
+  prayerLists: 'id, name, status, createdAt',
+  prayers: 'id, title, *listIds, createdAt, lastPrayedAt',
+  prayerLogs: 'id, prayerId, listId, prayedAt',
+}).upgrade((tx) => {
+  return tx.table('prayers').toCollection().modify((prayer) => {
+    if (prayer.fulfilled === undefined) prayer.fulfilled = false
+  })
+})
+
 export { db }

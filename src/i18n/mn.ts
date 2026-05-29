@@ -194,4 +194,10 @@ export const mn: Translations = {
   themeTug: 'Туг (Далбаа)',
   themeKhentii: 'Хэнтий (Хэнтий аймаг)',
   themeGroupMongolian: 'Монгол',
+
+  fulfilled: 'Биелсэн',
+  markAsFulfilled: 'Биелсэн гэж тэмдэглэх',
+  unfulfill: 'Биелээгүй болгох',
+  showFulfilled: 'Биелсэн залбирлыг харуулах',
+  fulfilledCount: (count) => `${count} биелсэн`,
 }

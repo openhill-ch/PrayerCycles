@@ -74,10 +74,11 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       })
     } else {
       getPrayersByList(selectedListId).then((p) => {
-        setPrayers(p)
+        const active = p.filter((prayer) => !prayer.fulfilled)
+        setPrayers(active)
         const list = lists.find((l) => l.id === selectedListId)
         const listName = list?.name ?? ''
-        setSurfacedPrayers(p.map((prayer) => ({ prayer, listId: selectedListId, listName })))
+        setSurfacedPrayers(active.map((prayer) => ({ prayer, listId: selectedListId, listName })))
       })
     }
   }, [selectedListId, lists])

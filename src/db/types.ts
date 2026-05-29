@@ -48,6 +48,7 @@ export type Prayer = {
   totalTimePrayed: number
   sortOrder?: Record<string, number>
   tags: string[]
+  fulfilled: boolean
 }
 
 export type PrayerLog = {

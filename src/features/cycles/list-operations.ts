@@ -107,7 +107,19 @@ export async function reactivateList(id: string): Promise<void> {
 }
 
 export async function deleteList(id: string): Promise<void> {
-  await db.prayerLists.update(id, { status: 'deleted', deletedAt: Date.now() })
+  await db.transaction('rw', [db.prayerLists, db.prayers], async () => {
+    await db.prayerLists.update(id, { status: 'deleted', deletedAt: Date.now() })
+    // Remove prayers that only belong to this list
+    const prayers = await db.prayers.where('listIds').equals(id).toArray()
+    for (const prayer of prayers) {
+      const remaining = prayer.listIds.filter((lid) => lid !== id)
+      if (remaining.length === 0) {
+        await db.prayers.delete(prayer.id)
+      } else {
+        await db.prayers.update(prayer.id, { listIds: remaining })
+      }
+    }
+  })
   snapshotToLocalStorage()
 }
 

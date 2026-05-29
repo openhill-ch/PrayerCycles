@@ -195,7 +195,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
           {dropdownOpen && !running && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
-              <div className="absolute left-0 top-full z-50 mt-1 w-full rounded-lg bg-card border border-border shadow-lg overflow-hidden">
+              <div className="absolute left-0 top-full z-50 mt-1 w-full rounded-lg bg-card border border-border shadow-lg overflow-y-auto max-h-64">
                 <button
                   onClick={() => { setSelectedListId(TODAY_ID); setDropdownOpen(false) }}
                   className={`w-full text-left px-4 py-3 text-sm hover:bg-input transition-colors ${

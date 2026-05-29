@@ -38,6 +38,7 @@ export function ListDetailPage() {
   const dragTouchY = useRef<number>(0)
   const listContainerRef = useRef<HTMLDivElement>(null)
   const [confirmResetOrder, setConfirmResetOrder] = useState(false)
+  const [showFulfilled, setShowFulfilled] = useState(false)
 
   function handleSort(mode: SortMode) {
     setSortMode(mode)
@@ -159,7 +160,12 @@ export function ListDetailPage() {
 
   const hasCustomOrder = prayers.some((p) => p.sortOrder?.[id!] !== undefined)
 
+  const fulfilledCount = prayers.filter((p) => p.fulfilled).length
+
   const sortedPrayers = [...prayers].sort((a, b) => {
+    // Fulfilled prayers always sort to the bottom
+    if (a.fulfilled !== b.fulfilled) return a.fulfilled ? 1 : -1
+
     if (sortMode === 'custom' || sortMode === 'original') {
       if (sortMode === 'custom') {
         const aOrder = a.sortOrder?.[id!]
@@ -177,6 +183,9 @@ export function ListDetailPage() {
     return a.createdAt - b.createdAt
   })
 
+  // Filter out fulfilled unless toggle is on
+  const visiblePrayers = showFulfilled ? sortedPrayers : sortedPrayers.filter((p) => !p.fulfilled)
+
   // Drag-and-drop handlers
   function handleDragStart(idx: number) {
     setDragIdx(idx)
@@ -189,7 +198,7 @@ export function ListDetailPage() {
 
   async function handleDrop(idx: number) {
     if (dragIdx === null || dragIdx === idx || !id) { setDragIdx(null); setOverIdx(null); return }
-    const reordered = [...sortedPrayers]
+    const reordered = [...visiblePrayers]
     const [moved] = reordered.splice(dragIdx, 1)
     reordered.splice(idx, 0, moved)
     await reorderPrayers(id, reordered.map((p) => p.id))
@@ -542,8 +551,23 @@ export function ListDetailPage() {
             </div>
           )}
 
+          {/* Show Fulfilled toggle */}
+          {fulfilledCount > 0 && (
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-text-muted">{t.showFulfilled} ({t.fulfilledCount(fulfilledCount)})</span>
+              <button
+                onClick={() => setShowFulfilled(!showFulfilled)}
+                className="flex items-center"
+              >
+                <div className={`relative w-8 h-[18px] rounded-full transition-colors duration-200 ${showFulfilled ? 'bg-toggle' : 'bg-input-hover'}`}>
+                  <div className={`absolute top-[2px] h-[14px] w-[14px] rounded-full bg-white shadow transition-transform duration-200 ${showFulfilled ? 'translate-x-[14px]' : 'translate-x-[2px]'}`} />
+                </div>
+              </button>
+            </div>
+          )}
+
           <div ref={listContainerRef} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
-            {sortedPrayers.map((prayer, idx) => (
+            {visiblePrayers.map((prayer, idx) => (
               <div
                 key={prayer.id}
                 draggable={sortMode === 'custom'}
@@ -561,13 +585,16 @@ export function ListDetailPage() {
                   {sortMode === 'custom' && (
                     <GripVertical size={14} className="text-input-hover shrink-0 cursor-grab" />
                   )}
-                  <span className="truncate">{prayer.title}</span>
+                  <span className={`truncate ${prayer.fulfilled ? 'line-through opacity-50' : ''}`}>{prayer.title}</span>
+                  {prayer.fulfilled && (
+                    <span className="text-[10px] text-accent-text/60 shrink-0">{t.fulfilled}</span>
+                  )}
                 </div>
                 <span className="text-xs text-accent-text ml-2 shrink-0">{prayer.prayerTally}</span>
               </div>
             ))}
           </div>
-          {prayers.length === 0 && (
+          {visiblePrayers.length === 0 && prayers.length === 0 && (
             <p className="text-sm text-text-muted italic pt-2">{t.noPrayersInList}</p>
           )}
         </div>

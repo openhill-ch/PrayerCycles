@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Play, Pause, RotateCcw, Dices, ChevronDown } from 'lucide-react'
+import { FormattedText } from '../components/FormattedText'
 import confetti from 'canvas-confetti'
 import { useTimer, TODAY_ID } from '../context/TimerContext'
 import { useT } from '../i18n'
@@ -46,6 +47,14 @@ function EditableTime({
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter') commitEdit()
     if (e.key === 'Escape') setEditingPart(null)
+    if (e.key === 'Tab' && editingPart === 'min') {
+      e.preventDefault()
+      // Save current min value, switch to editing seconds
+      setEditMin(editMin || String(m))
+      setEditingPart('sec')
+      setEditSec('')
+      setTimeout(() => secRef.current?.focus(), 0)
+    }
   }
 
   const clickClass = disabled ? '' : 'cursor-pointer hover:text-accent-hover transition-colors'
@@ -224,7 +233,7 @@ export function TimerPage() {
           {localDropdown && !running && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setLocalDropdown(false)} />
-              <div className="absolute z-50 mt-1 w-full rounded-lg bg-card border border-border shadow-lg overflow-hidden">
+              <div className="absolute z-50 mt-1 w-full rounded-lg bg-card border border-border shadow-lg overflow-y-auto max-h-72">
                 <button
                   onClick={() => { setSelectedListId(TODAY_ID); setLocalDropdown(false) }}
                   className={`w-full text-left px-4 py-3 text-sm hover:bg-input transition-colors ${
@@ -268,7 +277,7 @@ export function TimerPage() {
                   )}
                   <h3 className="text-lg font-semibold text-text">{currentPrayer.title}</h3>
                   {currentPrayer.description && (
-                    <p className="mt-2 text-sm text-text-secondary whitespace-pre-wrap">{currentPrayer.description}</p>
+                    <FormattedText text={currentPrayer.description} className="mt-2 text-sm text-text-secondary" />
                   )}
                 </div>
               ) : (
@@ -316,6 +325,10 @@ export function TimerPage() {
                         setTimerMode('custom')
                         setCustomMinutes(Math.max(1, Math.ceil(s / 60)))
                         setTimeLeft(s)
+                        // Auto-adjust time per prayer to fit evenly
+                        if (prayers.length > 0) {
+                          setPrayerIncrement(Math.max(1, Math.floor(s / prayers.length)))
+                        }
                       }
                     }}
                     disabled={running}

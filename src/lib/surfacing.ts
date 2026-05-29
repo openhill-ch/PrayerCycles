@@ -62,7 +62,7 @@ async function pickLeastPrayed(queue: string[], offsets: Record<string, number> 
   if (queue.length === 0) return undefined
 
   const prayers = await Promise.all(queue.map((id) => db.prayers.get(id)))
-  const valid = prayers.filter((p): p is Prayer => p !== undefined)
+  const valid = prayers.filter((p): p is Prayer => p !== undefined && !p.fulfilled)
   if (valid.length === 0) return undefined
 
   // Use effective tally (real + ghost offset) for comparison
