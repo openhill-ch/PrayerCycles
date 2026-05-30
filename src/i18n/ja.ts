@@ -192,9 +192,9 @@ export const ja: Translations = {
   themeNuudelchin: 'Нүүдэлчин (遊牧民)',
   themeTal: 'Тал (草原)',
   themeKhentii: 'Хэнтий (ヘンティー)',
-  themeAdelboden: 'アーデルボーデンの冬',
-  themeFruehling: 'スイスの春',
-  themeThun: 'トゥーン湖',
+  themeAdelboden: 'Winter z Adelbode (アーデルボーデンの冬)',
+  themeFruehling: 'Schwizer Früehlig (スイスの春)',
+  themeThun: 'Thunersee (トゥーン湖)',
   themeGroupMongolian: 'モンゴル',
   themeGroupSwiss: 'スイス',
 

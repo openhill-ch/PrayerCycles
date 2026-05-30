@@ -192,9 +192,9 @@ export const en: Translations = {
   themeNuudelchin: 'Нүүдэлчин (Nomad)',
   themeTal: 'Тал (Steppe)',
   themeKhentii: 'Хэнтий (Khentii)',
-  themeAdelboden: 'Winter in Adelboden',
-  themeFruehling: 'Switzerland Spring',
-  themeThun: 'Lake Thun',
+  themeAdelboden: 'Winter z Adelbode (Winter in Adelboden)',
+  themeFruehling: 'Schwizer Früehlig (Switzerland Spring)',
+  themeThun: 'Thunersee (Lake Thun)',
   themeGroupMongolian: 'Mongolian',
   themeGroupSwiss: 'Swiss',
 

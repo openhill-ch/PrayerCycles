@@ -58,7 +58,7 @@ export const themes: ThemeDef[] = [
   {
     id: 'thun',
     labelKey: 'themeThun',
-    swatches: ['#4a5668', '#8a8e92', '#38b0b8'],
+    swatches: ['#8a8e92', '#4a5668', '#38b0b8'],
     group: 'swiss',
   },
 ]

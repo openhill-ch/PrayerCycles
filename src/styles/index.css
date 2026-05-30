@@ -228,21 +228,21 @@
 
 /* ═══════════════════════════════════════
    Thun — Lake Thun
-   Dusky blue-gray twilight, warm castle
-   stone cards, lake teal accent
+   Stone gray background, dusky blue-gray
+   cards, lake teal accent
    ═══════════════════════════════════════ */
 [data-theme="thun"] {
-  --t-base: #4a5668;
-  --t-card: #8a8e92;
+  --t-base: #8a8e92;
+  --t-card: #4a5668;
   --t-input: #5c6878;
   --t-input-hover: #6e7a8a;
   --t-overlay: rgba(0,0,0,0.40);
   --t-border: #3e4a5a;
-  --t-border-light: #7a8494;
+  --t-border-light: #6a7080;
   --t-text: #f0ede8;
-  --t-text-secondary: #e4e0da;
-  --t-text-tertiary: #c0c4ca;
-  --t-text-muted: #c8ccd0;
+  --t-text-secondary: #e0dcd6;
+  --t-text-tertiary: #d0ccc6;
+  --t-text-muted: #dedad4;
   --t-accent: #38b0b8;
   --t-accent-text: #60d0d8;
   --t-accent-hover: #90e4e8;

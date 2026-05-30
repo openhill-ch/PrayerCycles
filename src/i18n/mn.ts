@@ -192,9 +192,9 @@ export const mn: Translations = {
   themeNuudelchin: 'Нүүдэлчин (Nomad)',
   themeTal: 'Тал (Тал нутаг)',
   themeKhentii: 'Хэнтий (Хэнтий аймаг)',
-  themeAdelboden: 'Адельбодены өвөл',
-  themeFruehling: 'Швейцарын хавар',
-  themeThun: 'Тун нуур',
+  themeAdelboden: 'Winter z Adelbode (Адельбодены өвөл)',
+  themeFruehling: 'Schwizer Früehlig (Швейцарын хавар)',
+  themeThun: 'Thunersee (Тун нуур)',
   themeGroupMongolian: 'Монгол',
   themeGroupSwiss: 'Швейцар',
 
