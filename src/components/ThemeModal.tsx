@@ -11,7 +11,7 @@ type ThemeModalProps = {
 export function ThemeModal({ open, onClose }: ThemeModalProps) {
   const { t } = useT()
   const [current, setCurrent] = useState<ThemeId>(getSavedTheme)
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({ mongolian: true })
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({ mongolian: true, swiss: true })
 
   function select(id: ThemeId) {
     applyTheme(id)

@@ -15,7 +15,9 @@ const EditableTime = forwardRef<EditableTimeHandle, {
   onChangeSeconds: (s: number) => void
   disabled: boolean
   onTabForward?: () => void
-}>(function EditableTime({ seconds, onChangeSeconds, disabled, onTabForward }, ref) {
+  millis?: number | null
+  fontFamily?: string
+}>(function EditableTime({ seconds, onChangeSeconds, disabled, onTabForward, millis, fontFamily }, ref) {
   const [editingPart, setEditingPart] = useState<'min' | 'sec' | null>(null)
   const [editMin, setEditMin] = useState('')
   const [editSec, setEditSec] = useState('')
@@ -78,6 +80,8 @@ const EditableTime = forwardRef<EditableTimeHandle, {
 
   const clickClass = disabled ? '' : 'cursor-pointer hover:text-accent-hover transition-colors'
 
+  const fontStyle = fontFamily ? { fontFamily } : undefined
+
   return (
     <div className="flex items-center gap-0.5 justify-center" onBlur={(e) => {
       if (editingPart && !e.currentTarget.contains(e.relatedTarget)) commitEdit()
@@ -90,18 +94,20 @@ const EditableTime = forwardRef<EditableTimeHandle, {
           value={editMin}
           onChange={(e) => setEditMin(e.target.value.replace(/\D/g, ''))}
           onKeyDown={handleKeyDown}
-          className="w-14 text-2xl font-mono font-bold rounded bg-input px-1 py-0.5 text-text text-center outline-none focus:ring-2 focus:ring-accent"
+          style={fontStyle}
+          className="w-14 text-2xl font-bold rounded bg-input px-1 py-0.5 text-text text-center outline-none focus:ring-2 focus:ring-accent"
         />
       ) : (
         <span
           onClick={() => startEdit('min')}
-          className={`text-3xl font-mono font-bold text-text tracking-wider ${clickClass}`}
+          style={fontStyle}
+          className={`text-3xl font-bold text-text tracking-wider ${clickClass}`}
           title={disabled ? undefined : 'Click to edit minutes'}
         >
-          {m}
+          {String(m).padStart(2, '0')}
         </span>
       )}
-      <span className="text-3xl font-mono font-bold text-text-muted">:</span>
+      <span className="text-3xl font-bold text-text-muted" style={fontStyle}>:</span>
       {editingPart === 'sec' ? (
         <input
           ref={secRef}
@@ -110,15 +116,22 @@ const EditableTime = forwardRef<EditableTimeHandle, {
           value={editSec}
           onChange={(e) => setEditSec(e.target.value.replace(/\D/g, ''))}
           onKeyDown={handleKeyDown}
-          className="w-14 text-2xl font-mono font-bold rounded bg-input px-1 py-0.5 text-text text-center outline-none focus:ring-2 focus:ring-accent"
+          style={fontStyle}
+          className="w-14 text-2xl font-bold rounded bg-input px-1 py-0.5 text-text text-center outline-none focus:ring-2 focus:ring-accent"
         />
       ) : (
         <span
           onClick={() => startEdit('sec')}
-          className={`text-3xl font-mono font-bold text-text tracking-wider ${clickClass}`}
+          style={fontStyle}
+          className={`text-3xl font-bold text-text tracking-wider ${clickClass}`}
           title={disabled ? undefined : 'Click to edit seconds'}
         >
           {String(s).padStart(2, '0')}
+        </span>
+      )}
+      {millis != null && (
+        <span className="text-3xl font-bold text-text" style={fontStyle}>
+          .{Math.floor(millis / 100)}
         </span>
       )}
     </div>
@@ -194,12 +207,16 @@ export function TimerPage() {
   useEffect(() => {
     if (!devMode || !running) { setMillis(0); return }
     lastTickRef.current = performance.now()
+    let lastTenth = -1
     let rafId: number
     function tick() {
       const now = performance.now()
       const elapsed = now - lastTickRef.current
-      // Reset every 1000ms (syncs with the 1s timer tick)
-      setMillis(Math.floor(elapsed % 1000))
+      const tenth = Math.floor((elapsed % 1000) / 100)
+      if (tenth !== lastTenth) {
+        lastTenth = tenth
+        setMillis(tenth * 100)
+      }
       rafId = requestAnimationFrame(tick)
     }
     rafId = requestAnimationFrame(tick)
@@ -210,6 +227,8 @@ export function TimerPage() {
   useEffect(() => {
     if (running) lastTickRef.current = performance.now()
   }, [timeLeft, running])
+
+  const timerFont = devMode ? "'DSEG7 Italic', monospace" : ''
 
   const isToday = selectedListId === TODAY_ID
   const selectedList = isToday ? null : lists.find((l) => l.id === selectedListId)
@@ -335,8 +354,8 @@ export function TimerPage() {
                 </div>
               </button>
 
-              {/* Timers — same size, separated by / */}
-              <div className="flex items-end gap-1">
+              {/* Timers — stacked */}
+              <div className="flex flex-col items-center gap-1">
                 <div className="text-center" title="Time per prayer — click to edit">
                   <div className="text-[10px] text-text-muted mb-1">{t.timePerPrayer}</div>
                   <EditableTime
@@ -344,9 +363,10 @@ export function TimerPage() {
                     onChangeSeconds={setPrayerIncrement}
                     disabled={running}
                     onTabForward={() => totalTimeRef.current?.startEditMin()}
+                    millis={devMode ? (running ? Math.max(0, 990 - millis) : 0) : null}
+                    fontFamily={timerFont || undefined}
                   />
                 </div>
-                <span className="text-2xl font-light text-border-light pb-[1px]">/</span>
                 <div className="text-center" title="Total timebox — click to edit">
                   <div className="text-[10px] text-text-muted mb-1">{t.totalTimebox}</div>
                   <EditableTime
@@ -363,18 +383,11 @@ export function TimerPage() {
                       }
                     }}
                     disabled={running}
+                    millis={devMode ? (running ? Math.max(0, 990 - millis) : 0) : null}
+                    fontFamily={timerFont || undefined}
                   />
                 </div>
               </div>
-
-              {/* Dev Mode milliseconds */}
-              {devMode && (
-                <div className="text-center -mt-1">
-                  <span className="text-lg font-mono text-accent-text/70">
-                    .{String(millis).padStart(3, '0')}
-                  </span>
-                </div>
-              )}
 
               {/* Controls */}
               <div className="flex gap-2">
@@ -432,6 +445,7 @@ export function TimerPage() {
         {selectedListId && prayers.length === 0 && (
           <p className="text-sm text-text-muted italic pt-2">{t.noPrayersInListYet}</p>
         )}
+
       </div>
     </div>
   )

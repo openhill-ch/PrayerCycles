@@ -194,11 +194,13 @@ export type Translations = {
   // Themes
   themeSlate: string
   themeNuudelchin: string
-  themeAltan: string
   themeTal: string
-  themeTug: string
   themeKhentii: string
+  themeAdelboden: string
+  themeFruehling: string
+  themeThun: string
   themeGroupMongolian: string
+  themeGroupSwiss: string
 
   // Fulfilled
   fulfilled: string

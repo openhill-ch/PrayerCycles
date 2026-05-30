@@ -190,11 +190,13 @@ export const ja: Translations = {
 
   themeSlate: 'Default',
   themeNuudelchin: 'Нүүдэлчин (遊牧民)',
-  themeAltan: 'Алтан (黄金)',
   themeTal: 'Тал (草原)',
-  themeTug: 'Туг (国旗)',
   themeKhentii: 'Хэнтий (ヘンティー)',
+  themeAdelboden: 'アーデルボーデンの冬',
+  themeFruehling: 'スイスの春',
+  themeThun: 'トゥーン湖',
   themeGroupMongolian: 'モンゴル',
+  themeGroupSwiss: 'スイス',
 
   fulfilled: '成就',
   markAsFulfilled: '成就済みにする',

@@ -190,11 +190,13 @@ export const mn: Translations = {
 
   themeSlate: 'Default',
   themeNuudelchin: 'Нүүдэлчин (Nomad)',
-  themeAltan: 'Алтан (Алт)',
   themeTal: 'Тал (Тал нутаг)',
-  themeTug: 'Туг (Далбаа)',
   themeKhentii: 'Хэнтий (Хэнтий аймаг)',
+  themeAdelboden: 'Адельбодены өвөл',
+  themeFruehling: 'Швейцарын хавар',
+  themeThun: 'Тун нуур',
   themeGroupMongolian: 'Монгол',
+  themeGroupSwiss: 'Швейцар',
 
   fulfilled: 'Биелсэн',
   markAsFulfilled: 'Биелсэн гэж тэмдэглэх',

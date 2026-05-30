@@ -190,11 +190,13 @@ export const gsw: Translations = {
 
   themeSlate: 'Default',
   themeNuudelchin: 'Нүүдэлчин (Nomade)',
-  themeAltan: 'Алтан (Golden)',
   themeTal: 'Тал (Steppe)',
-  themeTug: 'Туг (Flagge)',
   themeKhentii: 'Хэнтий (Khentii)',
+  themeAdelboden: 'Winter z Adelbode',
+  themeFruehling: 'Schwizer Früehlig',
+  themeThun: 'Thunersee',
   themeGroupMongolian: 'Mongolisch',
+  themeGroupSwiss: 'Schwiz',
 
   fulfilled: 'Erfüllt',
   markAsFulfilled: 'Als erfüllt markiere',

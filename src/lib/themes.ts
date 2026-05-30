@@ -1,6 +1,6 @@
-export type ThemeId = 'slate' | 'nuudelchin' | 'altan' | 'tal' | 'tug' | 'khentii'
+export type ThemeId = 'slate' | 'nuudelchin' | 'tal' | 'khentii' | 'adelboden' | 'fruehling' | 'thun'
 
-export type ThemeGroup = 'default' | 'mongolian'
+export type ThemeGroup = 'default' | 'mongolian' | 'swiss'
 
 export type ThemeDef = {
   id: ThemeId
@@ -15,6 +15,7 @@ export type ThemeDef = {
 export const themeGroups: { id: ThemeGroup; labelKey: string }[] = [
   { id: 'default', labelKey: '' },
   { id: 'mongolian', labelKey: 'themeGroupMongolian' },
+  { id: 'swiss', labelKey: 'themeGroupSwiss' },
 ]
 
 export const themes: ThemeDef[] = [
@@ -31,21 +32,9 @@ export const themes: ThemeDef[] = [
     group: 'mongolian',
   },
   {
-    id: 'altan',
-    labelKey: 'themeAltan',
-    swatches: ['#0a0e1e', '#121832', '#d4a42c'],
-    group: 'mongolian',
-  },
-  {
     id: 'tal',
     labelKey: 'themeTal',
     swatches: ['#0c1410', '#162118', '#6aad5a'],
-    group: 'mongolian',
-  },
-  {
-    id: 'tug',
-    labelKey: 'themeTug',
-    swatches: ['#041a38', '#0a2650', '#c4272f'],
     group: 'mongolian',
   },
   {
@@ -53,6 +42,24 @@ export const themes: ThemeDef[] = [
     labelKey: 'themeKhentii',
     swatches: ['#0b1214', '#13202a', '#3a9e8a'],
     group: 'mongolian',
+  },
+  {
+    id: 'adelboden',
+    labelKey: 'themeAdelboden',
+    swatches: ['#ffffff', '#dce8f0', '#2a7a9c'],
+    group: 'swiss',
+  },
+  {
+    id: 'fruehling',
+    labelKey: 'themeFruehling',
+    swatches: ['#c8e0a0', '#fdf5e6', '#b07c18'],
+    group: 'swiss',
+  },
+  {
+    id: 'thun',
+    labelKey: 'themeThun',
+    swatches: ['#4a5668', '#8a8e92', '#38b0b8'],
+    group: 'swiss',
   },
 ]
 
