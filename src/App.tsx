@@ -8,6 +8,7 @@ import { AddModal } from './components/AddModal'
 import { ExportImportModal } from './components/ExportImportModal'
 import { LanguageModal } from './components/LanguageModal'
 import { ThemeModal } from './components/ThemeModal'
+import { ResetDataModal } from './components/ResetDataModal'
 import { TimerProvider } from './context/TimerContext'
 import { checkAndRestoreFromLocalStorage } from './features/backup/local-backup'
 import { purgeExpiredLists, ensureUnscheduledList } from './features/cycles/list-operations'
@@ -27,6 +28,7 @@ function AppContent() {
   const [exportOpen, setExportOpen] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
   const [themeOpen, setThemeOpen] = useState(false)
+  const [resetOpen, setResetOpen] = useState(false)
 
   useEffect(() => {
     applyTheme(getSavedTheme())
@@ -49,6 +51,7 @@ function AppContent() {
           onExportImport={() => setExportOpen(true)}
           onLanguages={() => setLangOpen(true)}
           onThemes={() => setThemeOpen(true)}
+          onResetData={() => setResetOpen(true)}
         />
         <Routes>
           <Route path="/" element={<TapPrayPage />} />
@@ -72,7 +75,8 @@ function AppContent() {
         <ExportImportModal open={exportOpen} onClose={() => setExportOpen(false)} />
         <LanguageModal open={langOpen} onClose={() => setLangOpen(false)} />
         <ThemeModal open={themeOpen} onClose={() => setThemeOpen(false)} />
-        <BottomNav />
+        <ResetDataModal open={resetOpen} onClose={() => setResetOpen(false)} />
+        <BottomNav onNavigate={() => setMenuOpen(false)} />
       </div>
       </TimerProvider>
   )

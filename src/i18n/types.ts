@@ -202,6 +202,18 @@ export type Translations = {
   themeGroupMongolian: string
   themeGroupSwiss: string
 
+  // Reset data
+  resetAll: string
+  resetAllDesc: string
+  resetStats: string
+  resetStatsDesc: string
+  resetHistory: string
+  resetHistoryDesc: string
+  resetTags: string
+  resetTagsDesc: string
+  resetConfirmTap: string
+  resetSuccess: string
+
   // Fulfilled
   fulfilled: string
   markAsFulfilled: string

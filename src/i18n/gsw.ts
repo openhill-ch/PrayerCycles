@@ -198,6 +198,17 @@ export const gsw: Translations = {
   themeGroupMongolian: 'Mongolisch',
   themeGroupSwiss: 'Schwiz',
 
+  resetAll: 'Alli Gebetsdate lösche',
+  resetAllDesc: 'Komplett-Reset — löscht alli Lischte, Gebät, Gschicht und Tags.',
+  resetStats: 'Gebetsstatistike lösche',
+  resetStatsDesc: 'Setzt Gebetszähler und Gebetszit uf Null zrugg.',
+  resetHistory: 'Gebetsgschicht lösche',
+  resetHistoryDesc: 'Löscht s Gebetsprotokoll.',
+  resetTags: 'Gebets-Tags lösche',
+  resetTagsDesc: 'Entfernt alli Tags vo Gebät und Lischte.',
+  resetConfirmTap: 'Nomol tippe zum bestätige',
+  resetSuccess: 'Date erfolgriich zrugggsetzt!',
+
   fulfilled: 'Erfüllt',
   markAsFulfilled: 'Als erfüllt markiere',
   unfulfill: 'Nöd erfüllt',

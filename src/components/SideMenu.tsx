@@ -10,9 +10,10 @@ type SideMenuProps = {
   onExportImport: () => void
   onLanguages: () => void
   onThemes: () => void
+  onResetData: () => void
 }
 
-export function SideMenu({ open, onClose, onExportImport, onLanguages, onThemes }: SideMenuProps) {
+export function SideMenu({ open, onClose, onExportImport, onLanguages, onThemes, onResetData }: SideMenuProps) {
   const navigate = useNavigate()
   const { t } = useT()
   const [devOn, setDevOn] = useState(isDevMode)
@@ -105,7 +106,7 @@ export function SideMenu({ open, onClose, onExportImport, onLanguages, onThemes 
           </button>
 
           <button
-            onClick={() => {/* TODO: wire up reset */}}
+            onClick={() => onResetData()}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-danger-text hover:bg-input transition-colors"
           >
             <Trash2 size={18} />

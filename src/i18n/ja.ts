@@ -198,6 +198,17 @@ export const ja: Translations = {
   themeGroupMongolian: 'モンゴル',
   themeGroupSwiss: 'スイス',
 
+  resetAll: 'すべての祈りデータを削除',
+  resetAllDesc: '完全リセット — すべてのリスト、祈り、履歴、タグを削除します。',
+  resetStats: '祈りの統計を削除',
+  resetStatsDesc: '祈り回数と祈り時間をゼロに戻します。',
+  resetHistory: '祈りの履歴を削除',
+  resetHistoryDesc: '祈りの履歴ログを消去します。',
+  resetTags: '祈りのタグを削除',
+  resetTagsDesc: '祈りとリストからすべてのタグを削除します。',
+  resetConfirmTap: 'もう一度タップして確認',
+  resetSuccess: 'データがリセットされました！',
+
   fulfilled: '成就',
   markAsFulfilled: '成就済みにする',
   unfulfill: '成就を取り消す',

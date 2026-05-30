@@ -2,7 +2,11 @@ import { NavLink } from 'react-router-dom'
 import { Square, ScrollText, Clock, Hash } from 'lucide-react'
 import { useT } from '../i18n'
 
-export function BottomNav() {
+type BottomNavProps = {
+  onNavigate?: () => void
+}
+
+export function BottomNav({ onNavigate }: BottomNavProps) {
   const { t } = useT()
 
   const tabs = [
@@ -20,6 +24,7 @@ export function BottomNav() {
             key={to}
             to={to}
             end={to === '/'}
+            onClick={onNavigate}
             className={({ isActive }) =>
               `flex flex-1 flex-col items-center gap-1 pt-3 pb-6 text-xs transition-colors ${
                 isActive ? 'text-text' : 'text-text-muted hover:text-text-secondary'

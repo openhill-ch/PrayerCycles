@@ -198,6 +198,17 @@ export const en: Translations = {
   themeGroupMongolian: 'Mongolian',
   themeGroupSwiss: 'Swiss',
 
+  resetAll: 'Remove All Prayer Data',
+  resetAllDesc: 'Complete reset — removes all lists, prayers, history, and tags.',
+  resetStats: 'Remove Prayer Stats',
+  resetStatsDesc: 'Resets prayer counts and time prayed back to zero.',
+  resetHistory: 'Remove Prayer History',
+  resetHistoryDesc: 'Clears the prayer history log.',
+  resetTags: 'Remove Prayer Tags',
+  resetTagsDesc: 'Removes all tags from prayers and lists.',
+  resetConfirmTap: 'Tap again to confirm',
+  resetSuccess: 'Data reset successfully!',
+
   fulfilled: 'Fulfilled',
   markAsFulfilled: 'Mark as Fulfilled',
   unfulfill: 'Unfulfill',

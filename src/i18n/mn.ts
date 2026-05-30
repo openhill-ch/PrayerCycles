@@ -198,6 +198,17 @@ export const mn: Translations = {
   themeGroupMongolian: 'Монгол',
   themeGroupSwiss: 'Швейцар',
 
+  resetAll: 'Бүх залбирлын өгөгдлийг устгах',
+  resetAllDesc: 'Бүрэн шинэчлэл — бүх жагсаалт, залбирал, түүх, шошгыг устгана.',
+  resetStats: 'Залбирлын статистикийг устгах',
+  resetStatsDesc: 'Залбирлын тоолуур болон хугацааг тэглэнэ.',
+  resetHistory: 'Залбирлын түүхийг устгах',
+  resetHistoryDesc: 'Залбирлын түүхийн бүртгэлийг цэвэрлэнэ.',
+  resetTags: 'Залбирлын шошгыг устгах',
+  resetTagsDesc: 'Залбирал болон жагсаалтаас бүх шошгыг хасна.',
+  resetConfirmTap: 'Баталгаажуулахын тулд дахин товш',
+  resetSuccess: 'Өгөгдөл амжилттай шинэчлэгдлээ!',
+
   fulfilled: 'Биелсэн',
   markAsFulfilled: 'Биелсэн гэж тэмдэглэх',
   unfulfill: 'Биелээгүй болгох',
