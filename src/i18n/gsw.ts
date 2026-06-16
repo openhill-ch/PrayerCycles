@@ -94,6 +94,7 @@ export const gsw: Translations = {
   sortMostPrayed: 'Am meischte bätet',
   sortLeastPrayed: 'Am wenigschte bätet',
   noPrayersInList: 'No kei Gebät i dere Lischte.',
+  prayNow: 'Jetzt bäte',
 
   newPrayerList: '+ Gebetslischte',
   newPrayer: '+ Gebet',

@@ -67,7 +67,7 @@ export async function renameTag(oldName: string, newName: string): Promise<void>
     for (const list of lists) {
       if ((list.tags ?? []).includes(oldName)) {
         const updated = (list.tags ?? []).map((t) => (t === oldName ? trimmed : t))
-        await db.prayerLists.update(list.id, { tags: [...new Set(updated)] })
+        await db.prayerLists.put({ ...list, tags: [...new Set(updated)] })
       }
     }
 
@@ -75,7 +75,7 @@ export async function renameTag(oldName: string, newName: string): Promise<void>
     for (const prayer of prayers) {
       if ((prayer.tags ?? []).includes(oldName)) {
         const updated = (prayer.tags ?? []).map((t) => (t === oldName ? trimmed : t))
-        await db.prayers.update(prayer.id, { tags: [...new Set(updated)] })
+        await db.prayers.put({ ...prayer, tags: [...new Set(updated)] })
       }
     }
   })
@@ -91,18 +91,14 @@ export async function deleteTag(tagName: string): Promise<void> {
     const lists = await db.prayerLists.toArray()
     for (const list of lists) {
       if ((list.tags ?? []).includes(tagName)) {
-        await db.prayerLists.update(list.id, {
-          tags: (list.tags ?? []).filter((t) => t !== tagName),
-        })
+        await db.prayerLists.put({ ...list, tags: (list.tags ?? []).filter((t) => t !== tagName) })
       }
     }
 
     const prayers = await db.prayers.toArray()
     for (const prayer of prayers) {
       if ((prayer.tags ?? []).includes(tagName)) {
-        await db.prayers.update(prayer.id, {
-          tags: (prayer.tags ?? []).filter((t) => t !== tagName),
-        })
+        await db.prayers.put({ ...prayer, tags: (prayer.tags ?? []).filter((t) => t !== tagName) })
       }
     }
   })

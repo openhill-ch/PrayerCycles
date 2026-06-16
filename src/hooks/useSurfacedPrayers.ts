@@ -52,10 +52,14 @@ export function useSurfacedPrayers() {
     })
 
     const { prayer } = last.surfaced
-    await db.prayers.update(prayer.id, {
-      lastPrayedAt: prayer.lastPrayedAt,
-      prayerTally: prayer.prayerTally,
-    })
+    const current = await db.prayers.get(prayer.id)
+    if (current) {
+      await db.prayers.put({
+        ...current,
+        lastPrayedAt: prayer.lastPrayedAt,
+        prayerTally: prayer.prayerTally,
+      })
+    }
 
     const logs = await db.prayerLogs
       .where('prayerId')

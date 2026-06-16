@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Trash2, GripVertical } from 'lucide-react'
+import { ArrowLeft, Trash2, GripVertical, Timer } from 'lucide-react'
 import type { PrayerList, Prayer, Cadence, PersistenceUnit } from '../db/types'
 import { getList, updateList, deleteList, archiveList, reactivateList } from '../features/cycles/list-operations'
 import { getPrayersByList, createPrayer, bulkCreatePrayers, reorderPrayers, resetPrayerOrder } from '../features/prayers/prayer-operations'
@@ -14,7 +14,7 @@ export function ListDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { t } = useT()
-  const { refreshLists: refreshTimerLists } = useTimer()
+  const { refreshLists: refreshTimerLists, setSelectedListId } = useTimer()
   const [list, setList] = useState<PrayerList | null>(null)
   const [prayers, setPrayers] = useState<Prayer[]>([])
   const [selectedPrayer, setSelectedPrayer] = useState<Prayer | null>(null)
@@ -423,12 +423,25 @@ export function ListDetailPage() {
                 </div>
               )}
               <div className="mt-3 flex items-center justify-between">
-                <button
-                  onClick={() => setEditing(true)}
-                  className="rounded-lg border border-border-light bg-input px-3 py-1 text-sm text-text-secondary hover:bg-input-hover transition-colors"
-                >
-                  {t.edit}
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setEditing(true)}
+                    className="rounded-lg border border-border-light bg-input px-3 py-1 text-sm text-text-secondary hover:bg-input-hover transition-colors"
+                  >
+                    {t.edit}
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!id) return
+                      setSelectedListId(id)
+                      navigate('/timer')
+                    }}
+                    className="flex items-center gap-1.5 rounded-lg bg-accent/15 px-3 py-1 text-sm font-medium text-accent-text hover:bg-accent/25 transition-colors"
+                  >
+                    <Timer size={14} />
+                    {t.prayNow}
+                  </button>
+                </div>
                 <div>
                   {!confirmDelete ? (
                     <button

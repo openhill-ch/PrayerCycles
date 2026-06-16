@@ -44,7 +44,21 @@ function saveKeyWeb(key: Uint8Array): void {
   localStorage.setItem(KEY_STORAGE_NAME, uint8ToBase64(key))
 }
 
-export async function initEncryption(): Promise<void> {
+let _initPromise: Promise<void> | null = null
+
+export function initEncryption(): Promise<void> {
+  // Single-flight: React StrictMode double-invokes startup effects;
+  // both calls must share one init so the key is only generated once.
+  if (!_initPromise) {
+    _initPromise = doInitEncryption().catch((err) => {
+      _initPromise = null
+      throw err
+    })
+  }
+  return _initPromise
+}
+
+async function doInitEncryption(): Promise<void> {
   const isNative = Capacitor.isNativePlatform()
 
   let key: Uint8Array | null = null

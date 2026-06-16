@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react'
-import { Play, Pause, RotateCcw, Dices, ChevronDown } from 'lucide-react'
+import { Play, Pause, RotateCcw, Dices, ChevronDown, Volume2, VolumeX } from 'lucide-react'
 import { FormattedText } from '../components/FormattedText'
 import confetti from 'canvas-confetti'
 import { useTimer, TODAY_ID } from '../context/TimerContext'
@@ -152,6 +152,7 @@ export function TimerPage() {
     totalTime,
     currentIndex,
     incrementTimeLeft,
+    transitionSound,
     setSelectedListId,
     setPrayerIncrement,
     setTimerMode,
@@ -162,6 +163,7 @@ export function TimerPage() {
     handleReset,
     pickRandom,
     refreshLists,
+    cycleTransitionSound,
   } = useTimer()
 
   const timeboxRef = useRef<HTMLDivElement>(null)
@@ -305,20 +307,49 @@ export function TimerPage() {
 
         {/* Timebox */}
         <div ref={timeboxRef} className="relative z-10 rounded-lg bg-card border-2 border-accent-text/80 shadow-[0_0_14px_var(--color-accent-glow)] overflow-hidden">
-          <div className="flex min-h-[240px]">
+          <div className="flex min-h-[240px] max-h-[55vh]">
 
             {/* Left: current prayer with description */}
-            <div className="flex-1 p-4 overflow-y-auto border-r border-border break-words">
+            <div className="flex-1 flex flex-col p-4 overflow-y-auto border-r border-border break-words">
               {currentPrayer ? (
-                <div>
-                  {running && (
-                    <div className="text-xs text-accent-text uppercase tracking-wide mb-1">{t.nowPraying}</div>
-                  )}
-                  <h3 className="text-lg font-semibold text-text">{currentPrayer.title}</h3>
-                  {currentPrayer.description && (
-                    <FormattedText text={currentPrayer.description} className="mt-2 text-sm text-text-secondary" />
-                  )}
-                </div>
+                <>
+                  <div className="flex-1">
+                    {running && (
+                      <div className="text-xs text-accent-text uppercase tracking-wide mb-1">{t.nowPraying}</div>
+                    )}
+                    {/* List name the prayer belongs to */}
+                    {(() => {
+                      const parentList = currentPrayer.listIds
+                        .map((lid) => lists.find((l) => l.id === lid))
+                        .find((l) => l !== undefined)
+                      return parentList ? (
+                        <div className="text-[11px] text-text-muted mb-0.5">{parentList.name}</div>
+                      ) : null
+                    })()}
+                    <h3 className="text-lg font-semibold text-text">{currentPrayer.title}</h3>
+                    {currentPrayer.description && (
+                      <FormattedText text={currentPrayer.description} className="mt-2 text-sm text-text-secondary" />
+                    )}
+                  </div>
+                  {/* Tags at the bottom — prayer's own tags + parent list tags */}
+                  {(() => {
+                    const tagSet = new Set<string>(currentPrayer.tags ?? [])
+                    for (const lid of currentPrayer.listIds) {
+                      const parentList = lists.find((l) => l.id === lid)
+                      if (parentList) for (const t of parentList.tags ?? []) tagSet.add(t)
+                    }
+                    const allTags = [...tagSet]
+                    return allTags.length > 0 ? (
+                      <div className="mt-3 flex flex-wrap gap-1">
+                        {allTags.map((tag) => (
+                          <span key={tag} className="rounded-full bg-input px-2 py-0.5 text-[10px] text-text-muted">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null
+                  })()}
+                </>
               ) : (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-sm text-text-muted italic text-center">
@@ -330,6 +361,16 @@ export function TimerPage() {
 
             {/* Right: timers + controls */}
             <div className="relative w-56 flex flex-col items-center justify-center gap-3 p-4">
+
+              {/* Transition sound — top left corner */}
+              <button
+                onClick={cycleTransitionSound}
+                className="absolute top-3 left-2 flex items-center gap-1"
+                title={transitionSound ?? 'No Sound'}
+              >
+                {transitionSound ? <Volume2 size={12} className="text-text-muted" /> : <VolumeX size={12} className="text-text-muted" />}
+                <span className="text-[9px] text-text-muted whitespace-nowrap">{transitionSound ?? 'No Sound'}</span>
+              </button>
 
               {/* Auto-toggle — top right corner */}
               <button

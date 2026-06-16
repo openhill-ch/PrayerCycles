@@ -14,6 +14,7 @@ import { checkAndRestoreFromLocalStorage } from './features/backup/local-backup'
 import { purgeExpiredLists, ensureUnscheduledList } from './features/cycles/list-operations'
 import { I18nContext, translations, getSavedLocale, saveLocale, type Locale } from './i18n'
 import { getSavedTheme, applyTheme } from './lib/themes'
+import { preloadBible } from './features/bible/verse-lookup'
 import { initEncryption } from './lib/key-manager'
 import { migrateUnencryptedData } from './db/encryption-hooks'
 import { db } from './db/db'
@@ -36,6 +37,7 @@ function AppContent() {
 
   useEffect(() => {
     applyTheme(getSavedTheme())
+    preloadBible()
     initEncryption()
       .then(() => migrateUnencryptedData(db))
       .then(() => checkAndRestoreFromLocalStorage())

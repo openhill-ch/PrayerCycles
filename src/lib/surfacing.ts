@@ -1,4 +1,5 @@
 import { db } from '../db/db'
+import { generateId } from './id'
 import type { Prayer, PrayerList } from '../db/types'
 
 export type SurfacedPrayer = {
@@ -82,14 +83,12 @@ export async function getSurfacedPrayers(): Promise<SurfacedPrayer[]> {
     const list = advanceRotation(rawList, now)
 
     if (list.status === 'archived') {
-      await db.prayerLists.update(list.id, { status: 'archived' })
+      await db.prayerLists.put({ ...rawList, status: 'archived' })
       continue
     }
 
     if (list.rotationState !== rawList.rotationState) {
-      await db.prayerLists.update(list.id, {
-        rotationState: list.rotationState,
-      })
+      await db.prayerLists.put({ ...rawList, rotationState: list.rotationState })
     }
 
     const queue = list.rotationState.queue
@@ -120,7 +119,7 @@ export async function completePrayer(
   const now = Date.now()
 
   await db.prayerLogs.add({
-    id: crypto.randomUUID(),
+    id: generateId(),
     prayerId,
     listId,
     prayedAt: now,
@@ -129,7 +128,8 @@ export async function completePrayer(
 
   const prayer = await db.prayers.get(prayerId)
   if (prayer) {
-    await db.prayers.update(prayerId, {
+    await db.prayers.put({
+      ...prayer,
       lastPrayedAt: now,
       prayerTally: prayer.prayerTally + 1,
     })
@@ -145,13 +145,12 @@ export async function completePrayer(
       const effectiveTally = (p: Prayer) => (p.id === prayerId ? p.prayerTally + 1 : p.prayerTally) + (offsets[p.id] ?? 0)
       const minTally = Math.min(...valid.map(effectiveTally))
       if (minTally > (list.completionTally ?? 0)) {
-        await db.prayerLists.update(listId, { completionTally: minTally })
-
         // Check if finite lifecycle reached its limit
         if (list.cycle.lifecycle.type === 'finite' && list.cycle.lifecycle.retireAfter && minTally >= list.cycle.lifecycle.retireAfter) {
-          await db.prayerLists.update(listId, { status: 'archived' })
+          await db.prayerLists.put({ ...list, completionTally: minTally, status: 'archived' })
           return
         }
+        await db.prayerLists.put({ ...list, completionTally: minTally })
       }
     }
   }

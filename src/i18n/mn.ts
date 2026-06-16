@@ -94,6 +94,7 @@ export const mn: Translations = {
   sortMostPrayed: 'Хамгийн их залбирсан',
   sortLeastPrayed: 'Хамгийн бага залбирсан',
   noPrayersInList: 'Энэ жагсаалтад залбирал байхгүй байна.',
+  prayNow: 'Одоо залбирах',
 
   newPrayerList: '+ Залбирлын Жагсаалт',
   newPrayer: '+ Залбирал',

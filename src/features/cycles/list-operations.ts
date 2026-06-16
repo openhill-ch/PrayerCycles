@@ -19,7 +19,12 @@ export async function ensureUnscheduledList(): Promise<void> {
     createdAt: 0,
     tags: [],
   }
-  await db.prayerLists.add(list)
+  try {
+    await db.prayerLists.add(list)
+  } catch {
+    // ConstraintError from a concurrent startup (StrictMode double-mount)
+    // means another call already created it — that's fine.
+  }
 }
 
 export async function createList(
@@ -93,31 +98,35 @@ export async function updateList(
   id: string,
   changes: Partial<Omit<PrayerList, 'id' | 'createdAt'>>,
 ): Promise<void> {
-  await db.prayerLists.update(id, changes)
+  const existing = await db.prayerLists.get(id)
+  if (!existing) return
+  await db.prayerLists.put({ ...existing, ...changes })
   snapshotToLocalStorage()
 }
 
 export async function archiveList(id: string): Promise<void> {
-  await db.prayerLists.update(id, { status: 'archived' })
+  const list = await db.prayerLists.get(id)
+  if (list) await db.prayerLists.put({ ...list, status: 'archived' })
   snapshotToLocalStorage()
 }
 
 export async function reactivateList(id: string): Promise<void> {
-  await db.prayerLists.update(id, { status: 'active' })
+  const list = await db.prayerLists.get(id)
+  if (list) await db.prayerLists.put({ ...list, status: 'active' })
   snapshotToLocalStorage()
 }
 
 export async function deleteList(id: string): Promise<void> {
   await db.transaction('rw', [db.prayerLists, db.prayers], async () => {
-    await db.prayerLists.update(id, { status: 'deleted', deletedAt: Date.now() })
-    // Remove prayers that only belong to this list
+    const list = await db.prayerLists.get(id)
+    if (list) await db.prayerLists.put({ ...list, status: 'deleted', deletedAt: Date.now() })
     const prayers = await db.prayers.where('listIds').equals(id).toArray()
     for (const prayer of prayers) {
       const remaining = prayer.listIds.filter((lid) => lid !== id)
       if (remaining.length === 0) {
         await db.prayers.delete(prayer.id)
       } else {
-        await db.prayers.update(prayer.id, { listIds: remaining })
+        await db.prayers.put({ ...prayer, listIds: remaining })
       }
     }
   })
@@ -125,7 +134,8 @@ export async function deleteList(id: string): Promise<void> {
 }
 
 export async function restoreList(id: string): Promise<void> {
-  await db.prayerLists.update(id, { status: 'active', deletedAt: undefined })
+  const list = await db.prayerLists.get(id)
+  if (list) await db.prayerLists.put({ ...list, status: 'active', deletedAt: undefined })
   snapshotToLocalStorage()
 }
 
@@ -149,7 +159,7 @@ export async function purgeExpiredLists(): Promise<void> {
         if (remaining.length === 0) {
           await db.prayers.delete(prayer.id)
         } else {
-          await db.prayers.update(prayer.id, { listIds: remaining })
+          await db.prayers.put({ ...prayer, listIds: remaining })
         }
       }
       await db.prayerLogs.where('listId').equals(list.id).delete()

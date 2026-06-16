@@ -102,6 +102,8 @@ export type Translations = {
   sortLeastPrayed: string
   noPrayersInList: string
 
+  prayNow: string
+
   // Add modal
   newPrayerList: string
   newPrayer: string

@@ -4,6 +4,7 @@ import { useT } from '../i18n'
 import { useTimer } from '../context/TimerContext'
 import { TagInput } from './TagInput'
 import { DescriptionToolbar, useDescriptionKeyDown } from './DescriptionToolbar'
+import { BibleAutocompleteOverlay } from '../features/bible/BibleTextarea'
 import type { PrayerList, Cadence, PersistenceUnit } from '../db/types'
 import { createList, getAllLists, UNSCHEDULED_ID } from '../features/cycles/list-operations'
 import { createPrayer } from '../features/prayers/prayer-operations'
@@ -43,6 +44,11 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   const handleDescKeyDown = useDescriptionKeyDown(addDescRef, description, setDescription, 2000)
   const [prayerTags, setPrayerTags] = useState<string[]>([])
 
+  // Surfaces save failures (e.g. iOS Private Browsing blocking IndexedDB
+  // writes) instead of letting the handler die silently.
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+
   useEffect(() => {
     if (open) {
       getAllLists().then(setLists)
@@ -66,6 +72,8 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     setSelectedListId('')
     setPrayerTags([])
     setMode('create-list')
+    setSaveError(null)
+    setSaving(false)
   }
 
   function handleClose() {
@@ -76,28 +84,42 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   async function handleCreateList(e: React.FormEvent) {
     e.preventDefault()
     if (!listName.trim()) return
-    const titles = initialPrayers.split('\n').filter((t) => t.trim())
-    await createList(
-      listName.trim(),
-      { cadence, persistence: { unit: persistenceUnit, every: persistenceEvery }, lifecycle: { type: lifecycleType, ...(lifecycleType === 'finite' ? { retireAfter } : {}) } },
-      listDescription.trim(),
-      titles,
-      listTags,
-    )
-    refreshTimerLists()
-    reset()
-    onAdded()
-    onClose()
+    setSaveError(null)
+    setSaving(true)
+    try {
+      const titles = initialPrayers.split('\n').filter((t) => t.trim())
+      await createList(
+        listName.trim(),
+        { cadence, persistence: { unit: persistenceUnit, every: persistenceEvery }, lifecycle: { type: lifecycleType, ...(lifecycleType === 'finite' ? { retireAfter } : {}) } },
+        listDescription.trim(),
+        titles,
+        listTags,
+      )
+      refreshTimerLists()
+      reset()
+      onAdded()
+      onClose()
+    } catch (err) {
+      setSaving(false)
+      setSaveError(err instanceof Error ? `${err.name}: ${err.message}` : String(err))
+    }
   }
 
   async function handleAddPrayer(e: React.FormEvent) {
     e.preventDefault()
     if (!title.trim()) return
-    const listId = selectedListId || UNSCHEDULED_ID
-    await createPrayer(title.trim(), [listId], description.trim(), prayerTags)
-    reset()
-    onAdded()
-    onClose()
+    setSaveError(null)
+    setSaving(true)
+    try {
+      const listId = selectedListId || UNSCHEDULED_ID
+      await createPrayer(title.trim(), [listId], description.trim(), prayerTags)
+      reset()
+      onAdded()
+      onClose()
+    } catch (err) {
+      setSaving(false)
+      setSaveError(err instanceof Error ? `${err.name}: ${err.message}` : String(err))
+    }
   }
 
   const allUnits: [PersistenceUnit, string, string][] = [
@@ -289,12 +311,18 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
               />
             </div>
 
+            {saveError && (
+              <div className="rounded-lg bg-red-500/15 border border-red-500/40 px-3 py-2 text-xs text-red-300 break-words">
+                Couldn't save: {saveError}
+              </div>
+            )}
+
             <button
               type="submit"
-              disabled={!listName.trim()}
-              className="w-full rounded-lg bg-input-hover py-2 text-sm font-medium text-text transition-colors hover:bg-input disabled:opacity-40 disabled:cursor-not-allowed"
+              disabled={!listName.trim() || saving}
+              className="w-full rounded-lg bg-input-hover py-2 text-sm font-medium text-text transition-colors hover:bg-input cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {t.createList}
+              {saving ? '…' : t.createList}
             </button>
           </form>
         )}
@@ -320,16 +348,24 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                 />
                 <span className="text-xs text-text-muted">{description.length}/2000</span>
               </div>
-              <textarea
-                ref={addDescRef}
-                placeholder={t.descriptionOptional}
-                value={description}
-                onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
-                onKeyDown={handleDescKeyDown}
-                maxLength={2000}
-                rows={3}
-                className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted resize-none"
-              />
+              <div className="relative">
+                <textarea
+                  ref={addDescRef}
+                  placeholder={t.descriptionOptional}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
+                  onKeyDown={handleDescKeyDown}
+                  maxLength={2000}
+                  rows={3}
+                  className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted resize-none"
+                />
+                <BibleAutocompleteOverlay
+                  textareaRef={addDescRef}
+                  value={description}
+                  onChange={setDescription}
+                  maxLength={2000}
+                />
+              </div>
             </div>
 
             {/* Tags */}
@@ -355,12 +391,18 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
               </select>
             </div>
 
+            {saveError && (
+              <div className="rounded-lg bg-red-500/15 border border-red-500/40 px-3 py-2 text-xs text-red-300 break-words">
+                Couldn't save: {saveError}
+              </div>
+            )}
+
             <button
               type="submit"
-              disabled={!title.trim()}
-              className="w-full rounded-lg bg-input-hover py-2 text-sm font-medium text-text transition-colors hover:bg-input disabled:opacity-40 disabled:cursor-not-allowed"
+              disabled={!title.trim() || saving}
+              className="w-full rounded-lg bg-input-hover py-2 text-sm font-medium text-text transition-colors hover:bg-input cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {t.addPrayer}
+              {saving ? '…' : t.addPrayer}
             </button>
           </form>
         )}

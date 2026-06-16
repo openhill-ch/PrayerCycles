@@ -41,7 +41,8 @@ export async function createPrayer(
         }
       }
 
-      await db.prayerLists.update(listId, {
+      await db.prayerLists.put({
+        ...list,
         rotationState: { ...list.rotationState, queue, tallyOffsets: offsets },
       })
     }
@@ -95,7 +96,8 @@ export async function bulkCreatePrayers(
       if (ghostOffset > 0) offsets[id] = ghostOffset
     }
 
-    await db.prayerLists.update(listId, {
+    await db.prayerLists.put({
+      ...list,
       rotationState: { ...list.rotationState, queue: newQueue, tallyOffsets: offsets },
     })
   })
@@ -112,12 +114,9 @@ export async function getPrayersByList(listId: string): Promise<Prayer[]> {
   return prayers.sort((a, b) => {
     const aOrder = a.sortOrder?.[listId]
     const bOrder = b.sortOrder?.[listId]
-    // If both have custom sort order, use it
     if (aOrder !== undefined && bOrder !== undefined) return aOrder - bOrder
-    // If only one has sort order, it comes first
     if (aOrder !== undefined) return -1
     if (bOrder !== undefined) return 1
-    // Fall back to creation order
     return a.createdAt - b.createdAt
   })
 }
@@ -130,7 +129,9 @@ export async function updatePrayer(
   id: string,
   changes: Partial<Omit<Prayer, 'id' | 'createdAt'>>,
 ): Promise<void> {
-  await db.prayers.update(id, changes)
+  const existing = await db.prayers.get(id)
+  if (!existing) return
+  await db.prayers.put({ ...existing, ...changes })
   snapshotToLocalStorage()
 }
 
@@ -146,7 +147,8 @@ export async function deletePrayer(id: string): Promise<void> {
         const pointer = Math.min(list.rotationState.pointer, Math.max(0, queue.length - 1))
         const offsets = { ...list.rotationState.tallyOffsets ?? {} }
         delete offsets[id]
-        await db.prayerLists.update(listId, {
+        await db.prayerLists.put({
+          ...list,
           rotationState: { ...list.rotationState, queue, pointer, tallyOffsets: offsets },
         })
       }
@@ -170,7 +172,8 @@ export async function recordPrayed(prayerId: string, listId: string): Promise<vo
     })
     const prayer = await db.prayers.get(prayerId)
     if (prayer) {
-      await db.prayers.update(prayerId, {
+      await db.prayers.put({
+        ...prayer,
         lastPrayedAt: now,
         prayerTally: prayer.prayerTally + 1,
       })
@@ -185,7 +188,7 @@ export async function reorderPrayers(listId: string, orderedIds: string[]): Prom
       const prayer = await db.prayers.get(orderedIds[i])
       if (prayer) {
         const sortOrder = { ...(prayer.sortOrder ?? {}), [listId]: i }
-        await db.prayers.update(orderedIds[i], { sortOrder })
+        await db.prayers.put({ ...prayer, sortOrder })
       }
     }
   })
@@ -198,7 +201,7 @@ export async function resetPrayerOrder(listId: string): Promise<void> {
     for (const prayer of prayers) {
       const sortOrder = { ...(prayer.sortOrder ?? {}) }
       delete sortOrder[listId]
-      await db.prayers.update(prayer.id, { sortOrder })
+      await db.prayers.put({ ...prayer, sortOrder })
     }
   })
   snapshotToLocalStorage()
@@ -207,7 +210,8 @@ export async function resetPrayerOrder(listId: string): Promise<void> {
 export async function addTimePrayed(prayerId: string, seconds: number): Promise<void> {
   const prayer = await db.prayers.get(prayerId)
   if (prayer) {
-    await db.prayers.update(prayerId, {
+    await db.prayers.put({
+      ...prayer,
       totalTimePrayed: (prayer.totalTimePrayed ?? 0) + seconds,
     })
   }
@@ -215,12 +219,14 @@ export async function addTimePrayed(prayerId: string, seconds: number): Promise<
 }
 
 export async function fulfillPrayer(id: string): Promise<void> {
-  await db.prayers.update(id, { fulfilled: true })
+  const prayer = await db.prayers.get(id)
+  if (prayer) await db.prayers.put({ ...prayer, fulfilled: true })
   snapshotToLocalStorage()
 }
 
 export async function unfulfillPrayer(id: string): Promise<void> {
-  await db.prayers.update(id, { fulfilled: false })
+  const prayer = await db.prayers.get(id)
+  if (prayer) await db.prayers.put({ ...prayer, fulfilled: false })
   snapshotToLocalStorage()
 }
 

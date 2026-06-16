@@ -94,6 +94,7 @@ export const en: Translations = {
   sortMostPrayed: 'Most Prayed',
   sortLeastPrayed: 'Least Prayed',
   noPrayersInList: 'No prayers in this list yet.',
+  prayNow: 'Pray Now',
 
   newPrayerList: '+ Prayer List',
   newPrayer: '+ Prayer',

@@ -6,6 +6,23 @@ import { getSurfacedPrayers, completePrayer, type SurfacedPrayer } from '../lib/
 
 type TimerMode = 'custom' | 'until-done'
 
+export type TransitionSound = 'Ching' | 'Dooh' | 'Quowuwoo' | null
+const SOUND_OPTIONS: TransitionSound[] = ['Ching', 'Dooh', 'Quowuwoo', null]
+const SOUND_STORAGE_KEY = 'prayercycles_transition_sound'
+
+function loadSavedSound(): TransitionSound {
+  const saved = localStorage.getItem(SOUND_STORAGE_KEY)
+  if (saved === 'null') return null
+  if (SOUND_OPTIONS.includes(saved as TransitionSound)) return saved as TransitionSound
+  return 'Ching'
+}
+
+function playTransitionSound(sound: TransitionSound) {
+  if (!sound) return
+  const audio = new Audio(`/audio/${sound}.mp3`)
+  audio.play().catch(() => {})
+}
+
 export const TODAY_ID = '__today__'
 
 type TimerState = {
@@ -22,8 +39,10 @@ type TimerState = {
   totalTime: number
   currentIndex: number
   incrementTimeLeft: number
+  transitionSound: TransitionSound
   setSelectedListId: (id: string | null) => void
   setDropdownOpen: (open: boolean) => void
+  cycleTransitionSound: () => void
   setPrayerIncrement: (val: number) => void
   setTimerMode: (mode: TimerMode) => void
   setCustomMinutes: (val: number) => void
@@ -48,7 +67,20 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const [prayerIncrement, setPrayerIncrement] = useState(60)
   const [timerMode, setTimerMode] = useState<TimerMode>('custom')
   const [customMinutes, setCustomMinutes] = useState(20)
+  const [transitionSound, setTransitionSound] = useState<TransitionSound>(loadSavedSound)
   const hasAutoSwitched = useRef(false)
+  const transitionSoundRef = useRef(transitionSound)
+  useEffect(() => { transitionSoundRef.current = transitionSound }, [transitionSound])
+
+  const cycleTransitionSound = useCallback(() => {
+    setTransitionSound((prev) => {
+      const idx = SOUND_OPTIONS.indexOf(prev)
+      const next = SOUND_OPTIONS[(idx + 1) % SOUND_OPTIONS.length]
+      localStorage.setItem(SOUND_STORAGE_KEY, String(next))
+      if (next) playTransitionSound(next)
+      return next
+    })
+  }, [])
 
   const [running, setRunning] = useState(false)
   const [timeLeft, setTimeLeft] = useState(0)
@@ -210,8 +242,9 @@ export function TimerProvider({ children }: { children: ReactNode }) {
               }
             }
 
-            // Timer advanced — complete the prayer we just moved past
+            // Timer advanced — play transition sound and complete the prayer we just moved past
             if (newIdx > prevIdx) {
+              playTransitionSound(transitionSoundRef.current)
               for (let i = prevIdx; i < newIdx; i++) {
                 if (!completedIndicesRef.current.has(i)) {
                   completedIndicesRef.current.add(i)
@@ -286,8 +319,10 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       totalTime,
       currentIndex,
       incrementTimeLeft,
+      transitionSound,
       setSelectedListId,
       setDropdownOpen,
+      cycleTransitionSound,
       setPrayerIncrement,
       setTimerMode,
       setCustomMinutes,

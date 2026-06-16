@@ -15,10 +15,15 @@ function encryptRecord(tableName: string, obj: any): any {
   for (const field of fields) {
     const val = copy[field]
     if (val === null || val === undefined || val === '') continue
-    if (Array.isArray(val) && val.length > 0) {
-      copy[field] = encryptString(JSON.stringify(val))
-    } else if (typeof val === 'string' && !isEncrypted(val)) {
-      copy[field] = encryptString(val)
+    try {
+      if (Array.isArray(val) && val.length > 0) {
+        copy[field] = encryptString(JSON.stringify(val))
+      } else if (typeof val === 'string' && !isEncrypted(val)) {
+        copy[field] = encryptString(val)
+      }
+    } catch {
+      // If encryption fails for any reason, store the value as-is
+      // rather than losing the write entirely.
     }
   }
   return copy
@@ -31,11 +36,17 @@ function decryptRecord(tableName: string, obj: any): any {
   for (const field of fields) {
     const val = copy[field]
     if (typeof val === 'string' && isEncrypted(val)) {
-      const decrypted = decryptString(val)
-      if (ARRAY_FIELDS.has(field)) {
-        try { copy[field] = JSON.parse(decrypted) } catch { copy[field] = [] }
-      } else {
-        copy[field] = decrypted
+      // A record that fails to decrypt (key drift, corruption) must NEVER
+      // kill the whole query — degrade per-field instead.
+      try {
+        const decrypted = decryptString(val)
+        if (ARRAY_FIELDS.has(field)) {
+          try { copy[field] = JSON.parse(decrypted) } catch { copy[field] = [] }
+        } else {
+          copy[field] = decrypted
+        }
+      } catch {
+        copy[field] = ARRAY_FIELDS.has(field) ? [] : '⚠ unreadable'
       }
     }
   }

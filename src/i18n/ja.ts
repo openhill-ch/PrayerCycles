@@ -94,6 +94,7 @@ export const ja: Translations = {
   sortMostPrayed: '多く祈った順',
   sortLeastPrayed: '少なく祈った順',
   noPrayersInList: 'このリストにはまだ祈りがありません。',
+  prayNow: '今すぐ祈る',
 
   newPrayerList: '+ 祈りリスト',
   newPrayer: '+ 祈り',
