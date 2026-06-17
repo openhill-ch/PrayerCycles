@@ -42,12 +42,23 @@ workflows:
           xcode-project use-profiles
       - name: Build iOS app
         script: |
-          # use-profiles isn't writing the profile into the App target on this
-          # Xcode 26 / SPM project, so resolve the profile that fetch-signing-files
-          # downloaded and pass its UUID to the archive explicitly. UUID (not name)
-          # avoids the space-in-name problem with xcargs.
-          PROFILE_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
-          PROFILE_PATH=$(ls -t "$PROFILE_DIR"/*.mobileprovision | head -1)
+          # Resolve the profile fetch-signing-files downloaded. Xcode 16+/26 moved
+          # provisioning profiles to the Xcode UserData dir, so search both the old
+          # (MobileDevice) and new (Xcode UserData) locations. Pass the profile UUID
+          # to the archive explicitly since use-profiles isn't writing it into the
+          # App target on this SPM project. UUID avoids the space-in-name xcargs issue.
+          PROFILE_PATH=$(ls -t \
+            "$HOME/Library/MobileDevice/Provisioning Profiles/"*.mobileprovision \
+            "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles/"*.mobileprovision \
+            2>/dev/null | head -1)
+          if [ -z "$PROFILE_PATH" ]; then
+            echo "ERROR: no provisioning profile found. Listing both locations:"
+            echo "--- MobileDevice ---"
+            ls -la "$HOME/Library/MobileDevice/Provisioning Profiles/" 2>/dev/null || echo "  (missing)"
+            echo "--- Xcode UserData ---"
+            ls -la "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles/" 2>/dev/null || echo "  (missing)"
+            exit 1
+          fi
           PROFILE_UUID=$(security cms -D -i "$PROFILE_PATH" | plutil -extract UUID raw -)
           echo "Using provisioning profile: $PROFILE_PATH (UUID $PROFILE_UUID)"
           xcode-project build-ipa \
