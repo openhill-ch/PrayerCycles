@@ -42,10 +42,18 @@ workflows:
           xcode-project use-profiles
       - name: Build iOS app
         script: |
+          # use-profiles isn't writing the profile into the App target on this
+          # Xcode 26 / SPM project, so resolve the profile that fetch-signing-files
+          # downloaded and pass its UUID to the archive explicitly. UUID (not name)
+          # avoids the space-in-name problem with xcargs.
+          PROFILE_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
+          PROFILE_PATH=$(ls -t "$PROFILE_DIR"/*.mobileprovision | head -1)
+          PROFILE_UUID=$(security cms -D -i "$PROFILE_PATH" | plutil -extract UUID raw -)
+          echo "Using provisioning profile: $PROFILE_PATH (UUID $PROFILE_UUID)"
           xcode-project build-ipa \
             --project "$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME" \
-            --archive-xcargs "COMPILER_INDEX_STORE_ENABLE=NO DEVELOPMENT_TEAM=$TEAM_ID CODE_SIGN_STYLE=Manual"
+            --archive-xcargs "COMPILER_INDEX_STORE_ENABLE=NO DEVELOPMENT_TEAM=$TEAM_ID CODE_SIGN_STYLE=Manual PROVISIONING_PROFILE_SPECIFIER=$PROFILE_UUID"
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
