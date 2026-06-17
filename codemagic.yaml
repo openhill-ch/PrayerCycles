@@ -11,7 +11,7 @@ workflows:
       app_store_connect: "Prayer Cycles ASC"
     environment:
       vars:
-        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
+        XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
         BUNDLE_ID: "com.prayercycles.app"
       node: 22
@@ -42,7 +42,7 @@ workflows:
       - name: Build iOS app
         script: |
           xcode-project build-ipa \
-            --workspace "$XCODE_WORKSPACE" \
+            --project "$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME"
     artifacts:
       - build/ios/ipa/*.ipa
