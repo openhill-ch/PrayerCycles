@@ -1,15 +1,15 @@
-import { encryptString, hasCryptoKey, isEncrypted } from '../lib/crypto'
+import { hasCryptoKey } from '../lib/crypto'
 import type { db as DbType } from './db'
 
-const LIST_FIELDS = ['name', 'description', 'tags'] as const
-const PRAYER_FIELDS = ['title', 'description', 'tags'] as const
-
-function encryptField(val: unknown): string | undefined {
-  if (typeof val === 'string' && val !== '' && !isEncrypted(val)) return encryptString(val)
-  if (Array.isArray(val) && val.length > 0) return encryptString(JSON.stringify(val))
-  return undefined
-}
-
+/**
+ * One-time migration of any pre-existing plaintext records to encrypted form.
+ *
+ * Reads through the encryption middleware (which leaves already-plaintext
+ * fields untouched) and writes each record straight back, where the middleware
+ * encrypts it on the way out. Records that were already encrypted just make a
+ * decrypt/re-encrypt round trip. This relies entirely on the middleware, so it
+ * stays in sync with the field list and type definitions automatically.
+ */
 export async function migrateUnencryptedData(db: typeof DbType): Promise<void> {
   if (!hasCryptoKey()) return
 
@@ -19,30 +19,12 @@ export async function migrateUnencryptedData(db: typeof DbType): Promise<void> {
   await db.transaction('rw', db.prayerLists, db.prayers, async () => {
     const lists = await db.prayerLists.toArray()
     for (const list of lists) {
-      const updates: Record<string, unknown> = {}
-      let needsUpdate = false
-      for (const field of LIST_FIELDS) {
-        const encrypted = encryptField((list as any)[field])
-        if (encrypted !== undefined) {
-          updates[field] = encrypted
-          needsUpdate = true
-        }
-      }
-      if (needsUpdate) await db.prayerLists.update(list.id, updates)
+      await db.prayerLists.put(list)
     }
 
     const prayers = await db.prayers.toArray()
     for (const prayer of prayers) {
-      const updates: Record<string, unknown> = {}
-      let needsUpdate = false
-      for (const field of PRAYER_FIELDS) {
-        const encrypted = encryptField((prayer as any)[field])
-        if (encrypted !== undefined) {
-          updates[field] = encrypted
-          needsUpdate = true
-        }
-      }
-      if (needsUpdate) await db.prayers.update(prayer.id, updates)
+      await db.prayers.put(prayer)
     }
   })
 

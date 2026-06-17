@@ -1,4 +1,4 @@
-import type { DBCore, DBCoreTable, DBCoreMutateRequest, DBCoreGetManyRequest, DBCoreQueryRequest } from 'dexie'
+import type { DBCore, DBCoreTable, DBCoreMutateRequest, DBCoreGetRequest, DBCoreGetManyRequest, DBCoreQueryRequest } from 'dexie'
 import { encryptString, decryptString, hasCryptoKey, isEncrypted } from '../lib/crypto'
 
 const FIELDS_BY_TABLE: Record<string, string[]> = {
@@ -78,7 +78,7 @@ export const encryptionMiddleware = {
             return downTable.mutate(req)
           },
 
-          get(req: DBCoreGetManyRequest) {
+          get(req: DBCoreGetRequest) {
             return downTable.get(req).then((res) => {
               if (!hasCryptoKey()) return res
               return decryptRecord(tableName, res)
