@@ -8,7 +8,7 @@ workflows:
     # App Store Connect. Rename the integration there to match this, or
     # change this string to match the integration's name.
     integrations:
-      app_store_connect: "PrayerCycles ASC"
+      app_store_connect: "Prayer Cycles ASC"
     environment:
       ios_signing:
         distribution_type: app_store
