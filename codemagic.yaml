@@ -14,6 +14,7 @@ workflows:
         XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
         BUNDLE_ID: "com.prayercycles.app"
+        TEAM_ID: "AY34BV93Z7"
       node: 22
     triggering:
       events:
@@ -43,7 +44,8 @@ workflows:
         script: |
           xcode-project build-ipa \
             --project "$XCODE_PROJECT" \
-            --scheme "$XCODE_SCHEME"
+            --scheme "$XCODE_SCHEME" \
+            --archive-xcargs "COMPILER_INDEX_STORE_ENABLE=NO DEVELOPMENT_TEAM=$TEAM_ID CODE_SIGN_STYLE=Manual"
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
