@@ -35,6 +35,16 @@ workflows:
       - name: Set up code signing
         script: |
           keychain initialize
+          # A fresh account has no distribution certificate, and a provisioning
+          # profile must reference one — so fetch-signing-files --create produced
+          # nothing. Create the distribution certificate first, then the profile
+          # can be created against it.
+          # NOTE: Apple limits distribution certs (~2-3). Once the first build is
+          # green, switch to saving this cert in Codemagic env vars and reusing it
+          # instead of creating a new one every build.
+          app-store-connect create-certificate \
+            --type IOS_DISTRIBUTION \
+            --save || echo "Certificate may already exist; continuing"
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
             --create
