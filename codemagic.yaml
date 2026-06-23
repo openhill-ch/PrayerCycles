@@ -70,15 +70,23 @@ workflows:
           fi
           PROFILE_UUID=$(security cms -D -i "$PROFILE_PATH" | plutil -extract UUID raw -)
           echo "Using provisioning profile: $PROFILE_PATH (UUID $PROFILE_UUID)"
+          # Set the build number (CFBundleVersion) to Codemagic's monotonic
+          # $BUILD_NUMBER so every upload to App Store Connect has a unique,
+          # increasing build number — Apple rejects duplicate build numbers.
           xcode-project build-ipa \
             --project "$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME" \
-            --archive-xcargs "COMPILER_INDEX_STORE_ENABLE=NO DEVELOPMENT_TEAM=$TEAM_ID CODE_SIGN_STYLE=Manual PROVISIONING_PROFILE_SPECIFIER=$PROFILE_UUID"
+            --archive-xcargs "COMPILER_INDEX_STORE_ENABLE=NO DEVELOPMENT_TEAM=$TEAM_ID CODE_SIGN_STYLE=Manual PROVISIONING_PROFILE_SPECIFIER=$PROFILE_UUID CURRENT_PROJECT_VERSION=$BUILD_NUMBER"
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
     publishing:
       app_store_connect:
         auth: integration
-        submit_to_testflight: true
+        # Upload the build to App Store Connect (available for internal testing)
+        # but do NOT auto-submit to external TestFlight beta review — that needs
+        # Beta App Review info filled in and was the only thing failing on an
+        # otherwise-green build. Flip this to true once external testers are wanted
+        # and the test info is filled in App Store Connect.
+        submit_to_testflight: false
         submit_to_app_store: false
