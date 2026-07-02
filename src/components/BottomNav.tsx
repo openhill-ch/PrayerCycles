@@ -17,7 +17,10 @@ export function BottomNav({ onNavigate }: BottomNavProps) {
   ] as const
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-base">
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-base"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+    >
       <div className="mx-auto flex max-w-lg">
         {tabs.map(({ to, icon: Icon, label }) => (
           <NavLink

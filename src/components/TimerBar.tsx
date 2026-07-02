@@ -152,7 +152,10 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
   const showPrayerTitle = running || midSession
 
   return (
-    <div className="sticky top-0 z-40 bg-base px-4 pb-2 pt-4">
+    <div
+      className="sticky top-0 z-40 bg-base px-4 pb-2 pt-4"
+      style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' }}
+    >
       <div className="mx-auto flex max-w-lg items-center gap-2">
         {/* Hamburger */}
         <button

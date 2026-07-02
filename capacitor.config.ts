@@ -5,7 +5,10 @@ const config: CapacitorConfig = {
   appName: 'Prayer Cycles',
   webDir: 'dist',
   ios: {
-    contentInset: 'automatic',
+    // 'never' lets the web content extend under the status bar / Dynamic Island
+    // and home indicator; the app handles the safe areas itself via CSS
+    // env(safe-area-inset-*), so no white gap shows at the top or bottom.
+    contentInset: 'never',
     preferredContentMode: 'mobile',
     scheme: 'Prayer Cycles',
   },

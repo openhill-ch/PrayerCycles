@@ -462,6 +462,14 @@ html {
   overflow-x: hidden;
 }
 
+/* Fill the whole screen (incl. the Dynamic Island / status bar safe area and
+   the home-indicator area) with the app's base colour so no white shows through
+   on iPhone. Pairs with viewport-fit=cover and the safe-area padding on the
+   top bar / bottom nav. */
+html, body {
+  background-color: var(--color-base);
+}
+
 /* Prevent iOS Safari auto-zoom on input focus (requires >= 16px) */
 input, textarea, select {
   font-size: 16px !important;
