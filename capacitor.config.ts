@@ -1,4 +1,5 @@
 import type { CapacitorConfig } from '@capacitor/cli';
+import { KeyboardResize } from '@capacitor/keyboard';
 
 const config: CapacitorConfig = {
   appId: 'com.prayercycles.app',
@@ -11,6 +12,14 @@ const config: CapacitorConfig = {
     contentInset: 'never',
     preferredContentMode: 'mobile',
     scheme: 'Prayer Cycles',
+  },
+  plugins: {
+    Keyboard: {
+      // Resize the web view when the keyboard opens so vh-based layouts (like
+      // the Add modal) shrink to the visible area — otherwise the keyboard
+      // covers the bottom of the modal and the submit button is unreachable.
+      resize: KeyboardResize.Native,
+    },
   },
   server: {
     // Needed for local-first Dexie.js — no external server

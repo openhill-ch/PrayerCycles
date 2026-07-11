@@ -145,7 +145,10 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay sm:items-center">
-      <div className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-card p-6 pb-24 sm:rounded-2xl sm:pb-6">
+      <div
+        className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-card p-6 sm:rounded-2xl"
+        style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))' }}
+      >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-text">
             {mode === 'create-list' ? t.newPrayerList : t.newPrayer}

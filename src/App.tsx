@@ -83,7 +83,8 @@ function AppContent() {
 
         <button
           onClick={() => setAddOpen(true)}
-          className="fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-input-hover text-text shadow-lg hover:bg-input"
+          className="fixed right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-input-hover text-text shadow-lg hover:bg-input"
+          style={{ bottom: 'calc(5rem + env(safe-area-inset-bottom))' }}
           aria-label="Add"
         >
           <Plus size={24} />
