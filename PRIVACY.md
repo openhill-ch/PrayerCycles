@@ -1,6 +1,6 @@
 # Privacy Policy for Prayer Cycles
 
-_Last updated: [DATE]_
+_Last updated: 2 July 2026_
 
 Prayer Cycles ("the app") is designed to be private by default. This policy
 explains what the app does and does not do with your information.
@@ -63,4 +63,4 @@ with a new "Last updated" date.
 
 If you have questions about this policy, contact:
 
-**[YOUR CONTACT EMAIL]**
+**privacy@openhill.ch**
