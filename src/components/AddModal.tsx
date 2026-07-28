@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { X } from 'lucide-react'
+import { X, ChevronRight } from 'lucide-react'
 import { useT } from '../i18n'
 import { useTimer } from '../context/TimerContext'
 import { TagInput } from './TagInput'
@@ -16,6 +16,23 @@ type AddModalProps = {
 }
 
 type Mode = 'create-list' | 'add-single'
+
+/** Subtle disclosure row that expands the advanced fields. */
+function MoreToggle({ label, open, onToggle }: { label: string; open: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className="flex w-full items-center gap-1.5 py-1 text-sm text-text-tertiary hover:text-text-secondary transition-colors cursor-pointer"
+    >
+      <ChevronRight
+        size={16}
+        className={`transition-transform duration-150 ${open ? 'rotate-90' : ''}`}
+      />
+      {label}
+    </button>
+  )
+}
 
 export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   const { t } = useT()
@@ -34,6 +51,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   const [retireAfter, setRetireAfter] = useState(1)
   const [initialPrayers, setInitialPrayers] = useState('')
   const [listTags, setListTags] = useState<string[]>([])
+  const [showListMore, setShowListMore] = useState(false)
 
   // Add prayer fields
   const [title, setTitle] = useState('')
@@ -42,6 +60,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   const addDescRef = useRef<HTMLTextAreaElement>(null)
   const handleDescKeyDown = useDescriptionKeyDown(addDescRef, description, setDescription, 2000)
   const [prayerTags, setPrayerTags] = useState<string[]>([])
+  const [showPrayerMore, setShowPrayerMore] = useState(false)
 
   // Surfaces save failures (e.g. iOS Private Browsing blocking IndexedDB
   // writes) instead of letting the handler die silently.
@@ -66,10 +85,12 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     setRetireAfter(1)
     setInitialPrayers('')
     setListTags([])
+    setShowListMore(false)
     setTitle('')
     setDescription('')
     setSelectedListId('')
     setPrayerTags([])
+    setShowPrayerMore(false)
     setMode('create-list')
     setSaveError(null)
     setSaving(false)
@@ -179,35 +200,17 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
           </button>
         </div>
 
-        {/* Create List form */}
+        {/* Create List form — essentials: name, rhythm, people. */}
         {mode === 'create-list' && (
           <form onSubmit={handleCreateList} className="space-y-4">
             <input
               type="text"
-              placeholder={t.listName}
+              placeholder={t.listNameExample}
               value={listName}
               onChange={(e) => setListName(e.target.value)}
               className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted"
               autoFocus
             />
-
-            <div>
-              <textarea
-                placeholder={t.descriptionOptional}
-                value={listDescription}
-                onChange={(e) => setListDescription(e.target.value.slice(0, 500))}
-                rows={2}
-                maxLength={500}
-                className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted resize-none"
-              />
-              <div className="text-right text-xs text-text-muted mt-1">{listDescription.length}/500</div>
-            </div>
-
-            {/* Tags */}
-            <div>
-              <div className="mb-2 text-sm text-text-tertiary">{t.tags}</div>
-              <TagInput tags={listTags} onChange={setListTags} placeholder={t.tagsPlaceholder} allTags={existingTags} />
-            </div>
 
             <div>
               <div className="mb-2 text-sm text-text-tertiary">{t.cycle}</div>
@@ -233,76 +236,6 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
             </div>
 
             <div>
-              <div className="mb-2 text-sm text-text-tertiary">{t.frequency}</div>
-              <div className="flex flex-wrap gap-2">
-                {visibleUnits.map(([unit, label, tooltip]) => (
-                  <button
-                    key={unit}
-                    type="button"
-                    title={tooltip}
-                    onClick={() => { if (cadence !== 'daily') setPersistenceUnit(unit) }}
-                    className={`rounded px-3 py-1 text-sm ${persistenceUnit === unit ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-              <div className="mt-2 flex items-center gap-2 h-8">
-                <span className="text-sm text-text-tertiary">{t.every}</span>
-                {cadence === 'daily' ? (
-                  <span className="w-16 text-sm text-text text-center">1</span>
-                ) : (
-                  <input
-                    type="number"
-                    min={1}
-                    max={99}
-                    value={persistenceEvery}
-                    onChange={(e) => setPersistenceEvery(Math.max(1, Math.min(99, Number(e.target.value))))}
-                    className="w-16 rounded bg-input px-2 py-1 text-sm text-text text-center outline-none focus:ring-2 focus:ring-text-muted"
-                  />
-                )}
-                <span className="text-sm text-text-tertiary">
-                  {persistenceUnit === 'wake' ? (persistenceEvery === 1 ? t.day : t.days)
-                    : persistenceUnit === 'passage' ? (persistenceEvery === 1 ? t.week : t.weeks)
-                    : persistenceUnit === 'season' ? (persistenceEvery === 1 ? t.month : t.months)
-                    : (persistenceEvery === 1 ? t.year : t.years)}
-                </span>
-              </div>
-            </div>
-
-            <div>
-              <div className="mb-2 text-sm text-text-tertiary">{t.lifecycle}</div>
-              <div className="flex gap-2">
-                {(['indefinite', 'finite'] as const).map((l) => (
-                  <button
-                    key={l}
-                    type="button"
-                    onClick={() => setLifecycleType(l)}
-                    className={`rounded px-3 py-1 text-sm capitalize ${lifecycleType === l ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
-                  >
-                    {l === 'indefinite' ? t.indefinite : t.finite}
-                  </button>
-                ))}
-              </div>
-              <div className="mt-2 flex items-center gap-2 h-8">
-                <span className="text-sm text-text-tertiary">{t.retiresAfter}</span>
-                {lifecycleType === 'indefinite' ? (
-                  <span className="w-16 text-sm text-text text-center">∞</span>
-                ) : (
-                  <input
-                    type="number"
-                    min={1}
-                    max={999}
-                    value={retireAfter}
-                    onChange={(e) => setRetireAfter(Math.max(1, Math.min(999, Number(e.target.value))))}
-                    className="w-16 rounded bg-input px-2 py-1 text-sm text-text text-center outline-none focus:ring-2 focus:ring-text-muted"
-                  />
-                )}
-                <span className="text-sm text-text-tertiary">{lifecycleType === 'indefinite' ? t.completions : (retireAfter === 1 ? t.completion : t.completions)}</span>
-              </div>
-            </div>
-
-            <div>
               <div className="mb-2 text-sm text-text-tertiary">{t.prayersOnePerLine}</div>
               <textarea
                 placeholder={t.prayersPlaceholder}
@@ -312,6 +245,99 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                 className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted resize-none"
               />
             </div>
+
+            <MoreToggle label={t.moreOptions} open={showListMore} onToggle={() => setShowListMore(!showListMore)} />
+
+            {showListMore && (
+              <div className="space-y-4 rounded-lg border border-border p-3">
+                <div>
+                  <textarea
+                    placeholder={t.descriptionOptional}
+                    value={listDescription}
+                    onChange={(e) => setListDescription(e.target.value.slice(0, 500))}
+                    rows={2}
+                    maxLength={500}
+                    className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted resize-none"
+                  />
+                  <div className="text-right text-xs text-text-muted mt-1">{listDescription.length}/500</div>
+                </div>
+
+                <div>
+                  <div className="mb-2 text-sm text-text-tertiary">{t.tags}</div>
+                  <TagInput tags={listTags} onChange={setListTags} placeholder={t.tagsPlaceholder} allTags={existingTags} />
+                </div>
+
+                <div>
+                  <div className="mb-2 text-sm text-text-tertiary">{t.frequency}</div>
+                  <div className="flex flex-wrap gap-2">
+                    {visibleUnits.map(([unit, label, tooltip]) => (
+                      <button
+                        key={unit}
+                        type="button"
+                        title={tooltip}
+                        onClick={() => { if (cadence !== 'daily') setPersistenceUnit(unit) }}
+                        className={`rounded px-3 py-1 text-sm ${persistenceUnit === unit ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-2 flex items-center gap-2 h-8">
+                    <span className="text-sm text-text-tertiary">{t.every}</span>
+                    {cadence === 'daily' ? (
+                      <span className="w-16 text-sm text-text text-center">1</span>
+                    ) : (
+                      <input
+                        type="number"
+                        min={1}
+                        max={99}
+                        value={persistenceEvery}
+                        onChange={(e) => setPersistenceEvery(Math.max(1, Math.min(99, Number(e.target.value))))}
+                        className="w-16 rounded bg-input px-2 py-1 text-sm text-text text-center outline-none focus:ring-2 focus:ring-text-muted"
+                      />
+                    )}
+                    <span className="text-sm text-text-tertiary">
+                      {persistenceUnit === 'wake' ? (persistenceEvery === 1 ? t.day : t.days)
+                        : persistenceUnit === 'passage' ? (persistenceEvery === 1 ? t.week : t.weeks)
+                        : persistenceUnit === 'season' ? (persistenceEvery === 1 ? t.month : t.months)
+                        : (persistenceEvery === 1 ? t.year : t.years)}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-2 text-sm text-text-tertiary">{t.lifecycle}</div>
+                  <div className="flex gap-2">
+                    {(['indefinite', 'finite'] as const).map((l) => (
+                      <button
+                        key={l}
+                        type="button"
+                        onClick={() => setLifecycleType(l)}
+                        className={`rounded px-3 py-1 text-sm capitalize ${lifecycleType === l ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
+                      >
+                        {l === 'indefinite' ? t.indefinite : t.finite}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-2 flex items-center gap-2 h-8">
+                    <span className="text-sm text-text-tertiary">{t.retiresAfter}</span>
+                    {lifecycleType === 'indefinite' ? (
+                      <span className="w-16 text-sm text-text text-center">∞</span>
+                    ) : (
+                      <input
+                        type="number"
+                        min={1}
+                        max={999}
+                        value={retireAfter}
+                        onChange={(e) => setRetireAfter(Math.max(1, Math.min(999, Number(e.target.value))))}
+                        className="w-16 rounded bg-input px-2 py-1 text-sm text-text text-center outline-none focus:ring-2 focus:ring-text-muted"
+                      />
+                    )}
+                    <span className="text-sm text-text-tertiary">{lifecycleType === 'indefinite' ? t.completions : (retireAfter === 1 ? t.completion : t.completions)}</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {saveError && (
               <div className="rounded-lg bg-red-500/15 border border-red-500/40 px-3 py-2 text-xs text-red-300 break-words">
@@ -329,46 +355,18 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
           </form>
         )}
 
-        {/* Add single prayer form */}
+        {/* Add single prayer form — essentials: who, which list. */}
         {mode === 'add-single' && (
           <form onSubmit={handleAddPrayer} className="space-y-4">
             <input
               type="text"
-              placeholder={t.prayerTitle}
+              placeholder={t.whoToPray}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted"
               autoFocus
             />
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <DescriptionToolbar
-                  textareaRef={addDescRef}
-                  value={description}
-                  onChange={setDescription}
-                  maxLength={2000}
-                />
-                <span className="text-xs text-text-muted">{description.length}/2000</span>
-              </div>
-              <textarea
-                ref={addDescRef}
-                placeholder={t.descriptionOptional}
-                value={description}
-                onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
-                onKeyDown={handleDescKeyDown}
-                maxLength={2000}
-                rows={3}
-                className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted resize-none"
-              />
-            </div>
 
-            {/* Tags */}
-            <div>
-              <div className="mb-2 text-sm text-text-tertiary">{t.tags}</div>
-              <TagInput tags={prayerTags} onChange={setPrayerTags} placeholder={t.tagsPlaceholder} allTags={existingTags} />
-            </div>
-
-            {/* List dropdown */}
             <div>
               <div className="mb-2 text-sm text-text-tertiary">{t.addToList}</div>
               <select
@@ -384,6 +382,39 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                 ))}
               </select>
             </div>
+
+            <MoreToggle label={t.addDetails} open={showPrayerMore} onToggle={() => setShowPrayerMore(!showPrayerMore)} />
+
+            {showPrayerMore && (
+              <div className="space-y-4 rounded-lg border border-border p-3">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <DescriptionToolbar
+                      textareaRef={addDescRef}
+                      value={description}
+                      onChange={setDescription}
+                      maxLength={2000}
+                    />
+                    <span className="text-xs text-text-muted">{description.length}/2000</span>
+                  </div>
+                  <textarea
+                    ref={addDescRef}
+                    placeholder={t.descriptionOptional}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
+                    onKeyDown={handleDescKeyDown}
+                    maxLength={2000}
+                    rows={3}
+                    className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted resize-none"
+                  />
+                </div>
+
+                <div>
+                  <div className="mb-2 text-sm text-text-tertiary">{t.tags}</div>
+                  <TagInput tags={prayerTags} onChange={setPrayerTags} placeholder={t.tagsPlaceholder} allTags={existingTags} />
+                </div>
+              </div>
+            )}
 
             {saveError && (
               <div className="rounded-lg bg-red-500/15 border border-red-500/40 px-3 py-2 text-xs text-red-300 break-words">

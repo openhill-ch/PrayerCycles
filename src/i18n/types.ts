@@ -115,6 +115,10 @@ export type Translations = {
   addPrayer: string
   noListsCreateFirst: string
   addToList: string
+  moreOptions: string
+  addDetails: string
+  whoToPray: string
+  listNameExample: string
 
   // Prayer card
   prayedTally: (count: number, date: string) => string
