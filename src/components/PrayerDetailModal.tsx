@@ -5,7 +5,6 @@ import { db } from '../db/db'
 import type { Prayer } from '../db/types'
 import { updatePrayer, deletePrayer, fulfillPrayer, unfulfillPrayer } from '../features/prayers/prayer-operations'
 import { DescriptionToolbar, useDescriptionKeyDown } from './DescriptionToolbar'
-import { BibleAutocompleteOverlay } from '../features/bible/BibleTextarea'
 
 type PrayerDetailModalProps = {
   prayer: Prayer
@@ -110,24 +109,16 @@ export function PrayerDetailModal({ prayer, onClose, onUpdated }: PrayerDetailMo
               />
               <span className="text-xs text-text-muted">{description.length}/2000</span>
             </div>
-            <div className="relative">
-              <textarea
-                ref={descRef}
-                placeholder={t.addDescription}
-                value={description}
-                onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
-                onKeyDown={handleDescKeyDown}
-                maxLength={2000}
-                rows={4}
-                className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted resize-none"
-              />
-              <BibleAutocompleteOverlay
-                textareaRef={descRef}
-                value={description}
-                onChange={setDescription}
-                maxLength={2000}
-              />
-            </div>
+            <textarea
+              ref={descRef}
+              placeholder={t.addDescription}
+              value={description}
+              onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
+              onKeyDown={handleDescKeyDown}
+              maxLength={2000}
+              rows={4}
+              className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted resize-none"
+            />
           </div>
 
           {(tallyLabel || timeLabel || todayCount > 0) && (

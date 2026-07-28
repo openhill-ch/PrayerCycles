@@ -4,7 +4,6 @@ import { useT } from '../i18n'
 import { useTimer } from '../context/TimerContext'
 import { TagInput } from './TagInput'
 import { DescriptionToolbar, useDescriptionKeyDown } from './DescriptionToolbar'
-import { BibleAutocompleteOverlay } from '../features/bible/BibleTextarea'
 import type { PrayerList, Cadence, PersistenceUnit } from '../db/types'
 import { createList, getAllLists, UNSCHEDULED_ID } from '../features/cycles/list-operations'
 import { createPrayer } from '../features/prayers/prayer-operations'
@@ -351,24 +350,16 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                 />
                 <span className="text-xs text-text-muted">{description.length}/2000</span>
               </div>
-              <div className="relative">
-                <textarea
-                  ref={addDescRef}
-                  placeholder={t.descriptionOptional}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
-                  onKeyDown={handleDescKeyDown}
-                  maxLength={2000}
-                  rows={3}
-                  className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted resize-none"
-                />
-                <BibleAutocompleteOverlay
-                  textareaRef={addDescRef}
-                  value={description}
-                  onChange={setDescription}
-                  maxLength={2000}
-                />
-              </div>
+              <textarea
+                ref={addDescRef}
+                placeholder={t.descriptionOptional}
+                value={description}
+                onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
+                onKeyDown={handleDescKeyDown}
+                maxLength={2000}
+                rows={3}
+                className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted resize-none"
+              />
             </div>
 
             {/* Tags */}
