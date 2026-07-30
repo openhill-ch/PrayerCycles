@@ -11,6 +11,11 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icons/*.png', 'favicon.svg'],
+      workbox: {
+        // /privacy is a real static page, not an app route — keep the SPA
+        // navigation fallback from serving the app shell in its place.
+        navigateFallbackDenylist: [/^\/privacy/],
+      },
       manifest: {
         name: 'Prayer Cycles',
         short_name: 'Prayer Cycles',

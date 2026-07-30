@@ -1,0 +1,12 @@
+Serve privacy policy from the app site instead of a /docs Pages source
+
+The site is deployed by the GitHub Actions workflow from dist/, so publishing
+the policy out of /docs required switching the Pages source away from Actions
+- which took the site down with a 404.
+
+Move the page to public/privacy/index.html so it builds into dist/ and ships
+with the app at /privacy/, keeping Actions as the Pages source. Also add a
+workbox navigateFallbackDenylist for /privacy so the service worker doesn't
+serve the SPA shell in place of the static page.
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
