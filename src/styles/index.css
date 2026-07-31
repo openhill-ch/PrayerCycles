@@ -474,11 +474,11 @@ html, body {
    between wizard steps or when the keyboard opens; dvh tracks the *visible*
    viewport where supported, with vh as the fallback. Desktop sizes naturally. */
 .sheet-height {
-  height: 85vh;
+  height: 80vh;
 }
-@supports (height: 85dvh) {
+@supports (height: 80dvh) {
   .sheet-height {
-    height: 85dvh;
+    height: 80dvh;
   }
 }
 @media (min-width: 640px) {

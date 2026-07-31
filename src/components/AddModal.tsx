@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { X, ChevronLeft } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useT } from '../i18n'
 import { useTimer } from '../context/TimerContext'
 import { TagInput } from './TagInput'
@@ -148,6 +148,37 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     }
   }
 
+  function goNext() {
+    if (!canAdvance() || isLast) return
+    setStep(step + 1)
+  }
+
+  function goBack() {
+    if (step === 0) return
+    setStep(step - 1)
+  }
+
+  // Swipe left/right moves between steps. Vertical drags are ignored so
+  // scrolling a long step and selecting text still behave normally.
+  const touchStart = useRef<{ x: number; y: number } | null>(null)
+
+  function onTouchStart(e: React.TouchEvent) {
+    const p = e.touches[0]
+    touchStart.current = { x: p.clientX, y: p.clientY }
+  }
+
+  function onTouchEnd(e: React.TouchEvent) {
+    const start = touchStart.current
+    touchStart.current = null
+    if (!start || saving) return
+    const p = e.changedTouches[0]
+    const dx = p.clientX - start.x
+    const dy = p.clientY - start.y
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return
+    if (dx < 0) goNext()
+    else goBack()
+  }
+
   const allUnits: [PersistenceUnit, string][] = [
     ['wake', t.wake],
     ['passage', t.passage],
@@ -175,10 +206,18 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   const helpText = 'text-sm text-text-tertiary'
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-overlay sm:items-center">
-      {/* .sheet-height: fixed height on phones so the sheet doesn't jump as steps
-          change size or the keyboard opens/closes; natural height on desktop. */}
-      <div className="sheet-height flex w-full max-w-md flex-col overflow-hidden rounded-t-2xl bg-card sm:rounded-2xl">
+    <div
+      className="fixed inset-0 z-[60] flex items-end justify-center bg-overlay p-3 sm:items-center"
+      style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+    >
+      {/* Floating card: rounded on every corner and lifted off the screen edge,
+          so the bottom of the sheet stays visible above the keyboard.
+          .sheet-height keeps it from resizing as steps change. */}
+      <div
+        className="sheet-height flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-card shadow-xl"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
         {/* Pinned header: back / progress / close */}
         <div className="shrink-0 px-5 pt-5">
           <div className="flex items-center justify-between">
@@ -448,20 +487,26 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
 
           {/* Pinned footer — always reachable above the keyboard */}
           <div
-            className="shrink-0 space-y-3 border-t border-border bg-card px-5 pt-3"
-            style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
+            className="shrink-0 space-y-3 border-t border-border bg-card px-5 pb-4 pt-3"
           >
             {saveError && (
               <div className="rounded-lg border border-red-500/40 bg-red-500/15 px-3 py-2 text-xs text-red-300 break-words">
                 Couldn't save: {saveError}
               </div>
             )}
+            {/* Swipe left/right moves between steps; this stays as a tap target
+                (and the commit action on the last step). */}
             <button
               type="submit"
               disabled={!canAdvance() || saving}
-              className="w-full rounded-lg bg-input-hover py-3 text-sm font-medium text-text transition-colors hover:bg-input cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              aria-label={isLast ? undefined : t.next}
+              className={`flex w-full items-center justify-center gap-1 rounded-lg bg-input-hover text-sm font-medium text-text transition-colors hover:bg-input cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${isLast ? 'py-3' : 'py-2'}`}
             >
-              {saving ? '…' : isLast ? (mode === 'create-list' ? t.createList : t.addPrayer) : t.next}
+              {saving
+                ? '…'
+                : isLast
+                  ? (mode === 'create-list' ? t.createList : t.addPrayer)
+                  : <ChevronRight size={20} className="text-text-secondary" />}
             </button>
           </div>
         </form>
