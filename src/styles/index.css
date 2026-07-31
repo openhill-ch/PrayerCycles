@@ -470,6 +470,24 @@ html, body {
   background-color: var(--color-base);
 }
 
+/* Bottom-sheet height. Phones get a fixed height so the sheet doesn't resize
+   between wizard steps or when the keyboard opens; dvh tracks the *visible*
+   viewport where supported, with vh as the fallback. Desktop sizes naturally. */
+.sheet-height {
+  height: 85vh;
+}
+@supports (height: 85dvh) {
+  .sheet-height {
+    height: 85dvh;
+  }
+}
+@media (min-width: 640px) {
+  .sheet-height {
+    height: auto;
+    max-height: 85vh;
+  }
+}
+
 /* Prevent iOS Safari auto-zoom on input focus (requires >= 16px) */
 input, textarea, select {
   font-size: 16px !important;

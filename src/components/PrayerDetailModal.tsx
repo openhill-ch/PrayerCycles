@@ -78,7 +78,7 @@ export function PrayerDetailModal({ prayer, onClose, onUpdated }: PrayerDetailMo
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay sm:items-center">
+    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-overlay sm:items-center">
       <div className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-card p-6 sm:rounded-2xl">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-text">{t.prayer}</h2>

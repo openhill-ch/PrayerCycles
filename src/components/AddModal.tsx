@@ -175,11 +175,10 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   const helpText = 'text-sm text-text-tertiary'
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay sm:items-center">
-      <div
-        className="flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-t-2xl bg-card sm:rounded-2xl"
-        style={{ maxHeight: '90dvh' }}
-      >
+    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-overlay sm:items-center">
+      {/* .sheet-height: fixed height on phones so the sheet doesn't jump as steps
+          change size or the keyboard opens/closes; natural height on desktop. */}
+      <div className="sheet-height flex w-full max-w-md flex-col overflow-hidden rounded-t-2xl bg-card sm:rounded-2xl">
         {/* Pinned header: back / progress / close */}
         <div className="shrink-0 px-5 pt-5">
           <div className="flex items-center justify-between">

@@ -34,6 +34,11 @@ function AppContent() {
   const [resetOpen, setResetOpen] = useState(false)
   const [ready, setReady] = useState(false)
 
+  // While a modal is up, hide the bottom nav and the add button: the nav would
+  // otherwise ride above the keyboard on top of the modal's own buttons, and
+  // navigating away mid-flow would silently discard what you were entering.
+  const modalOpen = addOpen || exportOpen || langOpen || themeOpen || resetOpen
+
   useEffect(() => {
     applyTheme(getSavedTheme())
     initEncryption()
@@ -79,21 +84,23 @@ function AppContent() {
           <Route path="/trash" element={<TrashPage />} />
         </Routes>
 
-        <button
-          onClick={() => setAddOpen(true)}
-          className="fixed right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-input-hover text-text shadow-lg hover:bg-input"
-          style={{ bottom: 'calc(5rem + env(safe-area-inset-bottom))' }}
-          aria-label="Add"
-        >
-          <Plus size={24} />
-        </button>
+        {!modalOpen && (
+          <button
+            onClick={() => setAddOpen(true)}
+            className="fixed right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-input-hover text-text shadow-lg hover:bg-input"
+            style={{ bottom: 'calc(5rem + env(safe-area-inset-bottom))' }}
+            aria-label="Add"
+          >
+            <Plus size={24} />
+          </button>
+        )}
 
         <AddModal open={addOpen} onClose={() => setAddOpen(false)} onAdded={() => window.dispatchEvent(new Event('prayercycles:refresh'))} />
         <ExportImportModal open={exportOpen} onClose={() => setExportOpen(false)} />
         <LanguageModal open={langOpen} onClose={() => setLangOpen(false)} />
         <ThemeModal open={themeOpen} onClose={() => setThemeOpen(false)} />
         <ResetDataModal open={resetOpen} onClose={() => setResetOpen(false)} />
-        <BottomNav onNavigate={() => setMenuOpen(false)} />
+        {!modalOpen && <BottomNav onNavigate={() => setMenuOpen(false)} />}
       </div>
       </TimerProvider>
   )
