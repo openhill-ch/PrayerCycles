@@ -120,6 +120,22 @@ export type Translations = {
   whoToPray: string
   listNameExample: string
 
+  // Add wizard
+  next: string
+  stepOf: (current: number, total: number) => string
+  qListName: string
+  qHowOften: string
+  qWhoInList: string
+  qHowLong: string
+  qAnythingElse: string
+  qWhichList: string
+  cycleHelp: string
+  peopleHelp: string
+  lifecycleHelp: string
+  runsForever: string
+  endsAfterCycles: string
+  optionalStep: string
+
   // Prayer card
   prayedTally: (count: number, date: string) => string
   markAsPrayed: (title: string) => string
