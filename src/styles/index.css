@@ -473,13 +473,12 @@ html, body {
 /* Bottom-sheet height. Phones get a fixed height so the sheet doesn't resize
    between wizard steps or when the keyboard opens; dvh tracks the *visible*
    viewport where supported, with vh as the fallback. Desktop sizes naturally. */
+/* Phones: fill the (padded) overlay so the card is anchored at the top. When
+   the keyboard opens and the viewport shrinks, the card shortens from the
+   bottom instead of sliding upward, so the question you're reading never
+   moves. Desktop sizes to its content. */
 .sheet-height {
-  height: 80vh;
-}
-@supports (height: 80dvh) {
-  .sheet-height {
-    height: 80dvh;
-  }
+  height: 100%;
 }
 @media (min-width: 640px) {
   .sheet-height {

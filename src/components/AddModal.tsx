@@ -81,15 +81,22 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     }
   }, [open])
 
-  // Focus the field once the slide has settled, so the keyboard doesn't
-  // pop up mid-animation.
+  // On open, focus immediately so the keyboard rises with the modal as a single
+  // motion (a delay here reads as the window "glitching" a moment later). When
+  // moving between steps, wait for the slide to settle first.
+  const justOpened = useRef(true)
   useEffect(() => {
-    if (!open || !TEXT_STEPS.includes(current)) return
+    if (!open) {
+      justOpened.current = true
+      return
+    }
+    if (!TEXT_STEPS.includes(current)) return
+    const delay = justOpened.current ? 0 : 340
+    justOpened.current = false
     const id = setTimeout(() => {
       const panel = trackRef.current?.querySelector(`[data-step="${current}"]`)
-      const field = panel?.querySelector<HTMLElement>('input[type="text"], textarea')
-      field?.focus()
-    }, 340)
+      panel?.querySelector<HTMLElement>('input[type="text"], textarea')?.focus()
+    }, delay)
     return () => clearTimeout(id)
   }, [open, current])
 
@@ -489,7 +496,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-end justify-center bg-overlay p-3 sm:items-center"
+      className="fixed inset-0 z-[60] flex items-stretch justify-center bg-overlay p-3 sm:items-center"
       style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
     >
       <div className="sheet-height flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-card shadow-xl">
