@@ -21,7 +21,14 @@ const LIST_STEPS = ['name', 'cycle', 'people', 'lifecycle', 'details'] as const
 const PRAYER_STEPS = ['who', 'list', 'details'] as const
 type StepKey = (typeof LIST_STEPS)[number] | (typeof PRAYER_STEPS)[number]
 
-/** One question per screen, so the keyboard never fights the layout. */
+/** Steps that open the keyboard when you land on them. */
+const TEXT_STEPS: StepKey[] = ['name', 'who', 'people']
+
+/** Fraction of the card you must drag before it commits to the next step. */
+const COMMIT_RATIO = 0.28
+/** px/ms — a quick flick commits even if you didn't drag far. */
+const FLICK_VELOCITY = 0.4
+
 export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   const { t } = useT()
   const { refreshLists: refreshTimerLists } = useTimer()
@@ -49,9 +56,20 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   const handleDescKeyDown = useDescriptionKeyDown(addDescRef, description, setDescription, 2000)
   const [prayerTags, setPrayerTags] = useState<string[]>([])
 
-  // Surfaces save failures (e.g. iOS Private Browsing blocking IndexedDB writes)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+
+  // Swipe/drag state
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [dragX, setDragX] = useState(0)
+  const [animating, setAnimating] = useState(false)
+  const gestureStart = useRef<{ x: number; y: number; t: number } | null>(null)
+  const axis = useRef<'h' | 'v' | null>(null)
+
+  const steps: readonly StepKey[] = mode === 'create-list' ? LIST_STEPS : PRAYER_STEPS
+  const total = steps.length
+  const current = steps[step]
+  const isLast = step === total - 1
 
   useEffect(() => {
     if (open) {
@@ -59,8 +77,21 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
       getAllTags().then(setExistingTags)
       setMode('create-list')
       setStep(0)
+      setDragX(0)
     }
   }, [open])
+
+  // Focus the field once the slide has settled, so the keyboard doesn't
+  // pop up mid-animation.
+  useEffect(() => {
+    if (!open || !TEXT_STEPS.includes(current)) return
+    const id = setTimeout(() => {
+      const panel = trackRef.current?.querySelector(`[data-step="${current}"]`)
+      const field = panel?.querySelector<HTMLElement>('input[type="text"], textarea')
+      field?.focus()
+    }, 340)
+    return () => clearTimeout(id)
+  }, [open, current])
 
   function reset() {
     setListName('')
@@ -78,6 +109,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     setPrayerTags([])
     setMode('create-list')
     setStep(0)
+    setDragX(0)
     setSaveError(null)
     setSaving(false)
   }
@@ -90,55 +122,103 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   function switchMode(m: Mode) {
     setMode(m)
     setStep(0)
+    setDragX(0)
     setSaveError(null)
   }
 
-  const steps: readonly StepKey[] = mode === 'create-list' ? LIST_STEPS : PRAYER_STEPS
-  const total = steps.length
-  const current = steps[step]
-  const isLast = step === total - 1
-
-  /** Steps that need an answer before you can move on. */
-  function canAdvance(): boolean {
-    if (current === 'name') return !!listName.trim()
-    if (current === 'who') return !!title.trim()
+  /** Steps that need an answer before you can move past them. */
+  function canLeave(index: number): boolean {
+    const key = steps[index]
+    if (key === 'name') return !!listName.trim()
+    if (key === 'who') return !!title.trim()
     return true
   }
 
-  async function saveList() {
-    const titles = initialPrayers.split('\n').filter((x) => x.trim())
-    await createList(
-      listName.trim(),
-      {
-        cadence,
-        persistence: { unit: persistenceUnit, every: persistenceEvery },
-        lifecycle: { type: lifecycleType, ...(lifecycleType === 'finite' ? { retireAfter } : {}) },
-      },
-      listDescription.trim(),
-      titles,
-      listTags,
-    )
-    refreshTimerLists()
+  function goTo(next: number) {
+    if (next < 0 || next > total - 1) return
+    if (next > step && !canLeave(step)) return
+    setAnimating(true)
+    setStep(next)
   }
 
-  async function savePrayer() {
-    const listId = selectedListId || UNSCHEDULED_ID
-    await createPrayer(title.trim(), [listId], description.trim(), prayerTags)
+  // ---- Drag handling -------------------------------------------------
+  // touch-action: pan-y on the track means vertical scrolling stays native
+  // and horizontal gestures come to us, with no preventDefault needed.
+  function onTouchStart(e: React.TouchEvent) {
+    if (saving) return
+    const p = e.touches[0]
+    gestureStart.current = { x: p.clientX, y: p.clientY, t: Date.now() }
+    axis.current = null
+    setAnimating(false)
   }
 
-  /** Enter / Next advances; on the final step it saves. */
+  function onTouchMove(e: React.TouchEvent) {
+    const start = gestureStart.current
+    if (!start) return
+    const p = e.touches[0]
+    const dx = p.clientX - start.x
+    const dy = p.clientY - start.y
+
+    if (!axis.current) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
+      axis.current = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v'
+    }
+    if (axis.current !== 'h') return
+
+    // Rubber-band when there's nowhere to go that way.
+    const blocked =
+      (dx < 0 && (isLast || !canLeave(step))) || (dx > 0 && step === 0)
+    setDragX(blocked ? dx * 0.22 : dx)
+  }
+
+  function onTouchEnd() {
+    const start = gestureStart.current
+    gestureStart.current = null
+    const wasHorizontal = axis.current === 'h'
+    axis.current = null
+    if (!start || !wasHorizontal) return
+
+    const width = trackRef.current?.offsetWidth || 320
+    const elapsed = Math.max(Date.now() - start.t, 1)
+    const velocity = Math.abs(dragX) / elapsed
+    const commit = Math.abs(dragX) > width * COMMIT_RATIO || velocity > FLICK_VELOCITY
+
+    setAnimating(true)
+    if (commit) {
+      if (dragX < 0) goTo(step + 1)
+      else goTo(step - 1)
+    }
+    setDragX(0)
+  }
+  // --------------------------------------------------------------------
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!canAdvance()) return
+    // Enter on a non-final step just advances.
     if (!isLast) {
-      setStep(step + 1)
+      goTo(step + 1)
       return
     }
     setSaveError(null)
     setSaving(true)
     try {
-      if (mode === 'create-list') await saveList()
-      else await savePrayer()
+      if (mode === 'create-list') {
+        const titles = initialPrayers.split('\n').filter((x) => x.trim())
+        await createList(
+          listName.trim(),
+          {
+            cadence,
+            persistence: { unit: persistenceUnit, every: persistenceEvery },
+            lifecycle: { type: lifecycleType, ...(lifecycleType === 'finite' ? { retireAfter } : {}) },
+          },
+          listDescription.trim(),
+          titles,
+          listTags,
+        )
+        refreshTimerLists()
+      } else {
+        await createPrayer(title.trim(), [selectedListId || UNSCHEDULED_ID], description.trim(), prayerTags)
+      }
       reset()
       onAdded()
       onClose()
@@ -146,37 +226,6 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
       setSaving(false)
       setSaveError(err instanceof Error ? `${err.name}: ${err.message}` : String(err))
     }
-  }
-
-  function goNext() {
-    if (!canAdvance() || isLast) return
-    setStep(step + 1)
-  }
-
-  function goBack() {
-    if (step === 0) return
-    setStep(step - 1)
-  }
-
-  // Swipe left/right moves between steps. Vertical drags are ignored so
-  // scrolling a long step and selecting text still behave normally.
-  const touchStart = useRef<{ x: number; y: number } | null>(null)
-
-  function onTouchStart(e: React.TouchEvent) {
-    const p = e.touches[0]
-    touchStart.current = { x: p.clientX, y: p.clientY }
-  }
-
-  function onTouchEnd(e: React.TouchEvent) {
-    const start = touchStart.current
-    touchStart.current = null
-    if (!start || saving) return
-    const p = e.changedTouches[0]
-    const dx = p.clientX - start.x
-    const dy = p.clientY - start.y
-    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return
-    if (dx < 0) goNext()
-    else goBack()
   }
 
   const allUnits: [PersistenceUnit, string][] = [
@@ -205,26 +254,252 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   const question = 'text-base font-medium text-text'
   const helpText = 'text-sm text-text-tertiary'
 
+  function renderStep(key: StepKey) {
+    switch (key) {
+      case 'name':
+        return (
+          <>
+            <p className={question}>{t.qListName}</p>
+            <input
+              type="text"
+              placeholder={t.listNameExample}
+              value={listName}
+              onChange={(e) => setListName(e.target.value)}
+              className={inputClass}
+            />
+          </>
+        )
+
+      case 'cycle':
+        return (
+          <>
+            <p className={question}>{t.qHowOften}</p>
+            <div className="flex flex-wrap gap-2">
+              {(['daily', 'weekly', 'monthly', 'annually'] as Cadence[]).map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => {
+                    setCadence(c)
+                    if (c === 'daily') {
+                      setPersistenceUnit('wake')
+                      setPersistenceEvery(1)
+                    } else {
+                      const allowed = allowedUnits(c)
+                      if (!allowed.includes(persistenceUnit)) setPersistenceUnit(allowed[0])
+                    }
+                  }}
+                  className={pill(cadence === c)}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+            <div className="rounded-lg border border-border p-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm text-text-tertiary">{t.every}</span>
+                {cadence === 'daily' ? (
+                  <span className="w-14 rounded bg-input px-2 py-1 text-center text-sm text-text">1</span>
+                ) : (
+                  <input
+                    type="number"
+                    min={1}
+                    max={99}
+                    value={persistenceEvery}
+                    onChange={(e) => setPersistenceEvery(Math.max(1, Math.min(99, Number(e.target.value))))}
+                    className="w-14 rounded bg-input px-2 py-1 text-center text-sm text-text outline-none focus:ring-2 focus:ring-text-muted"
+                  />
+                )}
+                {visibleUnits.map(([unit, label]) => (
+                  <button
+                    key={unit}
+                    type="button"
+                    onClick={() => { if (cadence !== 'daily') setPersistenceUnit(unit) }}
+                    className={pill(persistenceUnit === unit)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <p className={helpText}>{t.cycleHelp}</p>
+          </>
+        )
+
+      case 'people':
+        return (
+          <>
+            <p className={question}>{t.qWhoInList}</p>
+            <textarea
+              placeholder={t.prayersPlaceholder}
+              value={initialPrayers}
+              onChange={(e) => setInitialPrayers(e.target.value)}
+              rows={7}
+              className={`${inputClass} resize-none`}
+            />
+            <p className={helpText}>{t.peopleHelp}</p>
+          </>
+        )
+
+      case 'lifecycle':
+        return (
+          <>
+            <p className={question}>{t.qHowLong}</p>
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => setLifecycleType('indefinite')}
+                className={`rounded-lg px-4 py-3 text-left text-sm transition-colors ${lifecycleType === 'indefinite' ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
+              >
+                {t.runsForever}
+              </button>
+              <button
+                type="button"
+                onClick={() => setLifecycleType('finite')}
+                className={`rounded-lg px-4 py-3 text-left text-sm transition-colors ${lifecycleType === 'finite' ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
+              >
+                {t.endsAfterCycles}
+              </button>
+            </div>
+            {lifecycleType === 'finite' && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-text-tertiary">{t.retiresAfter}</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={999}
+                  value={retireAfter}
+                  onChange={(e) => setRetireAfter(Math.max(1, Math.min(999, Number(e.target.value))))}
+                  className="w-16 rounded bg-input px-2 py-1 text-center text-sm text-text outline-none focus:ring-2 focus:ring-text-muted"
+                />
+                <span className="text-sm text-text-tertiary">
+                  {retireAfter === 1 ? t.completion : t.completions}
+                </span>
+              </div>
+            )}
+            <p className={helpText}>{t.lifecycleHelp}</p>
+          </>
+        )
+
+      case 'who':
+        return (
+          <>
+            <p className={question}>{t.whoToPray}</p>
+            <input
+              type="text"
+              placeholder={t.prayerTitle}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className={inputClass}
+            />
+          </>
+        )
+
+      case 'list':
+        return (
+          <>
+            <p className={question}>{t.qWhichList}</p>
+            <select
+              value={selectedListId}
+              onChange={(e) => setSelectedListId(e.target.value)}
+              className={`${inputClass} cursor-pointer appearance-none text-sm`}
+            >
+              <option value="">{t.unscheduled}</option>
+              {selectableLists.map((list) => (
+                <option key={list.id} value={list.id}>
+                  {list.name}
+                </option>
+              ))}
+            </select>
+          </>
+        )
+
+      case 'details':
+        return (
+          <>
+            <div className="flex items-baseline justify-between gap-2">
+              <p className={question}>{t.qAnythingElse}</p>
+              <span className="shrink-0 text-xs text-text-muted">{t.optionalStep}</span>
+            </div>
+
+            {mode === 'add-single' ? (
+              <div>
+                <div className="mb-1 flex items-center justify-between">
+                  <DescriptionToolbar
+                    textareaRef={addDescRef}
+                    value={description}
+                    onChange={setDescription}
+                    maxLength={2000}
+                  />
+                  <span className="text-xs text-text-muted">{description.length}/2000</span>
+                </div>
+                <textarea
+                  ref={addDescRef}
+                  placeholder={t.descriptionOptional}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
+                  onKeyDown={handleDescKeyDown}
+                  maxLength={2000}
+                  rows={4}
+                  className={`${inputClass} resize-none`}
+                />
+              </div>
+            ) : (
+              <div>
+                <textarea
+                  placeholder={t.descriptionOptional}
+                  value={listDescription}
+                  onChange={(e) => setListDescription(e.target.value.slice(0, 500))}
+                  rows={3}
+                  maxLength={500}
+                  className={`${inputClass} resize-none`}
+                />
+                <div className="mt-1 text-right text-xs text-text-muted">{listDescription.length}/500</div>
+              </div>
+            )}
+
+            <div>
+              <div className="mb-2 text-sm text-text-tertiary">{t.tags}</div>
+              <TagInput
+                tags={mode === 'add-single' ? prayerTags : listTags}
+                onChange={mode === 'add-single' ? setPrayerTags : setListTags}
+                placeholder={t.tagsPlaceholder}
+                allTags={existingTags}
+              />
+            </div>
+
+            {saveError && (
+              <div className="rounded-lg border border-red-500/40 bg-red-500/15 px-3 py-2 text-xs text-red-300 break-words">
+                Couldn't save: {saveError}
+              </div>
+            )}
+
+            {/* The only action button in the wizard — everything else is a swipe. */}
+            <button
+              type="submit"
+              disabled={saving}
+              className="w-full rounded-lg bg-input-hover py-3 text-sm font-medium text-text transition-colors hover:bg-input cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {saving ? '…' : mode === 'create-list' ? t.createList : t.addPrayer}
+            </button>
+          </>
+        )
+    }
+  }
+
   return (
     <div
       className="fixed inset-0 z-[60] flex items-end justify-center bg-overlay p-3 sm:items-center"
       style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
     >
-      {/* Floating card: rounded on every corner and lifted off the screen edge,
-          so the bottom of the sheet stays visible above the keyboard.
-          .sheet-height keeps it from resizing as steps change. */}
-      <div
-        className="sheet-height flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-card shadow-xl"
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
-      >
+      <div className="sheet-height flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-card shadow-xl">
         {/* Pinned header: back / progress / close */}
         <div className="shrink-0 px-5 pt-5">
           <div className="flex items-center justify-between">
             {step > 0 ? (
               <button
                 type="button"
-                onClick={() => setStep(step - 1)}
+                onClick={() => goTo(step - 1)}
                 className="flex items-center gap-1 rounded-lg py-1 pr-2 text-sm text-text-tertiary hover:text-text-secondary transition-colors cursor-pointer"
               >
                 <ChevronLeft size={18} />
@@ -235,16 +510,30 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                 {mode === 'create-list' ? t.newPrayerList : t.newPrayer}
               </span>
             )}
-            <button
-              onClick={handleClose}
-              className="rounded-full p-1 text-text-tertiary hover:bg-input"
-              aria-label={t.close}
-            >
-              <X size={20} />
-            </button>
+            <div className="flex items-center gap-1">
+              {/* Swiping is the main way through; this keeps it usable with a
+                  mouse (and for anyone who can't swipe). */}
+              {!isLast && (
+                <button
+                  type="button"
+                  onClick={() => goTo(step + 1)}
+                  disabled={!canLeave(step)}
+                  aria-label={t.next}
+                  className="rounded-full p-1 text-text-tertiary hover:bg-input hover:text-text-secondary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              )}
+              <button
+                onClick={handleClose}
+                className="rounded-full p-1 text-text-tertiary hover:bg-input"
+                aria-label={t.close}
+              >
+                <X size={20} />
+              </button>
+            </div>
           </div>
 
-          {/* Progress dots */}
           <div className="mt-3 flex gap-1.5" aria-label={t.stepOf(step + 1, total)}>
             {steps.map((s, i) => (
               <div
@@ -254,7 +543,6 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
             ))}
           </div>
 
-          {/* Mode switcher only on the first step */}
           {step === 0 && (
             <div className="mt-4 flex gap-2">
               <button type="button" onClick={() => switchMode('create-list')} className={pill(mode === 'create-list')}>
@@ -267,247 +555,37 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
           )}
         </div>
 
+        {/* Swipeable track — the card follows your finger and settles on release */}
         <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
-          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-5">
-
-            {/* ---- Create list steps ---- */}
-            {current === 'name' && (
-              <>
-                <p className={question}>{t.qListName}</p>
-                <input
-                  type="text"
-                  placeholder={t.listNameExample}
-                  value={listName}
-                  onChange={(e) => setListName(e.target.value)}
-                  className={inputClass}
-                  autoFocus
-                />
-              </>
-            )}
-
-            {current === 'cycle' && (
-              <>
-                <p className={question}>{t.qHowOften}</p>
-                <div className="flex flex-wrap gap-2">
-                  {(['daily', 'weekly', 'monthly', 'annually'] as Cadence[]).map((c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => {
-                        setCadence(c)
-                        if (c === 'daily') {
-                          setPersistenceUnit('wake')
-                          setPersistenceEvery(1)
-                        } else {
-                          const allowed = allowedUnits(c)
-                          if (!allowed.includes(persistenceUnit)) setPersistenceUnit(allowed[0])
-                        }
-                      }}
-                      className={pill(cadence === c)}
-                    >
-                      {c}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="rounded-lg border border-border p-3 space-y-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm text-text-tertiary">{t.every}</span>
-                    {cadence === 'daily' ? (
-                      <span className="w-14 rounded bg-input px-2 py-1 text-center text-sm text-text">1</span>
-                    ) : (
-                      <input
-                        type="number"
-                        min={1}
-                        max={99}
-                        value={persistenceEvery}
-                        onChange={(e) => setPersistenceEvery(Math.max(1, Math.min(99, Number(e.target.value))))}
-                        className="w-14 rounded bg-input px-2 py-1 text-center text-sm text-text outline-none focus:ring-2 focus:ring-text-muted"
-                      />
-                    )}
-                    {visibleUnits.map(([unit, label]) => (
-                      <button
-                        key={unit}
-                        type="button"
-                        onClick={() => { if (cadence !== 'daily') setPersistenceUnit(unit) }}
-                        className={pill(persistenceUnit === unit)}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <p className={helpText}>{t.cycleHelp}</p>
-              </>
-            )}
-
-            {current === 'people' && (
-              <>
-                <p className={question}>{t.qWhoInList}</p>
-                <textarea
-                  placeholder={t.prayersPlaceholder}
-                  value={initialPrayers}
-                  onChange={(e) => setInitialPrayers(e.target.value)}
-                  rows={7}
-                  className={`${inputClass} resize-none`}
-                  autoFocus
-                />
-                <p className={helpText}>{t.peopleHelp}</p>
-              </>
-            )}
-
-            {current === 'lifecycle' && (
-              <>
-                <p className={question}>{t.qHowLong}</p>
-                <div className="flex flex-col gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setLifecycleType('indefinite')}
-                    className={`rounded-lg px-4 py-3 text-left text-sm transition-colors ${lifecycleType === 'indefinite' ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
-                  >
-                    {t.runsForever}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLifecycleType('finite')}
-                    className={`rounded-lg px-4 py-3 text-left text-sm transition-colors ${lifecycleType === 'finite' ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
-                  >
-                    {t.endsAfterCycles}
-                  </button>
-                </div>
-                {lifecycleType === 'finite' && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-text-tertiary">{t.retiresAfter}</span>
-                    <input
-                      type="number"
-                      min={1}
-                      max={999}
-                      value={retireAfter}
-                      onChange={(e) => setRetireAfter(Math.max(1, Math.min(999, Number(e.target.value))))}
-                      className="w-16 rounded bg-input px-2 py-1 text-center text-sm text-text outline-none focus:ring-2 focus:ring-text-muted"
-                    />
-                    <span className="text-sm text-text-tertiary">
-                      {retireAfter === 1 ? t.completion : t.completions}
-                    </span>
-                  </div>
-                )}
-                <p className={helpText}>{t.lifecycleHelp}</p>
-              </>
-            )}
-
-            {/* ---- Add prayer steps ---- */}
-            {current === 'who' && (
-              <>
-                <p className={question}>{t.whoToPray}</p>
-                <input
-                  type="text"
-                  placeholder={t.prayerTitle}
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className={inputClass}
-                  autoFocus
-                />
-              </>
-            )}
-
-            {current === 'list' && (
-              <>
-                <p className={question}>{t.qWhichList}</p>
-                <select
-                  value={selectedListId}
-                  onChange={(e) => setSelectedListId(e.target.value)}
-                  className={`${inputClass} cursor-pointer appearance-none text-sm`}
-                >
-                  <option value="">{t.unscheduled}</option>
-                  {selectableLists.map((list) => (
-                    <option key={list.id} value={list.id}>
-                      {list.name}
-                    </option>
-                  ))}
-                </select>
-              </>
-            )}
-
-            {/* ---- Shared final step ---- */}
-            {current === 'details' && (
-              <>
-                <div className="flex items-baseline justify-between gap-2">
-                  <p className={question}>{t.qAnythingElse}</p>
-                  <span className="shrink-0 text-xs text-text-muted">{t.optionalStep}</span>
-                </div>
-
-                {mode === 'add-single' ? (
-                  <div>
-                    <div className="mb-1 flex items-center justify-between">
-                      <DescriptionToolbar
-                        textareaRef={addDescRef}
-                        value={description}
-                        onChange={setDescription}
-                        maxLength={2000}
-                      />
-                      <span className="text-xs text-text-muted">{description.length}/2000</span>
-                    </div>
-                    <textarea
-                      ref={addDescRef}
-                      placeholder={t.descriptionOptional}
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
-                      onKeyDown={handleDescKeyDown}
-                      maxLength={2000}
-                      rows={4}
-                      className={`${inputClass} resize-none`}
-                    />
-                  </div>
-                ) : (
-                  <div>
-                    <textarea
-                      placeholder={t.descriptionOptional}
-                      value={listDescription}
-                      onChange={(e) => setListDescription(e.target.value.slice(0, 500))}
-                      rows={3}
-                      maxLength={500}
-                      className={`${inputClass} resize-none`}
-                    />
-                    <div className="mt-1 text-right text-xs text-text-muted">{listDescription.length}/500</div>
-                  </div>
-                )}
-
-                <div>
-                  <div className="mb-2 text-sm text-text-tertiary">{t.tags}</div>
-                  <TagInput
-                    tags={mode === 'add-single' ? prayerTags : listTags}
-                    onChange={mode === 'add-single' ? setPrayerTags : setListTags}
-                    placeholder={t.tagsPlaceholder}
-                    allTags={existingTags}
-                  />
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Pinned footer — always reachable above the keyboard */}
           <div
-            className="shrink-0 space-y-3 border-t border-border bg-card px-5 pb-4 pt-3"
+            ref={trackRef}
+            className="min-h-0 flex-1 overflow-hidden"
+            style={{ touchAction: 'pan-y' }}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+            onTouchCancel={onTouchEnd}
           >
-            {saveError && (
-              <div className="rounded-lg border border-red-500/40 bg-red-500/15 px-3 py-2 text-xs text-red-300 break-words">
-                Couldn't save: {saveError}
-              </div>
-            )}
-            {/* Swipe left/right moves between steps; this stays as a tap target
-                (and the commit action on the last step). */}
-            <button
-              type="submit"
-              disabled={!canAdvance() || saving}
-              aria-label={isLast ? undefined : t.next}
-              className={`flex w-full items-center justify-center gap-1 rounded-lg bg-input-hover text-sm font-medium text-text transition-colors hover:bg-input cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${isLast ? 'py-3' : 'py-2'}`}
+            <div
+              className="flex h-full"
+              style={{
+                width: `${total * 100}%`,
+                transform: `translateX(calc(${(-step * 100) / total}% + ${dragX}px))`,
+                transition: animating ? 'transform 320ms cubic-bezier(0.22, 0.61, 0.36, 1)' : 'none',
+              }}
+              onTransitionEnd={() => setAnimating(false)}
             >
-              {saving
-                ? '…'
-                : isLast
-                  ? (mode === 'create-list' ? t.createList : t.addPrayer)
-                  : <ChevronRight size={20} className="text-text-secondary" />}
-            </button>
+              {steps.map((s) => (
+                <div
+                  key={s}
+                  data-step={s}
+                  className="h-full shrink-0 space-y-4 overflow-y-auto px-5 py-5"
+                  style={{ width: `${100 / total}%` }}
+                >
+                  {renderStep(s)}
+                </div>
+              ))}
+            </div>
           </div>
         </form>
       </div>
