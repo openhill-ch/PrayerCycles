@@ -121,7 +121,6 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
     lists,
     selectedListId,
     prayerIncrement,
-    timerMode,
     running,
     timeLeft,
     totalTime,
@@ -131,7 +130,6 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
     dropdownOpen,
     setDropdownOpen,
     setPrayerIncrement,
-    setTimerMode,
     setCustomMinutes,
     setTimeLeft,
     prayers,
@@ -151,10 +149,12 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
   const currentPrayer = prayers.length > 0 ? (prayers[currentIndex] ?? prayers[0]) : null
   const showPrayerTitle = running || midSession
 
+  // Solid card-coloured band that runs to the very top of the screen, so it
+  // fills the status bar / Dynamic Island area instead of leaving it bare.
   return (
     <div
-      className="sticky top-0 z-40 bg-base px-4 pb-2 pt-4"
-      style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' }}
+      className="sticky top-0 z-40 border-b border-border bg-card px-4 pb-3 shadow-sm"
+      style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
     >
       <div className="mx-auto flex max-w-lg items-center gap-2">
         {/* Hamburger */}
@@ -167,7 +167,7 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
         </button>
 
         {/* Main bar pill */}
-        <div className="relative flex flex-1 min-w-0 items-center gap-2 rounded-full bg-card px-3 py-1.5">
+        <div className="relative flex flex-1 min-w-0 items-center gap-2 rounded-full bg-input px-3 py-2">
           {/* List selector or current prayer title */}
           {showPrayerTitle && currentPrayer ? (
             <div className="flex items-center gap-1.5 min-w-0 shrink">
@@ -212,26 +212,6 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
               />
             </div>
 
-            {/* Auto-toggle */}
-            <button
-              onClick={() => {
-                if (!running) {
-                  if (timerMode === 'until-done') {
-                    setCustomMinutes(Math.max(1, Math.ceil(totalTime / 60)))
-                    setTimerMode('custom')
-                  } else {
-                    setTimerMode('until-done')
-                  }
-                }
-              }}
-              disabled={running}
-              className={`flex items-center ${running ? 'opacity-50' : ''}`}
-              title={timerMode === 'until-done' ? t.autoToggleOnTooltip : t.autoToggleOffTooltip}
-            >
-              <div className={`relative w-6 h-[14px] rounded-full transition-colors duration-200 ${timerMode === 'until-done' ? 'bg-toggle' : 'bg-input-hover'}`}>
-                <div className={`absolute top-[2px] h-[10px] w-[10px] rounded-full bg-white shadow transition-transform duration-200 ${timerMode === 'until-done' ? 'translate-x-[12px]' : 'translate-x-[2px]'}`} />
-              </div>
-            </button>
           </div>
 
           {/* Dropdown */}

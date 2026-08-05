@@ -4,6 +4,7 @@ import { useT } from '../i18n'
 import { useTimer } from '../context/TimerContext'
 import { db } from '../db/db'
 import { snapshotToLocalStorage } from '../features/backup/local-backup'
+import { clearTagRegistry } from '../features/tags/tag-operations'
 
 type ResetDataModalProps = {
   open: boolean
@@ -39,6 +40,7 @@ export function ResetDataModal({ open, onClose }: ResetDataModalProps) {
             await db.prayers.clear()
             await db.prayerLogs.clear()
           })
+          clearTagRegistry()
           localStorage.removeItem('prayercycles-theme')
           localStorage.removeItem('prayercycles-locale')
           break
@@ -66,6 +68,7 @@ export function ResetDataModal({ open, onClose }: ResetDataModalProps) {
             await db.prayers.toCollection().modify({ tags: [] })
             await db.prayerLists.toCollection().modify({ tags: [] })
           })
+          clearTagRegistry()
           break
       }
 

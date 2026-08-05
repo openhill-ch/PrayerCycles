@@ -154,7 +154,9 @@ export function TagsPage() {
           {/* Input area — overlaid by bulk delete bar when selecting */}
           <div className="relative flex-1">
             <form onSubmit={handleCreateTag} className={`flex items-center gap-2 ${someSelected ? 'invisible' : ''}`}>
-              <div className="flex flex-1 items-center gap-2 rounded-lg bg-card border border-border px-3 py-2">
+              {/* min-w-0 lets the field shrink instead of shoving the button
+                  past the right edge on narrow screens */}
+              <div className="flex min-w-0 flex-1 items-center gap-2 rounded-lg bg-card border border-border px-3 py-2">
                 <Hash size={16} className="text-text-muted shrink-0" />
                 <input
                   type="text"
@@ -190,7 +192,7 @@ export function TagsPage() {
               <button
                 type="submit"
                 disabled={!newTagName.trim()}
-                className="flex items-center gap-1 rounded-lg bg-input px-3 py-2 text-sm text-text-secondary hover:bg-input-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg bg-input px-3 py-2 text-sm text-text-secondary hover:bg-input-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 <Plus size={16} />
                 {t.createTag}

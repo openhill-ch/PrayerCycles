@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
 import { X } from 'lucide-react'
-import { isDevMode } from '../lib/devmode'
 
 type TagInputProps = {
   tags: string[]
@@ -79,12 +78,6 @@ export function TagInput({ tags, onChange, placeholder, allTags = [], className 
       if (trimmed) {
         commitTag(trimmed)
       }
-    }
-    // Tab autocompletes to first suggestion (dev mode only)
-    if (e.key === 'Tab' && isDevMode() && suggestions.length > 0) {
-      e.preventDefault()
-      commitTag(suggestions[0])
-      return
     }
     // Backspace on empty input removes last tag
     if (e.key === 'Backspace' && input === '' && tags.length > 0) {

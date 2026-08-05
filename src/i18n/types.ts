@@ -25,7 +25,6 @@ export type Translations = {
   deletedLists: string
   resetPrayerData: string
   languages: string
-  devMode: string
   themes: string
 
   // Timer bar
@@ -92,7 +91,6 @@ export type Translations = {
   activeTapToDeactivate: string
   deactivatedTapToReactivate: string
   deleteConfirm: string
-  addPrayersToList: string
   addPrayersPlaceholder: string
   addPrayersExample: string
   sortOriginal: string
@@ -183,11 +181,6 @@ export type Translations = {
   timePrayedToday: string
   timesPrayedToday: string
   formatDuration: (seconds: number) => string
-
-  // List detail — reorder
-  sortCustom: string
-  setDefaultOrder: string
-  resetOrderConfirm: string
 
   // Total time prayed
   totalTimePrayed: string

@@ -22,7 +22,6 @@ export const gsw: Translations = {
   deletedLists: 'Glöschti Lischte',
   resetPrayerData: 'Gebetsdate zruggsetze',
   languages: 'Sprache',
-  devMode: 'Dev Mode',
   themes: 'Themes',
 
   praying: 'Am Bäte',
@@ -85,10 +84,9 @@ export const gsw: Translations = {
   activeTapToDeactivate: 'Aktiv — tippe zum Deaktiviere',
   deactivatedTapToReactivate: 'Deaktiviert — tippe zum Aktiviere',
   deleteConfirm: 'Lösche?',
-  addPrayersToList: '+ Gebät zu dere Lischte dezuefüege',
   addPrayersPlaceholder: 'Gebät dezuefüege (eis pro Zile)',
   addPrayersExample: 'z.B.\nMueter\nVater\nSchwöschter',
-  sortOriginal: 'Originali Reihefolg',
+  sortOriginal: 'Standard',
   sortAZ: 'A–Z',
   sortZA: 'Z–A',
   sortMostPrayed: 'Am meischte bätet',
@@ -171,10 +169,6 @@ export const gsw: Translations = {
     const s = seconds % 60
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   },
-
-  sortCustom: 'Eigeni',
-  setDefaultOrder: 'Standard-Reihefolg setze',
-  resetOrderConfirm: 'Uf Erstelligsreihefolg zruggsetze?',
 
   totalTimePrayed: 'Gsamti Gebetszit',
   formatTimePrayed: (totalSeconds) => {

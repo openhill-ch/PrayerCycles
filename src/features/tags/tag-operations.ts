@@ -20,6 +20,12 @@ function saveRegistryTags(tags: string[]): void {
   localStorage.setItem(TAG_REGISTRY_KEY, hasCryptoKey() ? encryptBlob(json) : json)
 }
 
+/** Wipe the standalone tag registry. Tags also live on lists/prayers, so a
+ *  reset has to clear both or standalone tags survive the deletion. */
+export function clearTagRegistry(): void {
+  localStorage.removeItem(TAG_REGISTRY_KEY)
+}
+
 /** Create a standalone tag (stored in registry until assigned to a list/prayer) */
 export function createStandaloneTag(name: string): boolean {
   const trimmed = name.trim()

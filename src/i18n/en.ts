@@ -22,7 +22,6 @@ export const en: Translations = {
   deletedLists: 'Deleted Lists',
   resetPrayerData: 'Reset Prayer Data',
   languages: 'Languages',
-  devMode: 'Dev Mode',
   themes: 'Themes',
 
   praying: 'Praying',
@@ -85,10 +84,9 @@ export const en: Translations = {
   activeTapToDeactivate: 'Active — tap to deactivate',
   deactivatedTapToReactivate: 'Deactivated — tap to reactivate',
   deleteConfirm: 'Delete?',
-  addPrayersToList: '+ Add prayers to this list',
   addPrayersPlaceholder: 'Add prayers (one per line)',
   addPrayersExample: 'e.g.\nMom\nDad\nSister',
-  sortOriginal: 'Original Order',
+  sortOriginal: 'Default',
   sortAZ: 'A–Z',
   sortZA: 'Z–A',
   sortMostPrayed: 'Most Prayed',
@@ -171,10 +169,6 @@ export const en: Translations = {
     const s = seconds % 60
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   },
-
-  sortCustom: 'Custom',
-  setDefaultOrder: 'Set Default Order',
-  resetOrderConfirm: 'Reset to creation order?',
 
   totalTimePrayed: 'Total Time Prayed',
   formatTimePrayed: (totalSeconds) => {

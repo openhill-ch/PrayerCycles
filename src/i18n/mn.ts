@@ -22,7 +22,6 @@ export const mn: Translations = {
   deletedLists: 'Устгасан Жагсаалт',
   resetPrayerData: 'Өгөгдлийг Шинэчлэх',
   languages: 'Хэл',
-  devMode: 'Dev Mode',
   themes: 'Загвар',
 
   praying: 'Залбирч байна',
@@ -85,10 +84,9 @@ export const mn: Translations = {
   activeTapToDeactivate: 'Идэвхтэй — идэвхгүй болгохын тулд товш',
   deactivatedTapToReactivate: 'Идэвхгүй — идэвхжүүлэхийн тулд товш',
   deleteConfirm: 'Устгах уу?',
-  addPrayersToList: '+ Энэ жагсаалтад залбирал нэмэх',
   addPrayersPlaceholder: 'Залбирал нэмэх (мөр бүрт нэг)',
   addPrayersExample: 'жишээ нь:\nЭэж\nАав\nЭгч',
-  sortOriginal: 'Анхны дараалал',
+  sortOriginal: 'Үндсэн',
   sortAZ: 'А–Я',
   sortZA: 'Я–А',
   sortMostPrayed: 'Хамгийн их залбирсан',
@@ -171,10 +169,6 @@ export const mn: Translations = {
     const s = seconds % 60
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   },
-
-  sortCustom: 'Өөрчлөн',
-  setDefaultOrder: 'Анхны дараалал тогтоох',
-  resetOrderConfirm: 'Үүсгэсэн дарааллаар шинэчлэх үү?',
 
   totalTimePrayed: 'Нийт залбирсан хугацаа',
   formatTimePrayed: (totalSeconds) => {

@@ -22,7 +22,6 @@ export const ja: Translations = {
   deletedLists: '削除済みリスト',
   resetPrayerData: 'データをリセット',
   languages: '言語',
-  devMode: 'Dev Mode',
   themes: 'テーマ',
 
   praying: '祈り中',
@@ -85,10 +84,9 @@ export const ja: Translations = {
   activeTapToDeactivate: '有効 — タップで無効化',
   deactivatedTapToReactivate: '無効 — タップで有効化',
   deleteConfirm: '削除しますか？',
-  addPrayersToList: '+ このリストに祈りを追加',
   addPrayersPlaceholder: '祈りを追加（1行に1つ）',
   addPrayersExample: '例：\nお母さん\nお父さん\n姉',
-  sortOriginal: '元の順序',
+  sortOriginal: 'デフォルト',
   sortAZ: 'あ–ん',
   sortZA: 'ん–あ',
   sortMostPrayed: '多く祈った順',
@@ -171,10 +169,6 @@ export const ja: Translations = {
     const s = seconds % 60
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   },
-
-  sortCustom: 'カスタム',
-  setDefaultOrder: 'デフォルト順に戻す',
-  resetOrderConfirm: '作成順に戻しますか？',
 
   totalTimePrayed: '合計祈り時間',
   formatTimePrayed: (totalSeconds) => {

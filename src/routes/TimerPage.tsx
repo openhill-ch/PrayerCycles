@@ -4,7 +4,6 @@ import { FormattedText } from '../components/FormattedText'
 import confetti from 'canvas-confetti'
 import { useTimer, TODAY_ID } from '../context/TimerContext'
 import { useT } from '../i18n'
-import { isDevMode } from '../lib/devmode'
 
 type EditableTimeHandle = {
   startEditMin: () => void
@@ -15,9 +14,7 @@ const EditableTime = forwardRef<EditableTimeHandle, {
   onChangeSeconds: (s: number) => void
   disabled: boolean
   onTabForward?: () => void
-  millis?: number | null
-  fontFamily?: string
-}>(function EditableTime({ seconds, onChangeSeconds, disabled, onTabForward, millis, fontFamily }, ref) {
+}>(function EditableTime({ seconds, onChangeSeconds, disabled, onTabForward }, ref) {
   const [editingPart, setEditingPart] = useState<'min' | 'sec' | null>(null)
   const [editMin, setEditMin] = useState('')
   const [editSec, setEditSec] = useState('')
@@ -80,8 +77,6 @@ const EditableTime = forwardRef<EditableTimeHandle, {
 
   const clickClass = disabled ? '' : 'cursor-pointer hover:text-accent-hover transition-colors'
 
-  const fontStyle = fontFamily ? { fontFamily } : undefined
-
   return (
     <div className="flex items-center gap-0.5 justify-center" onBlur={(e) => {
       if (editingPart && !e.currentTarget.contains(e.relatedTarget)) commitEdit()
@@ -94,20 +89,18 @@ const EditableTime = forwardRef<EditableTimeHandle, {
           value={editMin}
           onChange={(e) => setEditMin(e.target.value.replace(/\D/g, ''))}
           onKeyDown={handleKeyDown}
-          style={fontStyle}
           className="w-14 text-2xl font-bold rounded bg-input px-1 py-0.5 text-text text-center outline-none focus:ring-2 focus:ring-accent"
         />
       ) : (
         <span
           onClick={() => startEdit('min')}
-          style={fontStyle}
           className={`text-3xl font-bold text-text tracking-wider ${clickClass}`}
           title={disabled ? undefined : 'Click to edit minutes'}
         >
           {String(m).padStart(2, '0')}
         </span>
       )}
-      <span className="text-3xl font-bold text-text-muted" style={fontStyle}>:</span>
+      <span className="text-3xl font-bold text-text-muted">:</span>
       {editingPart === 'sec' ? (
         <input
           ref={secRef}
@@ -116,22 +109,15 @@ const EditableTime = forwardRef<EditableTimeHandle, {
           value={editSec}
           onChange={(e) => setEditSec(e.target.value.replace(/\D/g, ''))}
           onKeyDown={handleKeyDown}
-          style={fontStyle}
           className="w-14 text-2xl font-bold rounded bg-input px-1 py-0.5 text-text text-center outline-none focus:ring-2 focus:ring-accent"
         />
       ) : (
         <span
           onClick={() => startEdit('sec')}
-          style={fontStyle}
           className={`text-3xl font-bold text-text tracking-wider ${clickClass}`}
           title={disabled ? undefined : 'Click to edit seconds'}
         >
           {String(s).padStart(2, '0')}
-        </span>
-      )}
-      {millis != null && (
-        <span className="text-3xl font-bold text-text" style={fontStyle}>
-          .{Math.floor(millis / 100)}
         </span>
       )}
     </div>
@@ -200,37 +186,6 @@ export function TimerPage() {
     }
     prevTimeLeftRef.current = timeLeft
   }, [timeLeft, running, prayers.length, fireConfetti])
-
-  // Dev Mode millisecond counter
-  const devMode = isDevMode()
-  const [millis, setMillis] = useState(0)
-  const lastTickRef = useRef(performance.now())
-
-  useEffect(() => {
-    if (!devMode || !running) { setMillis(0); return }
-    lastTickRef.current = performance.now()
-    let lastTenth = -1
-    let rafId: number
-    function tick() {
-      const now = performance.now()
-      const elapsed = now - lastTickRef.current
-      const tenth = Math.floor((elapsed % 1000) / 100)
-      if (tenth !== lastTenth) {
-        lastTenth = tenth
-        setMillis(tenth * 100)
-      }
-      rafId = requestAnimationFrame(tick)
-    }
-    rafId = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(rafId)
-  }, [devMode, running])
-
-  // Reset the millis base when timeLeft changes (a new second ticked)
-  useEffect(() => {
-    if (running) lastTickRef.current = performance.now()
-  }, [timeLeft, running])
-
-  const timerFont = devMode ? "'DSEG7 Italic', monospace" : ''
 
   const isToday = selectedListId === TODAY_ID
   const selectedList = isToday ? null : lists.find((l) => l.id === selectedListId)
@@ -404,8 +359,6 @@ export function TimerPage() {
                     onChangeSeconds={setPrayerIncrement}
                     disabled={running}
                     onTabForward={() => totalTimeRef.current?.startEditMin()}
-                    millis={devMode ? (running ? Math.max(0, 990 - millis) : 0) : null}
-                    fontFamily={timerFont || undefined}
                   />
                 </div>
                 <div className="text-center" title="Total timebox — click to edit">
@@ -424,8 +377,6 @@ export function TimerPage() {
                       }
                     }}
                     disabled={running}
-                    millis={devMode ? (running ? Math.max(0, 990 - millis) : 0) : null}
-                    fontFamily={timerFont || undefined}
                   />
                 </div>
               </div>

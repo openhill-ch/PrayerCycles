@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Trash2, GripVertical, Timer } from 'lucide-react'
 import type { PrayerList, Prayer, Cadence, PersistenceUnit } from '../db/types'
 import { getList, updateList, deleteList, archiveList, reactivateList } from '../features/cycles/list-operations'
-import { getPrayersByList, createPrayer, bulkCreatePrayers, reorderPrayers, resetPrayerOrder } from '../features/prayers/prayer-operations'
+import { getPrayersByList, createPrayer, bulkCreatePrayers, reorderPrayers } from '../features/prayers/prayer-operations'
 import { PrayerDetailModal } from '../components/PrayerDetailModal'
 import { TagInput } from '../components/TagInput'
 import { getAllTags } from '../features/tags/tag-operations'
@@ -22,22 +22,22 @@ export function ListDetailPage() {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [showAddPrayer, setShowAddPrayer] = useState(false)
   const [newPrayerText, setNewPrayerText] = useState('')
-  type SortMode = 'original' | 'custom' | 'az' | 'za' | 'most' | 'least'
+  type SortMode = 'default' | 'az' | 'za' | 'most' | 'least'
   const storageKey = `prayercycles-sort-${id}`
-  const [sortMode, setSortMode] = useState<SortMode>(() => {
-    return (localStorage.getItem(storageKey) as SortMode) || 'original'
-  })
-  const [sortTrail, setSortTrail] = useState<SortMode[]>(() => {
+  // Older builds stored 'original'/'custom'; both are just 'default' now.
+  const readSort = (): SortMode => {
     const saved = localStorage.getItem(storageKey)
-    return saved ? [saved as SortMode] : ['original']
-  })
+    if (!saved || saved === 'original' || saved === 'custom') return 'default'
+    return saved as SortMode
+  }
+  const [sortMode, setSortMode] = useState<SortMode>(readSort)
+  const [sortTrail, setSortTrail] = useState<SortMode[]>(() => [readSort()])
 
   // Drag-and-drop state
   const [dragIdx, setDragIdx] = useState<number | null>(null)
   const [overIdx, setOverIdx] = useState<number | null>(null)
   const dragTouchY = useRef<number>(0)
   const listContainerRef = useRef<HTMLDivElement>(null)
-  const [confirmResetOrder, setConfirmResetOrder] = useState(false)
   const [showFulfilled, setShowFulfilled] = useState(false)
 
   function handleSort(mode: SortMode) {
@@ -158,7 +158,6 @@ export function ListDetailPage() {
     return t.formatTimePrayed(seconds)
   }
 
-  const hasCustomOrder = prayers.some((p) => p.sortOrder?.[id!] !== undefined)
 
   const fulfilledCount = prayers.filter((p) => p.fulfilled).length
 
@@ -166,14 +165,12 @@ export function ListDetailPage() {
     // Fulfilled prayers always sort to the bottom
     if (a.fulfilled !== b.fulfilled) return a.fulfilled ? 1 : -1
 
-    if (sortMode === 'custom' || sortMode === 'original') {
-      if (sortMode === 'custom') {
-        const aOrder = a.sortOrder?.[id!]
-        const bOrder = b.sortOrder?.[id!]
-        if (aOrder !== undefined && bOrder !== undefined) return aOrder - bOrder
-        if (aOrder !== undefined) return -1
-        if (bOrder !== undefined) return 1
-      }
+    if (sortMode === 'default') {
+      const aOrder = a.sortOrder?.[id!]
+      const bOrder = b.sortOrder?.[id!]
+      if (aOrder !== undefined && bOrder !== undefined) return aOrder - bOrder
+      if (aOrder !== undefined) return -1
+      if (bOrder !== undefined) return 1
       return a.createdAt - b.createdAt
     }
     if (sortMode === 'az') return a.title.localeCompare(b.title) || a.createdAt - b.createdAt
@@ -202,7 +199,7 @@ export function ListDetailPage() {
     const [moved] = reordered.splice(dragIdx, 1)
     reordered.splice(idx, 0, moved)
     await reorderPrayers(id, reordered.map((p) => p.id))
-    handleSort('custom')
+    handleSort('default')
     setDragIdx(null)
     setOverIdx(null)
     load()
@@ -237,13 +234,6 @@ export function ListDetailPage() {
     }
   }
 
-  async function handleResetOrder() {
-    if (!id) return
-    await resetPrayerOrder(id)
-    handleSort('original')
-    setConfirmResetOrder(false)
-    load()
-  }
 
   // Calculate total time prayed for all prayers in this list
   const listTotalTimePrayed = prayers.reduce((sum, p) => sum + (p.totalTimePrayed ?? 0), 0)
@@ -422,68 +412,64 @@ export function ListDetailPage() {
                   ))}
                 </div>
               )}
-              <div className="mt-3 flex items-center justify-between">
-                <div className="flex gap-2">
+              {/* Pray Now · + Prayer · Edit · Delete */}
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => {
+                    if (!id) return
+                    setSelectedListId(id)
+                    navigate('/timer')
+                  }}
+                  className="flex items-center gap-1.5 rounded-lg bg-accent/15 px-3 py-1 text-sm font-medium text-accent-text hover:bg-accent/25 transition-colors"
+                >
+                  <Timer size={14} />
+                  {t.prayNow}
+                </button>
+                <button
+                  onClick={() => setShowAddPrayer(true)}
+                  className="rounded-lg border border-border-light bg-input px-3 py-1 text-sm text-text-secondary hover:bg-input-hover transition-colors"
+                >
+                  {t.newPrayer}
+                </button>
+                <button
+                  onClick={() => setEditing(true)}
+                  className="rounded-lg border border-border-light bg-input px-3 py-1 text-sm text-text-secondary hover:bg-input-hover transition-colors"
+                >
+                  {t.edit}
+                </button>
+                {!confirmDelete ? (
                   <button
-                    onClick={() => setEditing(true)}
-                    className="rounded-lg border border-border-light bg-input px-3 py-1 text-sm text-text-secondary hover:bg-input-hover transition-colors"
+                    onClick={() => setConfirmDelete(true)}
+                    className="flex items-center gap-1 rounded-lg border border-danger-text/30 px-3 py-1 text-sm text-danger-text hover:bg-danger-text/10 transition-colors"
                   >
-                    {t.edit}
+                    <Trash2 size={14} />
+                    {t.delete}
                   </button>
-                  <button
-                    onClick={() => {
-                      if (!id) return
-                      setSelectedListId(id)
-                      navigate('/timer')
-                    }}
-                    className="flex items-center gap-1.5 rounded-lg bg-accent/15 px-3 py-1 text-sm font-medium text-accent-text hover:bg-accent/25 transition-colors"
-                  >
-                    <Timer size={14} />
-                    {t.prayNow}
-                  </button>
-                </div>
-                <div>
-                  {!confirmDelete ? (
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-danger-text">{t.deleteConfirm}</span>
                     <button
-                      onClick={() => setConfirmDelete(true)}
-                      className="flex items-center gap-1 rounded-lg border border-danger-text/30 px-3 py-1 text-sm text-danger-text hover:bg-danger-text/10 transition-colors"
+                      onClick={handleDeleteList}
+                      className="rounded-lg bg-danger px-2 py-1 text-xs text-white hover:bg-danger-hover transition-colors"
                     >
-                      <Trash2 size={14} />
-                      {t.delete}
+                      {t.yes}
                     </button>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-danger-text">{t.deleteConfirm}</span>
-                      <button
-                        onClick={handleDeleteList}
-                        className="rounded-lg bg-danger px-2 py-1 text-xs text-white hover:bg-danger-hover transition-colors"
-                      >
-                        {t.yes}
-                      </button>
-                      <button
-                        onClick={() => setConfirmDelete(false)}
-                        className="rounded-lg border border-border-light bg-input px-2 py-1 text-xs text-text-secondary hover:bg-input-hover transition-colors"
-                      >
-                        {t.no}
-                      </button>
-                    </div>
-                  )}
-                </div>
+                    <button
+                      onClick={() => setConfirmDelete(false)}
+                      className="rounded-lg border border-border-light bg-input px-2 py-1 text-xs text-text-secondary hover:bg-input-hover transition-colors"
+                    >
+                      {t.no}
+                    </button>
+                  </div>
+                )}
               </div>
             </>
           )}
         </div>
 
-        {/* Add prayers inline */}
-        <div className="mt-4">
-          {!showAddPrayer ? (
-            <button
-              onClick={() => setShowAddPrayer(true)}
-              className="text-sm text-accent-text hover:text-accent-hover transition-colors"
-            >
-              {t.addPrayersToList}
-            </button>
-          ) : (
+        {/* Add prayers inline — opened from the "+ Prayer" action above */}
+        {showAddPrayer && (
+          <div className="mt-4">
             <div className="rounded-lg bg-card p-4 space-y-3">
               <textarea
                 placeholder={`${t.addPrayersPlaceholder}\n${t.addPrayersExample}`}
@@ -509,8 +495,8 @@ export function ListDetailPage() {
                 </button>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Total time prayed */}
         {listTotalTimePrayed > 0 && (
@@ -523,7 +509,7 @@ export function ListDetailPage() {
         {/* Prayer list */}
         <div className="mt-4 space-y-1">
           <div className="flex flex-wrap gap-1 mb-2">
-            {([['original', t.sortOriginal], ['custom', t.sortCustom], ['az', t.sortAZ], ['za', t.sortZA], ['most', t.sortMostPrayed], ['least', t.sortLeastPrayed]] as [SortMode, string][]).map(([mode, label]) => (
+            {([['default', t.sortOriginal], ['az', t.sortAZ], ['za', t.sortZA], ['most', t.sortMostPrayed], ['least', t.sortLeastPrayed]] as [SortMode, string][]).map(([mode, label]) => (
               <button
                 key={mode}
                 onClick={() => handleSort(mode)}
@@ -534,35 +520,6 @@ export function ListDetailPage() {
             ))}
           </div>
 
-          {/* Set Default Order button — only in custom/original mode when custom order exists */}
-          {hasCustomOrder && (sortMode === 'custom' || sortMode === 'original') && (
-            <div className="mb-2">
-              {!confirmResetOrder ? (
-                <button
-                  onClick={() => setConfirmResetOrder(true)}
-                  className="text-xs text-text-muted hover:text-text-secondary transition-colors"
-                >
-                  {t.setDefaultOrder}
-                </button>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-text-tertiary">{t.resetOrderConfirm}</span>
-                  <button
-                    onClick={handleResetOrder}
-                    className="rounded bg-input px-2 py-0.5 text-xs text-text hover:bg-input-hover"
-                  >
-                    {t.yes}
-                  </button>
-                  <button
-                    onClick={() => setConfirmResetOrder(false)}
-                    className="rounded bg-card px-2 py-0.5 text-xs text-text-secondary hover:bg-input"
-                  >
-                    {t.no}
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Show Fulfilled toggle */}
           {fulfilledCount > 0 && (
@@ -583,21 +540,19 @@ export function ListDetailPage() {
             {visiblePrayers.map((prayer, idx) => (
               <div
                 key={prayer.id}
-                draggable={sortMode === 'custom'}
+                draggable
                 onDragStart={() => handleDragStart(idx)}
                 onDragOver={(e) => handleDragOver(e, idx)}
                 onDrop={() => handleDrop(idx)}
                 onDragEnd={() => { setDragIdx(null); setOverIdx(null) }}
-                onTouchStart={(e) => { if (sortMode === 'custom') handleTouchStart(idx, e) }}
+                onTouchStart={(e) => handleTouchStart(idx, e)}
                 className={`w-full flex items-center justify-between rounded-lg px-3 py-2 text-sm text-text-secondary hover:bg-card transition-colors cursor-pointer ${
                   dragIdx === idx ? 'opacity-40' : ''
                 } ${overIdx === idx && dragIdx !== null && dragIdx !== idx ? 'border-t-2 border-accent' : ''}`}
                 onClick={() => { if (dragIdx === null) setSelectedPrayer(prayer) }}
               >
                 <div className="flex items-center gap-2 min-w-0">
-                  {sortMode === 'custom' && (
-                    <GripVertical size={14} className="text-input-hover shrink-0 cursor-grab" />
-                  )}
+                  <GripVertical size={14} className="text-input-hover shrink-0 cursor-grab" />
                   <span className={`truncate ${prayer.fulfilled ? 'line-through opacity-50' : ''}`}>{prayer.title}</span>
                   {prayer.fulfilled && (
                     <span className="text-[10px] text-accent-text/60 shrink-0">{t.fulfilled}</span>

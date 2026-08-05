@@ -1,8 +1,6 @@
-import { useState } from 'react'
-import { X, History, Download, Trash2, Globe, Code, Palette } from 'lucide-react'
+import { X, History, Download, Trash2, Globe, Palette } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useT } from '../i18n'
-import { isDevMode, setDevMode } from '../lib/devmode'
 
 type SideMenuProps = {
   open: boolean
@@ -16,7 +14,6 @@ type SideMenuProps = {
 export function SideMenu({ open, onClose, onExportImport, onLanguages, onThemes, onResetData }: SideMenuProps) {
   const navigate = useNavigate()
   const { t } = useT()
-  const [devOn, setDevOn] = useState(isDevMode)
 
   function goTo(path: string) {
     navigate(path)
@@ -88,21 +85,6 @@ export function SideMenu({ open, onClose, onExportImport, onLanguages, onThemes,
           >
             <Palette size={18} />
             {t.themes}
-          </button>
-
-          <div className="my-2 border-t border-border" />
-
-          <button
-            onClick={() => { const next = !devOn; setDevOn(next); setDevMode(next) }}
-            className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-sm text-text-secondary hover:bg-input transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <Code size={18} />
-              {t.devMode}
-            </div>
-            <div className={`relative w-8 h-[18px] rounded-full transition-colors duration-200 ${devOn ? 'bg-toggle' : 'bg-input-hover'}`}>
-              <div className={`absolute top-[2px] h-[14px] w-[14px] rounded-full bg-white shadow transition-transform duration-200 ${devOn ? 'translate-x-[14px]' : 'translate-x-[2px]'}`} />
-            </div>
           </button>
 
           <button
