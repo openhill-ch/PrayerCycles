@@ -487,6 +487,12 @@ html, body {
   }
 }
 
+/* Clearance for the fixed bottom nav (plus the home-indicator inset) so the
+   last card on a scrolling page isn't cut off at the bottom. */
+.pb-nav {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+
 /* Prevent iOS Safari auto-zoom on input focus (requires >= 16px) */
 input, textarea, select {
   font-size: 16px !important;

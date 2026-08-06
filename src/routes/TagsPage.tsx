@@ -129,7 +129,7 @@ export function TagsPage() {
   const someSelected = selected.size > 0
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 pb-24 pt-4">
+    <div className="flex-1 overflow-y-auto px-4 pb-nav pt-4">
       <div className="mx-auto max-w-lg">
         <h2 className="text-xl font-semibold text-text mb-1">{t.prayerTags}</h2>
         <p className="text-xs text-text-muted mb-4">{t.prayerTagsDesc}</p>

@@ -125,7 +125,7 @@ export function ListsPage() {
   const showTodayCard = !lower || todayFiltered.length > 0 || 'today\'s prayers'.includes(lower)
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 pb-24 pt-4">
+    <div className="flex-1 overflow-y-auto px-4 pb-nav pt-4">
       <div className="mx-auto max-w-5xl">
         {/* Inline search bar */}
         <div className="mb-2 mx-auto flex items-center gap-2 rounded-lg bg-card border border-border px-3 py-2 max-w-2xl">

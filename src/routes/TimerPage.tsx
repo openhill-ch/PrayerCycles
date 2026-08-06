@@ -203,136 +203,84 @@ export function TimerPage() {
   const totalTimerValue = running ? Math.max(0, timeLeft - 1) : timeLeft
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 pb-24 pt-4">
+    <div className="flex-1 overflow-y-auto px-4 pb-nav pt-4">
       <div className="mx-auto max-w-2xl space-y-3">
 
-        {/* List selector */}
-        <div className="relative">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => { if (!running) setLocalDropdown(!localDropdown) }}
-              className={`flex-1 flex items-center justify-between rounded-lg bg-card px-4 py-3 text-left transition-colors border border-border hover:border-border-light ${running ? 'opacity-50' : ''}`}
-            >
-              <span className={`text-lg font-semibold ${hasSelection ? 'text-text' : 'text-text-muted'}`}>
-                {displayName}
-              </span>
-              <ChevronDown size={18} className={`text-text-tertiary transition-transform ${localDropdown ? 'rotate-180' : ''}`} />
-            </button>
-            <button
-              onClick={pickRandom}
-              className={`rounded-lg bg-card p-3 text-text-tertiary hover:text-text-secondary hover:bg-input transition-colors border border-border ${running ? 'opacity-50' : ''}`}
-              title={t.pickRandomList}
-            >
-              <Dices size={20} />
-            </button>
-          </div>
-          {localDropdown && !running && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setLocalDropdown(false)} />
-              <div className="absolute z-50 mt-1 w-full rounded-lg bg-card border border-border shadow-lg overflow-y-auto max-h-72">
+        {/* Timebox — timers on top, the prayer gets the whole width below so a
+            long description isn't squeezed into a narrow column. */}
+        <div
+          ref={timeboxRef}
+          className="relative z-10 flex flex-col rounded-lg border-2 border-accent-text/80 bg-card shadow-[0_0_14px_var(--color-accent-glow)]"
+        >
+          {/* ---- Timer panel ---- */}
+          <div className="shrink-0 space-y-3 border-b border-border p-4">
+
+            {/* List selector + random pick */}
+            <div className="relative">
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={() => { setSelectedListId(TODAY_ID); setLocalDropdown(false) }}
-                  className={`w-full text-left px-4 py-3 text-sm hover:bg-input transition-colors ${
-                    isToday ? 'text-accent-text' : 'text-text-secondary'
-                  }`}
+                  onClick={() => { if (!running) setLocalDropdown(!localDropdown) }}
+                  className={`flex flex-1 min-w-0 items-center justify-between gap-2 rounded-lg border border-border bg-input px-3 py-2 text-left transition-colors hover:border-border-light ${running ? 'opacity-50' : ''}`}
                 >
-                  {t.todaysPrayers}
+                  <span className={`truncate text-base font-semibold ${hasSelection ? 'text-text' : 'text-text-muted'}`}>
+                    {displayName}
+                  </span>
+                  <ChevronDown size={18} className={`shrink-0 text-text-tertiary transition-transform ${localDropdown ? 'rotate-180' : ''}`} />
                 </button>
-                {lists.length > 0 && (
-                  <div className="border-t border-border" />
-                )}
-                {lists.map((list) => (
-                  <button
-                    key={list.id}
-                    onClick={() => { setSelectedListId(list.id); setLocalDropdown(false) }}
-                    className={`w-full text-left px-4 py-3 text-sm hover:bg-input transition-colors ${
-                      selectedListId === list.id ? 'text-accent-text' : 'text-text-secondary'
-                    }`}
-                  >
-                    {list.name}
-                  </button>
-                ))}
-                {lists.length === 0 && (
-                  <div className="px-4 py-3 text-sm text-text-muted italic">{t.noOtherLists}</div>
-                )}
+                <button
+                  onClick={pickRandom}
+                  className={`shrink-0 rounded-lg border border-border bg-input p-2 text-text-tertiary transition-colors hover:bg-input-hover hover:text-text-secondary ${running ? 'opacity-50' : ''}`}
+                  title={t.pickRandomList}
+                >
+                  <Dices size={20} />
+                </button>
               </div>
-            </>
-          )}
-        </div>
 
-        {/* Timebox */}
-        <div ref={timeboxRef} className="relative z-10 rounded-lg bg-card border-2 border-accent-text/80 shadow-[0_0_14px_var(--color-accent-glow)] overflow-hidden">
-          <div className="flex min-h-[240px] max-h-[55vh]">
-
-            {/* Left: current prayer with description */}
-            <div className="flex-1 flex flex-col p-4 overflow-y-auto border-r border-border break-words">
-              {currentPrayer ? (
+              {localDropdown && !running && (
                 <>
-                  <div className="flex-1">
-                    {running && (
-                      <div className="text-xs text-accent-text uppercase tracking-wide mb-1">{t.nowPraying}</div>
-                    )}
-                    {/* List name the prayer belongs to */}
-                    {(() => {
-                      const parentList = currentPrayer.listIds
-                        .map((lid) => lists.find((l) => l.id === lid))
-                        .find((l) => l !== undefined)
-                      return parentList ? (
-                        <div className="text-[11px] text-text-muted mb-0.5">{parentList.name}</div>
-                      ) : null
-                    })()}
-                    <h3 className="text-lg font-semibold text-text">{currentPrayer.title}</h3>
-                    {currentPrayer.description && (
-                      <FormattedText text={currentPrayer.description} className="mt-2 text-sm text-text-secondary" />
+                  <div className="fixed inset-0 z-40" onClick={() => setLocalDropdown(false)} />
+                  <div className="absolute z-50 mt-1 max-h-72 w-full overflow-y-auto rounded-lg border border-border bg-card shadow-lg">
+                    <button
+                      onClick={() => { setSelectedListId(TODAY_ID); setLocalDropdown(false) }}
+                      className={`w-full px-4 py-3 text-left text-sm transition-colors hover:bg-input ${isToday ? 'text-accent-text' : 'text-text-secondary'}`}
+                    >
+                      {t.todaysPrayers}
+                    </button>
+                    {lists.length > 0 && <div className="border-t border-border" />}
+                    {lists.map((list) => (
+                      <button
+                        key={list.id}
+                        onClick={() => { setSelectedListId(list.id); setLocalDropdown(false) }}
+                        className={`w-full px-4 py-3 text-left text-sm transition-colors hover:bg-input ${selectedListId === list.id ? 'text-accent-text' : 'text-text-secondary'}`}
+                      >
+                        {list.name}
+                      </button>
+                    ))}
+                    {lists.length === 0 && (
+                      <div className="px-4 py-3 text-sm italic text-text-muted">{t.noOtherLists}</div>
                     )}
                   </div>
-                  {/* Tags at the bottom — prayer's own tags + parent list tags */}
-                  {(() => {
-                    const tagSet = new Set<string>(currentPrayer.tags ?? [])
-                    for (const lid of currentPrayer.listIds) {
-                      const parentList = lists.find((l) => l.id === lid)
-                      if (parentList) for (const t of parentList.tags ?? []) tagSet.add(t)
-                    }
-                    const allTags = [...tagSet]
-                    return allTags.length > 0 ? (
-                      <div className="mt-3 flex flex-wrap gap-1">
-                        {allTags.map((tag) => (
-                          <span key={tag} className="rounded-full bg-input px-2 py-0.5 text-[10px] text-text-muted">
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    ) : null
-                  })()}
                 </>
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-sm text-text-muted italic text-center">
-                    {selectedListId ? t.noPrayersInThisList : t.selectAPrayerList}
-                  </div>
-                </div>
               )}
             </div>
 
-            {/* Right: timers + controls */}
-            <div className="relative w-56 flex flex-col items-center justify-center gap-3 p-4">
-
-              {/* Transition sound — top left corner */}
+            {/* Sound choice + auto-adjust */}
+            <div className="flex items-center justify-between">
               <button
                 onClick={cycleTransitionSound}
-                className="absolute top-3 left-2 flex items-center gap-1"
+                className="flex items-center gap-1"
                 title={transitionSound ?? 'No Sound'}
               >
-                {transitionSound ? <Volume2 size={12} className="text-text-muted" /> : <VolumeX size={12} className="text-text-muted" />}
-                <span className="text-[9px] text-text-muted whitespace-nowrap">{transitionSound ?? 'No Sound'}</span>
+                {transitionSound
+                  ? <Volume2 size={13} className="text-text-muted" />
+                  : <VolumeX size={13} className="text-text-muted" />}
+                <span className="whitespace-nowrap text-[10px] text-text-muted">{transitionSound ?? 'No Sound'}</span>
               </button>
 
-              {/* Auto-toggle — top right corner */}
               <button
                 onClick={() => {
                   if (!running) {
                     if (timerMode === 'until-done') {
-                      // Switching to custom — sync customMinutes to current total so nothing flashes
                       setCustomMinutes(Math.max(1, Math.ceil(totalTime / 60)))
                       setTimerMode('custom')
                     } else {
@@ -341,88 +289,131 @@ export function TimerPage() {
                   }
                 }}
                 disabled={running}
-                className={`absolute top-3 right-3 flex items-center gap-1.5 ${running ? 'opacity-50' : ''}`}
+                className={`flex items-center gap-1.5 ${running ? 'opacity-50' : ''}`}
                 title={timerMode === 'until-done' ? t.autoToggleOnTooltip : t.autoToggleOffTooltip}
               >
-                <span className="text-[9px] text-text-muted whitespace-nowrap">{t.autoAdjust}</span>
-                <div className={`relative w-7 h-[16px] rounded-full transition-colors duration-200 ${timerMode === 'until-done' ? 'bg-toggle' : 'bg-input'}`}>
+                <span className="whitespace-nowrap text-[10px] text-text-muted">{t.autoAdjust}</span>
+                <div className={`relative h-[16px] w-7 rounded-full transition-colors duration-200 ${timerMode === 'until-done' ? 'bg-toggle' : 'bg-input'}`}>
                   <div className={`absolute top-[2px] h-[12px] w-[12px] rounded-full bg-white shadow transition-transform duration-200 ${timerMode === 'until-done' ? 'translate-x-[13px]' : 'translate-x-[2px]'}`} />
                 </div>
               </button>
+            </div>
 
-              {/* Timers — stacked */}
-              <div className="flex flex-col items-center gap-1">
-                <div className="text-center" title="Time per prayer — click to edit">
-                  <div className="text-[10px] text-text-muted mb-1">{t.timePerPrayer}</div>
-                  <EditableTime
-                    seconds={bigTimerValue}
-                    onChangeSeconds={setPrayerIncrement}
-                    disabled={running}
-                    onTabForward={() => totalTimeRef.current?.startEditMin()}
-                  />
-                </div>
-                <div className="text-center" title="Total timebox — click to edit">
-                  <div className="text-[10px] text-text-muted mb-1">{t.totalTimebox}</div>
-                  <EditableTime
-                    ref={totalTimeRef}
-                    seconds={totalTimerValue}
-                    onChangeSeconds={(s) => {
-                      if (!running) {
-                        setCustomMinutes(Math.max(1, Math.ceil(s / 60)))
-                        setTimeLeft(s)
-                        // Auto-adjust time per prayer to fit evenly
-                        if (prayers.length > 0) {
-                          setPrayerIncrement(Math.max(1, Math.floor(s / prayers.length)))
-                        }
-                      }
-                    }}
-                    disabled={running}
-                  />
-                </div>
+            {/* Timers side by side */}
+            <div className="flex items-start justify-center gap-8">
+              <div className="text-center" title="Time per prayer — click to edit">
+                <div className="mb-1 text-[10px] text-text-muted">{t.timePerPrayer}</div>
+                <EditableTime
+                  seconds={bigTimerValue}
+                  onChangeSeconds={setPrayerIncrement}
+                  disabled={running}
+                  onTabForward={() => totalTimeRef.current?.startEditMin()}
+                />
               </div>
-
-              {/* Controls */}
-              <div className="flex gap-2">
-                {!running ? (
-                  <button
-                    onClick={handleStart}
-                    disabled={!selectedListId || prayers.length === 0}
-                    className="rounded-full bg-input p-2.5 text-text hover:bg-input-hover transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                    aria-label={t.startTimer}
-                  >
-                    <Play size={20} />
-                  </button>
-                ) : (
-                  <button
-                    onClick={handlePause}
-                    className="rounded-full bg-input p-2.5 text-text hover:bg-input-hover transition-colors"
-                    aria-label={t.pauseTimer}
-                  >
-                    <Pause size={20} />
-                  </button>
-                )}
-                <button
-                  onClick={handleReset}
-                  className="rounded-full bg-input p-2.5 text-text-tertiary hover:bg-input-hover transition-colors"
-                  aria-label={t.resetTimer}
-                >
-                  <RotateCcw size={20} />
-                </button>
+              <div className="text-center" title="Total timebox — click to edit">
+                <div className="mb-1 text-[10px] text-text-muted">{t.totalTimebox}</div>
+                <EditableTime
+                  ref={totalTimeRef}
+                  seconds={totalTimerValue}
+                  onChangeSeconds={(sec) => {
+                    if (!running) {
+                      setCustomMinutes(Math.max(1, Math.ceil(sec / 60)))
+                      setTimeLeft(sec)
+                      if (prayers.length > 0) {
+                        setPrayerIncrement(Math.max(1, Math.floor(sec / prayers.length)))
+                      }
+                    }
+                  }}
+                  disabled={running}
+                />
               </div>
             </div>
+
+            {/* Controls */}
+            <div className="flex justify-center gap-2">
+              {!running ? (
+                <button
+                  onClick={handleStart}
+                  disabled={!selectedListId || prayers.length === 0}
+                  className="rounded-full bg-input p-2.5 text-text transition-colors hover:bg-input-hover disabled:cursor-not-allowed disabled:opacity-30"
+                  aria-label={t.startTimer}
+                >
+                  <Play size={20} />
+                </button>
+              ) : (
+                <button
+                  onClick={handlePause}
+                  className="rounded-full bg-input p-2.5 text-text transition-colors hover:bg-input-hover"
+                  aria-label={t.pauseTimer}
+                >
+                  <Pause size={20} />
+                </button>
+              )}
+              <button
+                onClick={handleReset}
+                className="rounded-full bg-input p-2.5 text-text-tertiary transition-colors hover:bg-input-hover"
+                aria-label={t.resetTimer}
+              >
+                <RotateCcw size={20} />
+              </button>
+            </div>
+          </div>
+
+          {/* ---- Current prayer, full width ---- */}
+          <div className="flex max-h-[45vh] min-h-[140px] flex-col overflow-y-auto break-words p-4">
+            {currentPrayer ? (
+              <>
+                <div className="flex-1">
+                  {running && (
+                    <div className="mb-1 text-xs uppercase tracking-wide text-accent-text">{t.nowPraying}</div>
+                  )}
+                  {(() => {
+                    const parentList = currentPrayer.listIds
+                      .map((lid) => lists.find((l) => l.id === lid))
+                      .find((l) => l !== undefined)
+                    return parentList ? (
+                      <div className="mb-0.5 text-[11px] text-text-muted">{parentList.name}</div>
+                    ) : null
+                  })()}
+                  <h3 className="text-lg font-semibold text-text">{currentPrayer.title}</h3>
+                  {currentPrayer.description && (
+                    <FormattedText text={currentPrayer.description} className="mt-2 text-sm text-text-secondary" />
+                  )}
+                </div>
+                {(() => {
+                  const tagSet = new Set<string>(currentPrayer.tags ?? [])
+                  for (const lid of currentPrayer.listIds) {
+                    const parentList = lists.find((l) => l.id === lid)
+                    if (parentList) for (const tg of parentList.tags ?? []) tagSet.add(tg)
+                  }
+                  const allTags = [...tagSet]
+                  return allTags.length > 0 ? (
+                    <div className="mt-3 flex flex-wrap gap-1">
+                      {allTags.map((tag) => (
+                        <span key={tag} className="rounded-full bg-input px-2 py-0.5 text-[10px] text-text-muted">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null
+                })()}
+              </>
+            ) : (
+              <div className="flex h-full items-center justify-center">
+                <div className="text-center text-sm italic text-text-muted">
+                  {selectedListId ? t.noPrayersInThisList : t.selectAPrayerList}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Up next — below the timebox */}
         {upcomingPrayers.length > 0 && (
           <div className="space-y-1">
-            <div className="text-xs text-text-muted uppercase tracking-wide px-1">{t.upNext}</div>
+            <div className="px-1 text-xs uppercase tracking-wide text-text-muted">{t.upNext}</div>
             {upcomingPrayers.slice(0, 6).map((prayer, i) => (
-              <div
-                key={prayer.id}
-                className="px-1"
-                style={{ opacity: 1 - i * 0.15 }}
-              >
+              <div key={prayer.id} className="px-1" style={{ opacity: 1 - i * 0.15 }}>
                 <div className="text-sm text-text-secondary">{prayer.title}</div>
               </div>
             ))}
@@ -435,7 +426,7 @@ export function TimerPage() {
         )}
 
         {selectedListId && prayers.length === 0 && (
-          <p className="text-sm text-text-muted italic pt-2">{t.noPrayersInListYet}</p>
+          <p className="pt-2 text-sm italic text-text-muted">{t.noPrayersInListYet}</p>
         )}
 
       </div>

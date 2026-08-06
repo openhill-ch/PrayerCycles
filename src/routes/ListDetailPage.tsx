@@ -243,7 +243,7 @@ export function ListDetailPage() {
   const editInputClass = 'bg-white/10 outline-none focus:ring-2 focus:ring-white/30'
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 pb-24 pt-4">
+    <div className="flex-1 overflow-y-auto px-4 pb-nav pt-4">
       <div className="mx-auto max-w-lg">
         {/* Header */}
         <button

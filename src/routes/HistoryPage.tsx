@@ -170,7 +170,7 @@ export function HistoryPage() {
     : dayGroups
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 pb-24 pt-4">
+    <div className="flex-1 overflow-y-auto px-4 pb-nav pt-4">
       <div className="mx-auto max-w-lg">
         <button
           onClick={() => navigate(-1)}

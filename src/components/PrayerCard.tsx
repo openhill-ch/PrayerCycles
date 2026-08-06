@@ -6,10 +6,14 @@ import { FormattedText } from './FormattedText'
 type PrayerCardProps = {
   surfaced: SurfacedPrayer
   onComplete: (prayerId: string, listId: string) => void
+  /** Tapping opens a read-only view; completing is confirmed from there. */
+  onOpen: (surfaced: SurfacedPrayer) => void
+  /** Set once the quick view's check is tapped — flips the card and completes. */
+  confirmed?: boolean
   autoFlip?: boolean
 }
 
-export function PrayerCard({ surfaced, onComplete, autoFlip }: PrayerCardProps) {
+export function PrayerCard({ surfaced, onComplete, onOpen, confirmed, autoFlip }: PrayerCardProps) {
   const { t } = useT()
   const [flipping, setFlipping] = useState(false)
   const [fading, setFading] = useState(false)
@@ -31,7 +35,8 @@ export function PrayerCard({ surfaced, onComplete, autoFlip }: PrayerCardProps) 
     }
   }, [autoFlip, flipping])
 
-  function handleClick() {
+  /** Run the flip-and-fade, then report the completion. */
+  function completeWithFlip() {
     if (flipping) return
     setFlipping(true)
     setTimeout(() => setFading(true), 400)
@@ -40,13 +45,26 @@ export function PrayerCard({ surfaced, onComplete, autoFlip }: PrayerCardProps) 
     }, 700)
   }
 
+  const hasConfirmed = useRef(false)
+  useEffect(() => {
+    if (confirmed && !hasConfirmed.current) {
+      hasConfirmed.current = true
+      completeWithFlip()
+    }
+  }, [confirmed])
+
+  function handleClick() {
+    if (flipping) return
+    onOpen(surfaced)
+  }
+
   return (
     <div
       className={`perspective-[600px] cursor-pointer break-inside-avoid transition-opacity duration-300 ${fading ? 'opacity-0' : ''}`}
       onClick={handleClick}
       role="button"
       tabIndex={0}
-      aria-label={t.markAsPrayed(prayer.title)}
+      aria-label={prayer.title}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()

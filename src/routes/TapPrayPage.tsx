@@ -3,6 +3,7 @@ import { Undo2 } from 'lucide-react'
 import { useT } from '../i18n'
 import { useTimer } from '../context/TimerContext'
 import { PrayerCard } from '../components/PrayerCard'
+import { PrayerQuickView } from '../components/PrayerQuickView'
 import { completePrayer, type SurfacedPrayer } from '../lib/surfacing'
 import { db } from '../db/db'
 
@@ -17,6 +18,9 @@ export function TapPrayPage() {
   const [completedStack, setCompletedStack] = useState<CompletedEntry[]>([])
   const [hiddenIds, setHiddenIds] = useState<Record<string, true>>({})
   const [autoFlipIds, setAutoFlipIds] = useState<Record<string, true>>({})
+  // Prayer currently open in the quick view, and the one whose check was tapped
+  const [viewing, setViewing] = useState<SurfacedPrayer | null>(null)
+  const [confirmedIds, setConfirmedIds] = useState<Record<string, true>>({})
   const prevListRef = useRef(selectedListId)
   const prevIndexRef = useRef(currentIndex)
   const prevTimeLeftRef = useRef(timeLeft)
@@ -130,7 +134,7 @@ export function TapPrayPage() {
   const canUndo = completedStack.length > 0
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 pb-24 pt-4">
+    <div className="flex-1 overflow-y-auto px-4 pb-nav pt-4">
       {surfacedPrayers.length === 0 || allDone ? (
         <div className="flex flex-col items-center justify-center pt-20 text-center">
           <p className="text-text-tertiary">{t.noPrayersToShow}</p>
@@ -145,6 +149,8 @@ export function TapPrayPage() {
                 <PrayerCard
                   surfaced={s}
                   onComplete={complete}
+                  onOpen={setViewing}
+                  confirmed={!!confirmedIds[key]}
                   autoFlip={!!autoFlipIds[key]}
                 />
               </div>
@@ -156,11 +162,24 @@ export function TapPrayPage() {
       {canUndo && (
         <button
           onClick={undo}
-          className="fixed bottom-20 left-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-input text-text-secondary shadow-lg hover:bg-input-hover"
+          className="fixed left-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-input text-text-secondary shadow-lg hover:bg-input-hover"
+          style={{ bottom: 'calc(5.5rem + env(safe-area-inset-bottom))' }}
           aria-label={t.undoLastCompletion}
         >
           <Undo2 size={20} />
         </button>
+      )}
+
+      {viewing && (
+        <PrayerQuickView
+          surfaced={viewing}
+          onClose={() => setViewing(null)}
+          onConfirm={() => {
+            const key = `${viewing.prayer.id}-${viewing.listId}`
+            setViewing(null)
+            setConfirmedIds((prev) => ({ ...prev, [key]: true }))
+          }}
+        />
       )}
     </div>
   )
