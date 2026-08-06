@@ -1,11 +1,29 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { Undo2 } from 'lucide-react'
 import { useT } from '../i18n'
 import { useTimer } from '../context/TimerContext'
 import { PrayerCard } from '../components/PrayerCard'
 import { PrayerQuickView } from '../components/PrayerQuickView'
 import { completePrayer, type SurfacedPrayer } from '../lib/surfacing'
+
 import { db } from '../db/db'
+
+/** Mirrors the old columns-2/3/4/5 breakpoints, but as a value we can use in JS. */
+function useColumnCount(): number {
+  const [count, setCount] = useState(2)
+  useEffect(() => {
+    const steps: [MediaQueryList, number][] = [
+      [window.matchMedia('(min-width: 1024px)'), 5],
+      [window.matchMedia('(min-width: 768px)'), 4],
+      [window.matchMedia('(min-width: 640px)'), 3],
+    ]
+    const update = () => setCount(steps.find(([mq]) => mq.matches)?.[1] ?? 2)
+    update()
+    steps.forEach(([mq]) => mq.addEventListener('change', update))
+    return () => steps.forEach(([mq]) => mq.removeEventListener('change', update))
+  }, [])
+  return count
+}
 
 type CompletedEntry = {
   surfaced: SurfacedPrayer
@@ -131,7 +149,16 @@ export function TapPrayPage() {
     refreshPrayers()
   }, [completedStack, refreshPrayers])
 
+  const columnCount = useColumnCount()
   const canUndo = completedStack.length > 0
+
+  // Distribute the cards across columns ourselves (round-robin), so every
+  // column's first card starts at the same y.
+  const columns = useMemo(() => {
+    const buckets: SurfacedPrayer[][] = Array.from({ length: columnCount }, () => [])
+    surfacedPrayers.forEach((s, i) => buckets[i % columnCount].push(s))
+    return buckets
+  }, [surfacedPrayers, columnCount])
 
   return (
     <div className="flex-1 overflow-y-auto px-4 pb-nav pt-4">
@@ -140,22 +167,29 @@ export function TapPrayPage() {
           <p className="text-text-tertiary">{t.noPrayersToShow}</p>
         </div>
       ) : (
-        <div className="mx-auto columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-3 max-w-5xl">
-          {surfacedPrayers.map((s) => {
-            const key = `${s.prayer.id}-${s.listId}`
-            const isHidden = !!hiddenIds[key]
-            return (
-              <div key={key} className={`mb-3 break-inside-avoid ${isHidden ? 'invisible' : ''}`}>
-                <PrayerCard
-                  surfaced={s}
-                  onComplete={complete}
-                  onOpen={setViewing}
-                  confirmed={!!confirmedIds[key]}
-                  autoFlip={!!autoFlipIds[key]}
-                />
-              </div>
-            )
-          })}
+        /* Explicit flex columns rather than CSS multi-column: WebKit offsets
+           the top of later columns when break-inside-avoid is in play, so the
+           first card in each column wouldn't line up. */
+        <div className="mx-auto flex max-w-5xl items-start gap-3">
+          {columns.map((column, colIdx) => (
+            <div key={colIdx} className="flex min-w-0 flex-1 flex-col gap-3">
+              {column.map((s) => {
+                const key = `${s.prayer.id}-${s.listId}`
+                const isHidden = !!hiddenIds[key]
+                return (
+                  <div key={key} className={isHidden ? 'invisible' : ''}>
+                    <PrayerCard
+                      surfaced={s}
+                      onComplete={complete}
+                      onOpen={setViewing}
+                      confirmed={!!confirmedIds[key]}
+                      autoFlip={!!autoFlipIds[key]}
+                    />
+                  </div>
+                )
+              })}
+            </div>
+          ))}
         </div>
       )}
 

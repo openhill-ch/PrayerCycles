@@ -145,10 +145,10 @@ export const en: Translations = {
   selectAPrayerList: 'Select a prayer list',
   noPrayersInThisList: 'No prayers in this list',
   timePerPrayer: 'Time Per Prayer',
-  totalTimebox: 'Total Timebox',
+  totalTimebox: 'Total Time',
+  positionOf: (c: number, n: number) => `${c} of ${n}`,
   autoAdjust: 'Auto Adjust',
   upNext: 'Up next',
-  moreItems: (count) => `+${count} more`,
   noPrayersInListYet: 'No prayers in this list yet.',
   pickRandomList: 'Pick a random list',
 

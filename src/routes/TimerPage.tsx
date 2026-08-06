@@ -360,7 +360,7 @@ export function TimerPage() {
           </div>
 
           {/* ---- Current prayer, full width ---- */}
-          <div className="flex max-h-[45vh] min-h-[140px] flex-col overflow-y-auto break-words p-4">
+          <div className="flex max-h-[60vh] min-h-[220px] flex-col overflow-y-auto break-words p-4">
             {currentPrayer ? (
               <>
                 <div className="flex-1">
@@ -380,23 +380,28 @@ export function TimerPage() {
                     <FormattedText text={currentPrayer.description} className="mt-2 text-sm text-text-secondary" />
                   )}
                 </div>
-                {(() => {
-                  const tagSet = new Set<string>(currentPrayer.tags ?? [])
-                  for (const lid of currentPrayer.listIds) {
-                    const parentList = lists.find((l) => l.id === lid)
-                    if (parentList) for (const tg of parentList.tags ?? []) tagSet.add(tg)
-                  }
-                  const allTags = [...tagSet]
-                  return allTags.length > 0 ? (
-                    <div className="mt-3 flex flex-wrap gap-1">
-                      {allTags.map((tag) => (
+                {/* Tags run along the bottom left; the position sits in the corner */}
+                <div className="mt-3 flex items-end justify-between gap-2">
+                  <div className="flex flex-wrap gap-1">
+                    {(() => {
+                      const tagSet = new Set<string>(currentPrayer.tags ?? [])
+                      for (const lid of currentPrayer.listIds) {
+                        const parentList = lists.find((l) => l.id === lid)
+                        if (parentList) for (const tg of parentList.tags ?? []) tagSet.add(tg)
+                      }
+                      return [...tagSet].map((tag) => (
                         <span key={tag} className="rounded-full bg-input px-2 py-0.5 text-[10px] text-text-muted">
                           #{tag}
                         </span>
-                      ))}
-                    </div>
-                  ) : null
-                })()}
+                      ))
+                    })()}
+                  </div>
+                  {prayers.length > 0 && (
+                    <span className="shrink-0 text-[10px] text-text-muted">
+                      {t.positionOf(currentIndex + 1, prayers.length)}
+                    </span>
+                  )}
+                </div>
               </>
             ) : (
               <div className="flex h-full items-center justify-center">
@@ -412,16 +417,11 @@ export function TimerPage() {
         {upcomingPrayers.length > 0 && (
           <div className="space-y-1">
             <div className="px-1 text-xs uppercase tracking-wide text-text-muted">{t.upNext}</div>
-            {upcomingPrayers.slice(0, 6).map((prayer, i) => (
-              <div key={prayer.id} className="px-1" style={{ opacity: 1 - i * 0.15 }}>
+            {upcomingPrayers.slice(0, 2).map((prayer, i) => (
+              <div key={prayer.id} className="px-1" style={{ opacity: i === 0 ? 1 : 0.45 }}>
                 <div className="text-sm text-text-secondary">{prayer.title}</div>
               </div>
             ))}
-            {upcomingPrayers.length > 6 && (
-              <div className="px-1 text-xs text-border-light">
-                {t.moreItems(upcomingPrayers.length - 6)}
-              </div>
-            )}
           </div>
         )}
 

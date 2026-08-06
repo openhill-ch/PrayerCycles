@@ -145,10 +145,10 @@ export const gsw: Translations = {
   selectAPrayerList: 'Gebetslischte uuswähle',
   noPrayersInThisList: 'Kei Gebät i dere Lischte',
   timePerPrayer: 'Zit pro Gebet',
-  totalTimebox: 'Gsamti Ziitbox',
+  totalTimebox: 'Gsamti Zit',
+  positionOf: (c: number, n: number) => `${c} vo ${n}`,
   autoAdjust: 'Auto Aapasse',
   upNext: 'Als nächsts',
-  moreItems: (count) => `+${count} meh`,
   noPrayersInListYet: 'No kei Gebät i dere Lischte.',
   pickRandomList: 'Zuefällig uuswähle',
 

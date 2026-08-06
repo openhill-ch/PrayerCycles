@@ -146,9 +146,9 @@ export const mn: Translations = {
   noPrayersInThisList: 'Энэ жагсаалтад залбирал байхгүй',
   timePerPrayer: 'Залбирал бүрийн хугацаа',
   totalTimebox: 'Нийт хугацаа',
+  positionOf: (c: number, n: number) => `${n}-с ${c}`,
   autoAdjust: 'Автомат тохируулга',
   upNext: 'Дараагийн',
-  moreItems: (count) => `+${count} нэмэлт`,
   noPrayersInListYet: 'Энэ жагсаалтад залбирал байхгүй байна.',
   pickRandomList: 'Санамсаргүй сонгох',
 
