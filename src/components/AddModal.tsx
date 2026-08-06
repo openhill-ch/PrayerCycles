@@ -17,7 +17,7 @@ type AddModalProps = {
 
 type Mode = 'create-list' | 'add-single'
 
-const LIST_STEPS = ['name', 'people', 'cycle', 'details'] as const
+const LIST_STEPS = ['name', 'people', 'cycle'] as const
 const PRAYER_STEPS = ['who', 'list', 'details'] as const
 type StepKey = (typeof LIST_STEPS)[number] | (typeof PRAYER_STEPS)[number]
 
@@ -281,6 +281,17 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
               onChange={(e) => setListName(e.target.value)}
               className={`${inputClass} text-center`}
             />
+            <div>
+              <textarea
+                placeholder={t.listDescriptionOptional}
+                value={listDescription}
+                onChange={(e) => setListDescription(e.target.value.slice(0, 500))}
+                rows={3}
+                maxLength={500}
+                className={`${inputClass} resize-none text-center`}
+              />
+              <div className="mt-1 text-right text-xs text-text-muted">{listDescription.length}/500</div>
+            </div>
           </>
         )
 
@@ -353,7 +364,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                     key={unit}
                     type="button"
                     onClick={() => { if (cadence !== 'daily') setPersistenceUnit(unit) }}
-                    className={pill(persistenceUnit === unit)}
+                    className={`whitespace-nowrap rounded-lg px-1 py-2 text-xs transition-colors ${persistenceUnit === unit ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
                   >
                     {label}
                   </button>
@@ -402,59 +413,30 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
         return (
           <>
             <p className={titleClass}>{t.detailsTitle}</p>
-
-            {mode === 'add-single' ? (
-              <div>
-                <div className="mb-1 flex items-center justify-between">
-                  <DescriptionToolbar
-                    textareaRef={addDescRef}
-                    value={description}
-                    onChange={setDescription}
-                    maxLength={2000}
-                  />
-                  <span className="text-xs text-text-muted">{description.length}/2000</span>
-                </div>
-                <textarea
-                  ref={addDescRef}
-                  placeholder={t.descriptionOptional}
+            <div>
+              <div className="mb-1 flex items-center justify-between">
+                <DescriptionToolbar
+                  textareaRef={addDescRef}
                   value={description}
-                  onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
-                  onKeyDown={handleDescKeyDown}
+                  onChange={setDescription}
                   maxLength={2000}
-                  rows={4}
-                  className={`${inputClass} resize-none text-center`}
                 />
-                <div className="mt-2">
-                  <TagInput tags={prayerTags} onChange={setPrayerTags} placeholder={t.tagsPlaceholder} allTags={existingTags} />
-                </div>
+                <span className="text-xs text-text-muted">{description.length}/2000</span>
               </div>
-            ) : (
-              <div>
-                <textarea
-                  placeholder={t.listDescriptionOptional}
-                  value={listDescription}
-                  onChange={(e) => setListDescription(e.target.value.slice(0, 500))}
-                  rows={4}
-                  maxLength={500}
-                  className={`${inputClass} resize-none text-center`}
-                />
-                <div className="mt-1 text-right text-xs text-text-muted">{listDescription.length}/500</div>
+              <textarea
+                ref={addDescRef}
+                placeholder={t.descriptionOptional}
+                value={description}
+                onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
+                onKeyDown={handleDescKeyDown}
+                maxLength={2000}
+                rows={4}
+                className={`${inputClass} resize-none text-center`}
+              />
+              <div className="mt-2">
+                <TagInput tags={prayerTags} onChange={setPrayerTags} placeholder={t.tagsPlaceholder} allTags={existingTags} />
               </div>
-            )}
-
-            {saveError && (
-              <div className="rounded-lg border border-red-500/40 bg-red-500/15 px-3 py-2 text-xs text-red-300 break-words">
-                Couldn't save: {saveError}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={saving}
-              className="w-full rounded-lg bg-input-hover py-3 text-sm font-medium text-text transition-colors hover:bg-input cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {saving ? '…' : mode === 'create-list' ? t.createList : t.addPrayer}
-            </button>
+            </div>
           </>
         )
     }
@@ -469,34 +451,17 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
       }}
     >
       <div className="sheet-height flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-card shadow-xl">
-        {/* Pinned header: back / progress / close */}
+        {/* Navigation lives on the edges and in the swipe, so the header only
+            carries the close affordance. */}
         <div className="shrink-0 px-5 pt-5">
-          <div className="flex items-center justify-between">
-            {step > 0 ? (
-              <button
-                type="button"
-                onClick={() => goTo(step - 1)}
-                className="flex items-center gap-1 rounded-lg py-1 pr-2 text-sm text-text-tertiary hover:text-text-secondary transition-colors cursor-pointer"
-              >
-                <ChevronLeft size={18} />
-                {t.back}
-              </button>
-            ) : (
-              <span className="text-sm font-semibold text-text">
-                {mode === 'create-list' ? t.newPrayerList : t.newPrayer}
-              </span>
-            )}
-            <div className="flex items-center gap-1">
-              {/* Swiping is the main way through; this keeps it usable with a
-                  mouse (and for anyone who can't swipe). */}
-              <button
-                onClick={handleClose}
-                className="rounded-full p-1 text-text-tertiary hover:bg-input"
-                aria-label={t.close}
-              >
-                <X size={20} />
-              </button>
-            </div>
+          <div className="flex items-center justify-end">
+            <button
+              onClick={handleClose}
+              className="rounded-full p-1 text-text-tertiary hover:bg-input"
+              aria-label={t.close}
+            >
+              <X size={20} />
+            </button>
           </div>
 
           <div className="mt-3 flex gap-1.5" aria-label={t.stepOf(step + 1, total)}>
@@ -563,14 +528,31 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
               }}
               onTransitionEnd={() => setAnimating(false)}
             >
-              {steps.map((s) => (
+              {steps.map((stepKey, i) => (
                 <div
-                  key={s}
-                  data-step={s}
+                  key={stepKey}
+                  data-step={stepKey}
                   className="h-full shrink-0 space-y-4 overflow-y-auto px-8 py-5"
                   style={{ width: `${100 / total}%` }}
                 >
-                  {renderStep(s)}
+                  {renderStep(stepKey)}
+
+                  {i === total - 1 && (
+                    <>
+                      {saveError && (
+                        <div className="rounded-lg border border-red-500/40 bg-red-500/15 px-3 py-2 text-xs text-red-300 break-words">
+                          Couldn't save: {saveError}
+                        </div>
+                      )}
+                      <button
+                        type="submit"
+                        disabled={saving}
+                        className="w-full rounded-lg bg-input-hover py-3 text-sm font-medium text-text transition-colors hover:bg-input cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        {saving ? '…' : mode === 'create-list' ? t.createList : t.addPrayer}
+                      </button>
+                    </>
+                  )}
                 </div>
               ))}
               </div>
