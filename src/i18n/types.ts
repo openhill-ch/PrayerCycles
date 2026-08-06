@@ -133,6 +133,10 @@ export type Translations = {
   runsForever: string
   endsAfterCycles: string
   optionalStep: string
+  prayersAndTags: string
+  cycleFrequency: string
+  detailsTitle: string
+  listDescriptionOptional: string
 
   // Prayer card
   prayedTally: (count: number, date: string) => string

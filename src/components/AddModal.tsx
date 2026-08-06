@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, CornerDownLeft } from 'lucide-react'
 import { useT } from '../i18n'
 import { useTimer } from '../context/TimerContext'
 import { TagInput } from './TagInput'
@@ -17,7 +17,7 @@ type AddModalProps = {
 
 type Mode = 'create-list' | 'add-single'
 
-const LIST_STEPS = ['name', 'cycle', 'people', 'lifecycle', 'details'] as const
+const LIST_STEPS = ['name', 'people', 'cycle', 'details'] as const
 const PRAYER_STEPS = ['who', 'list', 'details'] as const
 type StepKey = (typeof LIST_STEPS)[number] | (typeof PRAYER_STEPS)[number]
 
@@ -133,11 +133,8 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     setSaveError(null)
   }
 
-  /** Steps that need an answer before you can move past them. */
-  function canLeave(index: number): boolean {
-    const key = steps[index]
-    if (key === 'name') return !!listName.trim()
-    if (key === 'who') return !!title.trim()
+  /** Nothing is mandatory — every list already has its own id. */
+  function canLeave(_index: number): boolean {
     return true
   }
 
@@ -265,30 +262,57 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     'w-full rounded-lg bg-input px-3 py-3 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted'
   const pill = (active: boolean) =>
     `rounded-lg px-4 py-2 text-sm transition-colors ${active ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`
-  const question = 'text-base font-medium text-text'
-  const helpText = 'text-sm text-text-tertiary'
+  // Small-caps renders the first letter full height and the rest as smaller
+  // capitals, which is the look we want for the step titles.
+  const titleClass = 'text-center text-2xl font-semibold tracking-wide text-text [font-variant:small-caps]'
+  const subtitle = 'text-center text-sm text-text-tertiary/70'
 
   function renderStep(key: StepKey) {
     switch (key) {
       case 'name':
         return (
           <>
-            <p className={question}>{t.qListName}</p>
+            <p className={titleClass}>List Name</p>
+            <p className={subtitle}>{t.qListName}</p>
             <input
               type="text"
-              placeholder={t.listNameExample}
+              placeholder={t.listName}
               value={listName}
               onChange={(e) => setListName(e.target.value)}
-              className={inputClass}
+              className={`${inputClass} text-center`}
             />
+          </>
+        )
+
+      case 'people':
+        return (
+          <>
+            <p className={titleClass}>{t.prayersAndTags}</p>
+            <p className={`${subtitle} flex flex-wrap items-center justify-center gap-1`}>
+              {t.peopleHelp}
+              <CornerDownLeft size={14} className="inline shrink-0 rounded border border-text-tertiary/40 p-[1px]" />
+            </p>
+            <textarea
+              placeholder={t.prayersPlaceholder}
+              value={initialPrayers}
+              onChange={(e) => setInitialPrayers(e.target.value)}
+              rows={6}
+              className={`${inputClass} resize-none text-center`}
+            />
+            <div>
+              <div className="mb-2 text-center text-sm text-text-tertiary">{t.tags}</div>
+              <TagInput tags={listTags} onChange={setListTags} placeholder={t.tagsPlaceholder} allTags={existingTags} />
+            </div>
           </>
         )
 
       case 'cycle':
         return (
           <>
-            <p className={question}>{t.qHowOften}</p>
-            <div className="flex flex-wrap gap-2">
+            <p className={titleClass}>{t.cycleFrequency}</p>
+            <p className={subtitle}>{t.qHowOften}</p>
+            {/* Tight padding keeps all four on one row on a phone */}
+            <div className="flex justify-center gap-1">
               {(['daily', 'weekly', 'monthly', 'annually'] as Cadence[]).map((c) => (
                 <button
                   key={c}
@@ -303,14 +327,14 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                       if (!allowed.includes(persistenceUnit)) setPersistenceUnit(allowed[0])
                     }
                   }}
-                  className={pill(cadence === c)}
+                  className={`flex-1 whitespace-nowrap rounded-lg px-1 py-2 text-xs transition-colors ${cadence === c ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
                 >
                   {cadenceLabels[c]}
                 </button>
               ))}
             </div>
             <div className="rounded-lg border border-border p-3">
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center justify-center gap-2">
                 <span className="text-sm text-text-tertiary">{t.every}</span>
                 {cadence === 'daily' ? (
                   <span className="w-14 rounded bg-input px-2 py-1 text-center text-sm text-text">1</span>
@@ -336,75 +360,20 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                 ))}
               </div>
             </div>
-            <p className={helpText}>{t.cycleHelp}</p>
-          </>
-        )
-
-      case 'people':
-        return (
-          <>
-            <p className={question}>{t.qWhoInList}</p>
-            <textarea
-              placeholder={t.prayersPlaceholder}
-              value={initialPrayers}
-              onChange={(e) => setInitialPrayers(e.target.value)}
-              rows={7}
-              className={`${inputClass} resize-none`}
-            />
-            <p className={helpText}>{t.peopleHelp}</p>
-          </>
-        )
-
-      case 'lifecycle':
-        return (
-          <>
-            <p className={question}>{t.qHowLong}</p>
-            <div className="flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={() => setLifecycleType('indefinite')}
-                className={`rounded-lg px-4 py-3 text-left text-sm transition-colors ${lifecycleType === 'indefinite' ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
-              >
-                {t.runsForever}
-              </button>
-              <button
-                type="button"
-                onClick={() => setLifecycleType('finite')}
-                className={`rounded-lg px-4 py-3 text-left text-sm transition-colors ${lifecycleType === 'finite' ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
-              >
-                {t.endsAfterCycles}
-              </button>
-            </div>
-            {lifecycleType === 'finite' && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-text-tertiary">{t.retiresAfter}</span>
-                <input
-                  type="number"
-                  min={1}
-                  max={999}
-                  value={retireAfter}
-                  onChange={(e) => setRetireAfter(Math.max(1, Math.min(999, Number(e.target.value))))}
-                  className="w-16 rounded bg-input px-2 py-1 text-center text-sm text-text outline-none focus:ring-2 focus:ring-text-muted"
-                />
-                <span className="text-sm text-text-tertiary">
-                  {retireAfter === 1 ? t.completion : t.completions}
-                </span>
-              </div>
-            )}
-            <p className={helpText}>{t.lifecycleHelp}</p>
           </>
         )
 
       case 'who':
         return (
           <>
-            <p className={question}>{t.whoToPray}</p>
+            <p className={titleClass}>{t.newPrayer.replace('+ ', '')}</p>
+            <p className={subtitle}>{t.whoToPray}</p>
             <input
               type="text"
               placeholder={t.prayerTitle}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className={inputClass}
+              className={`${inputClass} text-center`}
             />
           </>
         )
@@ -412,11 +381,12 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
       case 'list':
         return (
           <>
-            <p className={question}>{t.qWhichList}</p>
+            <p className={titleClass}>{t.addToList}</p>
+            <p className={subtitle}>{t.qWhichList}</p>
             <select
               value={selectedListId}
               onChange={(e) => setSelectedListId(e.target.value)}
-              className={`${inputClass} cursor-pointer appearance-none text-sm`}
+              className={`${inputClass} cursor-pointer appearance-none text-center text-sm`}
             >
               <option value="">{t.unscheduled}</option>
               {selectableLists.map((list) => (
@@ -431,10 +401,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
       case 'details':
         return (
           <>
-            <div className="flex items-baseline justify-between gap-2">
-              <p className={question}>{t.qAnythingElse}</p>
-              <span className="shrink-0 text-xs text-text-muted">{t.optionalStep}</span>
-            </div>
+            <p className={titleClass}>{t.detailsTitle}</p>
 
             {mode === 'add-single' ? (
               <div>
@@ -455,32 +422,25 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                   onKeyDown={handleDescKeyDown}
                   maxLength={2000}
                   rows={4}
-                  className={`${inputClass} resize-none`}
+                  className={`${inputClass} resize-none text-center`}
                 />
+                <div className="mt-2">
+                  <TagInput tags={prayerTags} onChange={setPrayerTags} placeholder={t.tagsPlaceholder} allTags={existingTags} />
+                </div>
               </div>
             ) : (
               <div>
                 <textarea
-                  placeholder={t.descriptionOptional}
+                  placeholder={t.listDescriptionOptional}
                   value={listDescription}
                   onChange={(e) => setListDescription(e.target.value.slice(0, 500))}
-                  rows={3}
+                  rows={4}
                   maxLength={500}
-                  className={`${inputClass} resize-none`}
+                  className={`${inputClass} resize-none text-center`}
                 />
                 <div className="mt-1 text-right text-xs text-text-muted">{listDescription.length}/500</div>
               </div>
             )}
-
-            <div>
-              <div className="mb-2 text-sm text-text-tertiary">{t.tags}</div>
-              <TagInput
-                tags={mode === 'add-single' ? prayerTags : listTags}
-                onChange={mode === 'add-single' ? setPrayerTags : setListTags}
-                placeholder={t.tagsPlaceholder}
-                allTags={existingTags}
-              />
-            </div>
 
             {saveError && (
               <div className="rounded-lg border border-red-500/40 bg-red-500/15 px-3 py-2 text-xs text-red-300 break-words">
@@ -488,7 +448,6 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
               </div>
             )}
 
-            {/* The only action button in the wizard — everything else is a swipe. */}
             <button
               type="submit"
               disabled={saving}
@@ -504,7 +463,10 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   return (
     <div
       className="fixed inset-0 z-[60] flex items-stretch justify-center bg-overlay p-3 sm:items-center"
-      style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+      style={{
+        paddingTop: 'calc(0.75rem + env(safe-area-inset-top))',
+        paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))',
+      }}
     >
       <div className="sheet-height flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-card shadow-xl">
         {/* Pinned header: back / progress / close */}
@@ -527,17 +489,6 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
             <div className="flex items-center gap-1">
               {/* Swiping is the main way through; this keeps it usable with a
                   mouse (and for anyone who can't swipe). */}
-              {!isLast && (
-                <button
-                  type="button"
-                  onClick={() => goTo(step + 1)}
-                  disabled={!canLeave(step)}
-                  aria-label={t.next}
-                  className="rounded-full p-1 text-text-tertiary hover:bg-input hover:text-text-secondary transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  <ChevronRight size={20} />
-                </button>
-              )}
               <button
                 onClick={handleClose}
                 className="rounded-full p-1 text-text-tertiary hover:bg-input"
@@ -558,7 +509,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
           </div>
 
           {step === 0 && (
-            <div className="mt-4 flex gap-2">
+            <div className="mt-4 flex justify-center gap-2">
               <button type="button" onClick={() => switchMode('create-list')} className={pill(mode === 'create-list')}>
                 {t.newPrayerList}
               </button>
@@ -571,15 +522,38 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
 
         {/* Swipeable track — the card follows your finger and settles on release */}
         <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
-          <div
-            ref={trackRef}
-            className="min-h-0 flex-1 overflow-hidden"
-            style={{ touchAction: 'pan-y' }}
-            onTouchStart={onTouchStart}
-            onTouchMove={onTouchMove}
-            onTouchEnd={onTouchEnd}
-            onTouchCancel={onTouchEnd}
-          >
+          <div className="relative flex min-h-0 flex-1">
+            {/* Full-height, borderless edge arrows: they read as part of the
+                sheet rather than buttons, and mirror the swipe gesture. */}
+            {step > 0 && (
+              <button
+                type="button"
+                onClick={() => goTo(step - 1)}
+                aria-label={t.back}
+                className="absolute inset-y-0 left-0 z-10 flex w-7 items-center justify-center text-text-tertiary/40 transition-colors hover:text-text-secondary cursor-pointer"
+              >
+                <ChevronLeft size={18} />
+              </button>
+            )}
+            {!isLast && (
+              <button
+                type="button"
+                onClick={() => goTo(step + 1)}
+                aria-label={t.next}
+                className="absolute inset-y-0 right-0 z-10 flex w-7 items-center justify-center text-text-tertiary/40 transition-colors hover:text-text-secondary cursor-pointer"
+              >
+                <ChevronRight size={18} />
+              </button>
+            )}
+            <div
+              ref={trackRef}
+              className="min-h-0 flex-1 overflow-hidden"
+              style={{ touchAction: 'pan-y' }}
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+              onTouchCancel={onTouchEnd}
+            >
             <div
               className="flex h-full"
               style={{
@@ -593,12 +567,13 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                 <div
                   key={s}
                   data-step={s}
-                  className="h-full shrink-0 space-y-4 overflow-y-auto px-5 py-5"
+                  className="h-full shrink-0 space-y-4 overflow-y-auto px-8 py-5"
                   style={{ width: `${100 / total}%` }}
                 >
                   {renderStep(s)}
                 </div>
               ))}
+              </div>
             </div>
           </div>
         </form>

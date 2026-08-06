@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, ChevronDown, ChevronUp } from 'lucide-react'
 import { useT } from '../i18n'
+import { MasonryColumns } from '../components/MasonryColumns'
 import type { PrayerList, Prayer } from '../db/types'
 import { getAllLists, UNSCHEDULED_ID } from '../features/cycles/list-operations'
 import { getPrayersByList } from '../features/prayers/prayer-operations'
@@ -168,44 +169,44 @@ export function ListsPage() {
               )}
             </div>
             {tagsOverflow && (
-              <div className="flex justify-end mt-0.5">
+              <div className="flex justify-center">
                 <button
                   onClick={() => setTagsExpanded(!tagsExpanded)}
-                  className="flex items-center gap-0.5 text-[11px] text-text-muted hover:text-text-secondary transition-colors"
+                  aria-label={tagsExpanded ? t.seeLess : t.seeMore}
+                  className="p-1 text-text-muted transition-colors hover:text-text-secondary cursor-pointer"
                 >
-                  {tagsExpanded ? t.seeLess : t.seeMore}
-                  {tagsExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                  {tagsExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                 </button>
               </div>
             )}
           </div>
         )}
 
-        <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-3 [&>*]:mb-3">
-          {/* Today's Prayers virtual card */}
+        {active.length === 0 && archived.length === 0 && !showTodayCard && (
+          <p className="pt-20 text-center text-text-tertiary">{t.noListsYet}</p>
+        )}
+
+        <MasonryColumns>
           {showTodayCard && (
-            <TodayCard prayers={todayPrayers} onSelect={() => setSelectedListId(TODAY_ID)} query={searchQuery} />
+            <TodayCard key="today" prayers={todayPrayers} onSelect={() => setSelectedListId(TODAY_ID)} query={searchQuery} />
           )}
-
-          {active.length === 0 && archived.length === 0 && !showTodayCard && (
-            <p className="pt-20 text-center text-text-tertiary">{t.noListsYet}</p>
-          )}
-
           {active.map(({ list, prayers }) => (
             <ListCard key={list.id} list={list} prayers={prayers} query={searchQuery} />
           ))}
+        </MasonryColumns>
 
-          {archived.length > 0 && (
-            <>
-              <div className="pt-4 text-xs font-medium uppercase tracking-wide text-text-muted break-inside-avoid">
-                {t.deactivated}
-              </div>
+        {archived.length > 0 && (
+          <>
+            <div className="pb-2 pt-4 text-xs font-medium uppercase tracking-wide text-text-muted">
+              {t.deactivated}
+            </div>
+            <MasonryColumns>
               {archived.map(({ list, prayers }) => (
                 <ListCard key={list.id} list={list} prayers={prayers} query={searchQuery} />
               ))}
-            </>
-          )}
-        </div>
+            </MasonryColumns>
+          </>
+        )}
       </div>
     </div>
   )
