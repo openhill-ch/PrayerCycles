@@ -196,7 +196,7 @@ export const gsw: Translations = {
   prayerTagsDesc: 'Tags erstelle, bearbeite oder lösche zum Organisiere vo dine Gebät und Gebetslischte.',
   noTagsYet: 'No kei Tags. Füeg Tags bi zum Gebät oder Lischte erstelle dezue.',
   tags: 'Tags',
-  tagsPlaceholder: '#Tag iitippe  (Doppel-Space zum dezuefüege)',
+  tagsPlaceholder: '#Tag iitippe  (Enter zum dezuefüege)',
   tagUsage: (lists, prayers) => `${lists} ${lists === 1 ? 'Lischte' : 'Lischte'}, ${prayers} ${prayers === 1 ? 'Gebet' : 'Gebät'}`,
   unscheduled: 'Ohni Lischte',
   createTag: 'Tag erstelle',

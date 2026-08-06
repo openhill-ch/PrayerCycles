@@ -196,7 +196,7 @@ export const ja: Translations = {
   prayerTagsDesc: 'タグを作成・編集・削除して、祈りと祈りリストを整理します。',
   noTagsYet: 'タグはまだありません。祈りやリスト作成時にタグを追加してください。',
   tags: 'タグ',
-  tagsPlaceholder: '#タグを入力  (ダブルスペースで追加)',
+  tagsPlaceholder: '#タグを入力  (Enterで追加)',
   tagUsage: (lists, prayers) => `${lists}リスト、${prayers}件の祈り`,
   unscheduled: '未分類',
   createTag: 'タグを作成',

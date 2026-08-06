@@ -15,7 +15,7 @@ export function ResetDataModal({ open, onClose }: ResetDataModalProps) {
   const { t } = useT()
   const { refreshLists } = useTimer()
   const [confirming, setConfirming] = useState<string | null>(null)
-  const [status, setStatus] = useState<'idle' | 'success'>('idle')
+  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [statusMsg, setStatusMsg] = useState('')
 
   function handleClose() {
@@ -47,17 +47,23 @@ export function ResetDataModal({ open, onClose }: ResetDataModalProps) {
           break
 
         case 'stats':
-          await db.transaction('rw', [db.prayers, db.prayerLists], async () => {
-            await db.prayers.toCollection().modify({
-              prayerTally: 0,
-              totalTimePrayed: 0,
-              lastPrayedAt: null,
+          {
+            // Collection.modify() goes down a cursor path that fights the
+            // encryption middleware ("not a valid key"), so read then put.
+            const [prayers, lists] = await Promise.all([db.prayers.toArray(), db.prayerLists.toArray()])
+            await db.transaction('rw', [db.prayers, db.prayerLists], async () => {
+              for (const p of prayers) {
+                await db.prayers.put({ ...p, prayerTally: 0, totalTimePrayed: 0, lastPrayedAt: null })
+              }
+              for (const l of lists) {
+                await db.prayerLists.put({
+                  ...l,
+                  completionTally: 0,
+                  rotationState: { ...l.rotationState, tallyOffsets: {} },
+                })
+              }
             })
-            await db.prayerLists.toCollection().modify((list) => {
-              list.completionTally = 0
-              list.rotationState.tallyOffsets = {}
-            })
-          })
+          }
           break
 
         case 'history':
@@ -65,10 +71,17 @@ export function ResetDataModal({ open, onClose }: ResetDataModalProps) {
           break
 
         case 'tags':
-          await db.transaction('rw', [db.prayers, db.prayerLists], async () => {
-            await db.prayers.toCollection().modify({ tags: [] })
-            await db.prayerLists.toCollection().modify({ tags: [] })
-          })
+          {
+            const [prayers, lists] = await Promise.all([db.prayers.toArray(), db.prayerLists.toArray()])
+            await db.transaction('rw', [db.prayers, db.prayerLists], async () => {
+              for (const p of prayers) {
+                if ((p.tags ?? []).length) await db.prayers.put({ ...p, tags: [] })
+              }
+              for (const l of lists) {
+                if ((l.tags ?? []).length) await db.prayerLists.put({ ...l, tags: [] })
+              }
+            })
+          }
           clearTagRegistry()
           break
       }
@@ -79,8 +92,10 @@ export function ResetDataModal({ open, onClose }: ResetDataModalProps) {
       setConfirming(null)
       setStatus('success')
       setStatusMsg(t.resetSuccess)
-    } catch {
+    } catch (err) {
       setConfirming(null)
+      setStatus('error')
+      setStatusMsg(err instanceof Error ? `${err.name}: ${err.message}` : String(err))
     }
   }
 

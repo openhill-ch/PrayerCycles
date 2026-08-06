@@ -43,32 +43,7 @@ export function TagInput({ tags, onChange, placeholder, allTags = [], className 
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const val = e.target.value
-
-    // Double-space commits the current tag
-    if (val.endsWith('  ')) {
-      const tagText = val.trimEnd()
-      if (tagText) {
-        commitTag(tagText)
-        return
-      }
-      // Empty double-space — ignore
-      setInput('')
-      return
-    }
-
-    // iOS auto-corrects double-space to ". " — treat as double-space commit
-    if (val.endsWith('. ') && !input.endsWith('.')) {
-      const tagText = val.slice(0, -2).trim()
-      if (tagText) {
-        commitTag(tagText)
-        return
-      }
-      setInput('')
-      return
-    }
-
-    setInput(val)
+    setInput(e.target.value)
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -136,7 +111,7 @@ export function TagInput({ tags, onChange, placeholder, allTags = [], className 
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             onBlur={handleBlur}
-            placeholder={tags.length === 0 ? (placeholder ?? 'type a tag  (double-space to add)') : 'add another...'}
+            placeholder={tags.length === 0 ? (placeholder ?? 'type a tag') : 'add another...'}
             className="flex-1 bg-transparent text-sm text-text placeholder-text-tertiary outline-none"
           />
         </div>

@@ -36,7 +36,10 @@ export function SideMenu({ open, onClose, onExportImport, onLanguages, onThemes,
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-border">
+        <div
+          className="flex items-center justify-between border-b border-border p-4"
+          style={{ paddingTop: 'calc(1rem + env(safe-area-inset-top))' }}
+        >
           <h2 className="text-lg font-semibold text-text">{t.appName}</h2>
           <button
             onClick={onClose}

@@ -196,7 +196,7 @@ export const mn: Translations = {
   prayerTagsDesc: 'Залбирал болон залбирлын жагсаалтыг зохион байгуулахын тулд шошго үүсгэх, засах, устгах.',
   noTagsYet: 'Шошго байхгүй байна. Залбирал эсвэл жагсаалт үүсгэх үед шошго нэмнэ үү.',
   tags: 'Шошго',
-  tagsPlaceholder: '#шошго бичих  (давхар зай дарж нэмэх)',
+  tagsPlaceholder: '#шошго бичих  (Enter дарж нэмэх)',
   tagUsage: (lists, prayers) => `${lists} жагсаалт, ${prayers} залбирал`,
   unscheduled: 'Хуваарьгүй',
   createTag: 'Шошго үүсгэх',

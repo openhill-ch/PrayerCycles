@@ -1,24 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Undo2 } from 'lucide-react'
 import { useT } from '../i18n'
 import { useTimer } from '../context/TimerContext'
 import { PrayerCard } from '../components/PrayerCard'
 import { PrayerQuickView } from '../components/PrayerQuickView'
 import { completePrayer, type SurfacedPrayer } from '../lib/surfacing'
 
-import { db } from '../db/db'
 import { MasonryColumns } from '../components/MasonryColumns'
-
-
-type CompletedEntry = {
-  surfaced: SurfacedPrayer
-  index: number
-}
 
 export function TapPrayPage() {
   const { t } = useT()
-  const { surfacedPrayers, selectedListId, refreshPrayers, currentIndex, running, timeLeft } = useTimer()
-  const [completedStack, setCompletedStack] = useState<CompletedEntry[]>([])
+  const { surfacedPrayers, selectedListId, currentIndex, running, timeLeft } = useTimer()
   const [hiddenIds, setHiddenIds] = useState<Record<string, true>>({})
   const [autoFlipIds, setAutoFlipIds] = useState<Record<string, true>>({})
   // Prayer currently open in the quick view, and the one whose check was tapped
@@ -32,7 +23,6 @@ export function TapPrayPage() {
   // Clear completed/hidden state when the selected list changes
   useEffect(() => {
     if (prevListRef.current !== selectedListId) {
-      setCompletedStack([])
       setHiddenIds({})
       setAutoFlipIds({})
       prevListRef.current = selectedListId
@@ -90,52 +80,12 @@ export function TapPrayPage() {
       )
       if (index === -1) return
 
-      const entry = surfacedPrayers[index]
-      setCompletedStack((prev) => [...prev, { surfaced: entry, index }])
       setHiddenIds((prev) => ({ ...prev, [key]: true }))
 
       await completePrayer(prayerId, listId)
     },
     [surfacedPrayers],
   )
-
-  const undo = useCallback(async () => {
-    if (completedStack.length === 0) return
-
-    const last = completedStack[completedStack.length - 1]
-    setCompletedStack((prev) => prev.slice(0, -1))
-
-    const key = `${last.surfaced.prayer.id}-${last.surfaced.listId}`
-    setHiddenIds((prev) => {
-      const next = { ...prev }
-      delete next[key]
-      return next
-    })
-
-    const { prayer } = last.surfaced
-    const current = await db.prayers.get(prayer.id)
-    if (current) {
-      await db.prayers.put({
-        ...current,
-        lastPrayedAt: prayer.lastPrayedAt,
-        prayerTally: prayer.prayerTally,
-      })
-    }
-
-    const logs = await db.prayerLogs
-      .where('prayerId')
-      .equals(prayer.id)
-      .reverse()
-      .sortBy('prayedAt')
-    if (logs.length > 0) {
-      await db.prayerLogs.delete(logs[0].id)
-    }
-
-    refreshPrayers()
-  }, [completedStack, refreshPrayers])
-
-  const canUndo = completedStack.length > 0
-
 
   return (
     <div className="flex-1 overflow-y-auto px-4 pb-nav pt-4">
@@ -163,17 +113,6 @@ export function TapPrayPage() {
             })}
           </MasonryColumns>
         </div>
-      )}
-
-      {canUndo && (
-        <button
-          onClick={undo}
-          className="fixed left-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-input text-text-secondary shadow-lg hover:bg-input-hover"
-          style={{ bottom: 'calc(5.5rem + env(safe-area-inset-bottom))' }}
-          aria-label={t.undoLastCompletion}
-        >
-          <Undo2 size={20} />
-        </button>
       )}
 
       {viewing && (

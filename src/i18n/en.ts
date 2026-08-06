@@ -196,7 +196,7 @@ export const en: Translations = {
   prayerTagsDesc: 'Create, edit, or remove tags to organize your prayers and prayer lists.',
   noTagsYet: 'No tags yet. Add tags when creating prayers or lists.',
   tags: 'Tags',
-  tagsPlaceholder: '#type a tag  (double-space to add)',
+  tagsPlaceholder: '#type a tag  (press enter to add)',
   tagUsage: (lists, prayers) => `${lists} ${lists === 1 ? 'list' : 'lists'}, ${prayers} ${prayers === 1 ? 'prayer' : 'prayers'}`,
   unscheduled: 'Unscheduled',
   createTag: 'Create Tag',
