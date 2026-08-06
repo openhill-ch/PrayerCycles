@@ -146,6 +146,7 @@ export function ListDetailPage() {
     return ['wake', 'passage', 'season', 'orbit']
   }
 
+  const cadenceLabels: Record<Cadence, string> = { daily: t.daily, weekly: t.weekly, monthly: t.monthly, annually: t.annually }
   const persistenceLabels: Record<PersistenceUnit, string> = { wake: t.day, passage: t.week, season: t.month, orbit: t.year }
   const persistenceLabelPlural: Record<PersistenceUnit, string> = { wake: t.days, passage: t.weeks, season: t.months, orbit: t.years }
   const pUnit = list.cycle.persistence.unit
@@ -290,9 +291,9 @@ export function ListDetailPage() {
                           if (!allowed.includes(persistenceUnit)) setPersistenceUnit(allowed[0])
                         }
                       }}
-                      className={`rounded px-2 py-0.5 text-xs capitalize ${cadence === c ? 'bg-input text-text' : 'bg-white/10 text-text-secondary'}`}
+                      className={`rounded px-2 py-0.5 text-xs ${cadence === c ? 'bg-input text-text' : 'bg-white/10 text-text-secondary'}`}
                     >
-                      {c}
+                      {cadenceLabels[c]}
                     </button>
                   ))}
                 </div>

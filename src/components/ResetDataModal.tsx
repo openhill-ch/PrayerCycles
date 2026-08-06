@@ -41,6 +41,7 @@ export function ResetDataModal({ open, onClose }: ResetDataModalProps) {
             await db.prayerLogs.clear()
           })
           clearTagRegistry()
+          localStorage.removeItem('prayercycles_surfaced')
           localStorage.removeItem('prayercycles-theme')
           localStorage.removeItem('prayercycles-locale')
           break

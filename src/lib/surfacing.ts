@@ -74,10 +74,46 @@ async function pickLeastPrayed(queue: string[], offsets: Record<string, number> 
   return leastPrayed[Math.floor(Math.random() * leastPrayed.length)]
 }
 
+/* Which prayer each list surfaced, and for which cadence period. Without this,
+ * pickLeastPrayed re-rolls its random tie-break on every call, so simply
+ * navigating between pages swapped out today's prayers. The pick now holds
+ * until the list's next cadence boundary (midnight for a daily list) or until
+ * that prayer is actually prayed. */
+const SURFACED_KEY = 'prayercycles_surfaced'
+
+type SurfacedPick = { boundary: number; prayerId: string }
+
+function readPicks(): Record<string, SurfacedPick> {
+  try {
+    return JSON.parse(localStorage.getItem(SURFACED_KEY) || '{}')
+  } catch {
+    return {}
+  }
+}
+
+function writePicks(picks: Record<string, SurfacedPick>): void {
+  try {
+    localStorage.setItem(SURFACED_KEY, JSON.stringify(picks))
+  } catch {
+    // storage unavailable — fall back to re-picking each time
+  }
+}
+
+/** Drop a list's remembered pick so the next surface advances to a new prayer. */
+export function clearSurfacedPick(listId: string): void {
+  const picks = readPicks()
+  if (picks[listId]) {
+    delete picks[listId]
+    writePicks(picks)
+  }
+}
+
 export async function getSurfacedPrayers(): Promise<SurfacedPrayer[]> {
   const now = new Date()
   const lists = await db.prayerLists.where('status').equals('active').toArray()
   const surfaced: SurfacedPrayer[] = []
+  const picks = readPicks()
+  let picksChanged = false
 
   for (const rawList of lists) {
     const list = advanceRotation(rawList, now)
@@ -94,7 +130,23 @@ export async function getSurfacedPrayers(): Promise<SurfacedPrayer[]> {
     const queue = list.rotationState.queue
     if (queue.length === 0) continue
 
-    const prayer = await pickLeastPrayed(queue, list.rotationState.tallyOffsets ?? {})
+    const boundary = getCadenceBoundary(list.cycle.cadence, now)
+    let prayer: Prayer | undefined
+
+    // Reuse this period's pick while it's still a valid choice.
+    const remembered = picks[list.id]
+    if (remembered && remembered.boundary === boundary && queue.includes(remembered.prayerId)) {
+      const p = await db.prayers.get(remembered.prayerId)
+      if (p && !p.fulfilled) prayer = p
+    }
+
+    if (!prayer) {
+      prayer = await pickLeastPrayed(queue, list.rotationState.tallyOffsets ?? {})
+      if (prayer) {
+        picks[list.id] = { boundary, prayerId: prayer.id }
+        picksChanged = true
+      }
+    }
 
     if (prayer) {
       surfaced.push({
@@ -104,6 +156,8 @@ export async function getSurfacedPrayers(): Promise<SurfacedPrayer[]> {
       })
     }
   }
+
+  if (picksChanged) writePicks(picks)
 
   return surfaced
 }
@@ -134,6 +188,9 @@ export async function completePrayer(
       prayerTally: prayer.prayerTally + 1,
     })
   }
+
+  // This one's been prayed, so let the list surface the next one.
+  clearSurfacedPick(listId)
 
   // Check if all prayers in the list have been prayed — if so, bump completionTally
   const queue = list.rotationState.queue

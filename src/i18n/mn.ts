@@ -13,9 +13,9 @@ export const mn: Translations = {
   no: 'Үгүй',
   loading: 'Ачааллаж байна...',
 
-  navTapPray: 'Залбирлын Харагдац',
-  navPrayerLists: 'Залбирлын Жагсаалт',
-  navTimebox: 'Цагийн Хайрцаг',
+  navTapPray: 'Өнөөдөр',
+  navPrayerLists: 'Жагсаалт',
+  navTimebox: 'Цаг',
 
   prayerHistory: 'Залбирлын Түүх',
   exportImport: 'Экспорт / Импорт',
@@ -89,8 +89,8 @@ export const mn: Translations = {
   sortOriginal: 'Үндсэн',
   sortAZ: 'А–Я',
   sortZA: 'Я–А',
-  sortMostPrayed: 'Хамгийн их залбирсан',
-  sortLeastPrayed: 'Хамгийн бага залбирсан',
+  sortMostPrayed: '> залбирсан',
+  sortLeastPrayed: '< залбирсан',
   noPrayersInList: 'Энэ жагсаалтад залбирал байхгүй байна.',
   prayNow: 'Одоо залбирах',
 
@@ -187,7 +187,7 @@ export const mn: Translations = {
   timesCount: (count) => `x ${count}`,
   everyUnit: (every, singular, plural) => every === 1 ? `${singular} бүр` : `${every} ${plural} тутам`,
 
-  navPrayerTags: 'Залбирлын Шошго',
+  navPrayerTags: 'Шошго',
   prayerTags: 'Залбирлын Шошго',
   prayerTagsDesc: 'Залбирал болон залбирлын жагсаалтыг зохион байгуулахын тулд шошго үүсгэх, засах, устгах.',
   noTagsYet: 'Шошго байхгүй байна. Залбирал эсвэл жагсаалт үүсгэх үед шошго нэмнэ үү.',

@@ -13,9 +13,9 @@ export const en: Translations = {
   no: 'No',
   loading: 'Loading...',
 
-  navTapPray: 'Prayer View',
-  navPrayerLists: 'Prayer Lists',
-  navTimebox: 'Timebox',
+  navTapPray: 'Today',
+  navPrayerLists: 'Lists',
+  navTimebox: 'Timer',
 
   prayerHistory: 'Prayer History',
   exportImport: 'Export / Import',
@@ -89,8 +89,8 @@ export const en: Translations = {
   sortOriginal: 'Default',
   sortAZ: 'A–Z',
   sortZA: 'Z–A',
-  sortMostPrayed: 'Most Prayed',
-  sortLeastPrayed: 'Least Prayed',
+  sortMostPrayed: '> prayed',
+  sortLeastPrayed: '< prayed',
   noPrayersInList: 'No prayers in this list yet.',
   prayNow: 'Pray Now',
 
@@ -187,7 +187,7 @@ export const en: Translations = {
   timesCount: (count) => `x ${count}`,
   everyUnit: (every, singular, plural) => `Every ${every === 1 ? singular : `${every} ${plural}`}`,
 
-  navPrayerTags: 'Prayer Tags',
+  navPrayerTags: 'Tags',
   prayerTags: 'Prayer Tags',
   prayerTagsDesc: 'Create, edit, or remove tags to organize your prayers and prayer lists.',
   noTagsYet: 'No tags yet. Add tags when creating prayers or lists.',

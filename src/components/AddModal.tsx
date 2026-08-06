@@ -249,6 +249,13 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     return ['wake', 'passage', 'season', 'orbit']
   }
 
+  const cadenceLabels: Record<Cadence, string> = {
+    daily: t.daily,
+    weekly: t.weekly,
+    monthly: t.monthly,
+    annually: t.annually,
+  }
+
   const visibleUnits = allUnits.filter(([unit]) => allowedUnits(cadence).includes(unit))
   const selectableLists = lists.filter((l) => l.status !== 'deleted' && l.id !== UNSCHEDULED_ID)
 
@@ -257,7 +264,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   const inputClass =
     'w-full rounded-lg bg-input px-3 py-3 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted'
   const pill = (active: boolean) =>
-    `rounded-lg px-4 py-2 text-sm capitalize transition-colors ${active ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`
+    `rounded-lg px-4 py-2 text-sm transition-colors ${active ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`
   const question = 'text-base font-medium text-text'
   const helpText = 'text-sm text-text-tertiary'
 
@@ -298,7 +305,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                   }}
                   className={pill(cadence === c)}
                 >
-                  {c}
+                  {cadenceLabels[c]}
                 </button>
               ))}
             </div>

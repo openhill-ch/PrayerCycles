@@ -13,9 +13,9 @@ export const gsw: Translations = {
   no: 'Nei',
   loading: 'Am Lade...',
 
-  navTapPray: 'Gebetsaasicht',
-  navPrayerLists: 'Gebetslischte',
-  navTimebox: 'Ziitbox',
+  navTapPray: 'Hüt',
+  navPrayerLists: 'Lischte',
+  navTimebox: 'Timer',
 
   prayerHistory: 'Gebetsgschicht',
   exportImport: 'Export / Import',
@@ -89,8 +89,8 @@ export const gsw: Translations = {
   sortOriginal: 'Standard',
   sortAZ: 'A–Z',
   sortZA: 'Z–A',
-  sortMostPrayed: 'Am meischte bätet',
-  sortLeastPrayed: 'Am wenigschte bätet',
+  sortMostPrayed: '> bätet',
+  sortLeastPrayed: '< bätet',
   noPrayersInList: 'No kei Gebät i dere Lischte.',
   prayNow: 'Jetzt bäte',
 
@@ -187,7 +187,7 @@ export const gsw: Translations = {
   timesCount: (count) => `x ${count}`,
   everyUnit: (every, singular, plural) => every === 1 ? `Jede ${singular}` : `Jede ${every} ${plural}`,
 
-  navPrayerTags: 'Gebets-Tags',
+  navPrayerTags: 'Tags',
   prayerTags: 'Gebets-Tags',
   prayerTagsDesc: 'Tags erstelle, bearbeite oder lösche zum Organisiere vo dine Gebät und Gebetslischte.',
   noTagsYet: 'No kei Tags. Füeg Tags bi zum Gebät oder Lischte erstelle dezue.',

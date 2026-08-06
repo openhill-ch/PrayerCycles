@@ -152,7 +152,7 @@ export function TagsPage() {
           )}
 
           {/* Input area — overlaid by bulk delete bar when selecting */}
-          <div className="relative flex-1">
+          <div className="relative min-w-0 flex-1">
             <form onSubmit={handleCreateTag} className={`flex items-center gap-2 ${someSelected ? 'invisible' : ''}`}>
               {/* min-w-0 lets the field shrink instead of shoving the button
                   past the right edge on narrow screens */}

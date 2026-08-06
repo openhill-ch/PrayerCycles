@@ -13,8 +13,8 @@ export const ja: Translations = {
   no: 'いいえ',
   loading: '読み込み中...',
 
-  navTapPray: '祈りビュー',
-  navPrayerLists: '祈りリスト',
+  navTapPray: '今日',
+  navPrayerLists: 'リスト',
   navTimebox: 'タイマー',
 
   prayerHistory: '祈りの履歴',
@@ -89,8 +89,8 @@ export const ja: Translations = {
   sortOriginal: 'デフォルト',
   sortAZ: 'あ–ん',
   sortZA: 'ん–あ',
-  sortMostPrayed: '多く祈った順',
-  sortLeastPrayed: '少なく祈った順',
+  sortMostPrayed: '> 祈り',
+  sortLeastPrayed: '< 祈り',
   noPrayersInList: 'このリストにはまだ祈りがありません。',
   prayNow: '今すぐ祈る',
 
@@ -187,7 +187,7 @@ export const ja: Translations = {
   timesCount: (count) => `x ${count}`,
   everyUnit: (every, singular, plural) => every === 1 ? `毎${singular}` : `${every}${plural}ごと`,
 
-  navPrayerTags: '祈りタグ',
+  navPrayerTags: 'タグ',
   prayerTags: '祈りタグ',
   prayerTagsDesc: 'タグを作成・編集・削除して、祈りと祈りリストを整理します。',
   noTagsYet: 'タグはまだありません。祈りやリスト作成時にタグを追加してください。',

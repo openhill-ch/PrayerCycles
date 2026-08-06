@@ -29,12 +29,12 @@ export function BottomNav({ onNavigate }: BottomNavProps) {
             end={to === '/'}
             onClick={onNavigate}
             className={({ isActive }) =>
-              `flex flex-1 flex-col items-center gap-1 pt-3 pb-6 text-xs transition-colors ${
+              `flex flex-1 flex-col items-center gap-1 pt-3 pb-6 text-[11px] font-medium transition-colors ${
                 isActive ? 'text-text' : 'text-text-muted hover:text-text-secondary'
               }`
             }
           >
-            <Icon size={20} />
+            <Icon size={26} strokeWidth={1.75} />
             <span>{label}</span>
           </NavLink>
         ))}
