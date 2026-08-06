@@ -87,11 +87,11 @@ function AppContent() {
         {!modalOpen && (
           <button
             onClick={() => setAddOpen(true)}
-            className="fixed right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-input-hover text-text shadow-lg hover:bg-input"
-            style={{ bottom: 'calc(5rem + env(safe-area-inset-bottom))' }}
+            className="fixed right-4 z-40 flex h-16 w-16 items-center justify-center rounded-full bg-input-hover text-text shadow-lg transition-colors hover:bg-input"
+            style={{ bottom: 'calc(5.25rem + env(safe-area-inset-bottom))' }}
             aria-label="Add"
           >
-            <Plus size={24} />
+            <Plus size={30} />
           </button>
         )}
 
