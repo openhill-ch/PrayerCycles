@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { X, ChevronLeft, ChevronRight, CornerDownLeft } from 'lucide-react'
+import confetti from 'canvas-confetti'
 import { useT } from '../i18n'
 import { useTimer } from '../context/TimerContext'
 import { TagInput } from './TagInput'
@@ -58,6 +59,10 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
 
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  // Brief flourish when the list is created: the sheet's edge lights up and
+  // confetti bursts from its centre, same as finishing a timebox.
+  const [celebrating, setCelebrating] = useState(false)
+  const cardRef = useRef<HTMLDivElement>(null)
 
   // Swipe/drag state
   const trackRef = useRef<HTMLDivElement>(null)
@@ -119,6 +124,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     setDragX(0)
     setSaveError(null)
     setSaving(false)
+    setCelebrating(false)
   }
 
   function handleClose() {
@@ -196,6 +202,19 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   }
   // --------------------------------------------------------------------
 
+  function burst() {
+    const el = cardRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const x = (rect.left + rect.width / 2) / window.innerWidth
+    const y = (rect.top + rect.height / 2) / window.innerHeight
+    // above the sheet's own z-index so it reads over the card
+    const defaults = { origin: { x, y }, zIndex: 70, ticks: 160 }
+    confetti({ ...defaults, particleCount: 150, spread: 360, startVelocity: 36, scalar: 1.3 })
+    confetti({ ...defaults, particleCount: 100, spread: 180, startVelocity: 46, angle: 60 })
+    confetti({ ...defaults, particleCount: 100, spread: 180, startVelocity: 46, angle: 120 })
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     // Enter on a non-final step just advances.
@@ -205,6 +224,8 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     }
     setSaveError(null)
     setSaving(true)
+    setCelebrating(true)
+    burst()
     try {
       if (mode === 'create-list') {
         const titles = initialPrayers.split('\n').filter((x) => x.trim())
@@ -223,11 +244,14 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
       } else {
         await createPrayer(title.trim(), [selectedListId || UNSCHEDULED_ID], description.trim(), prayerTags)
       }
+      // let the edge flash and confetti register before it disappears
+      await new Promise((r) => setTimeout(r, 420))
       reset()
       onAdded()
       onClose()
     } catch (err) {
       setSaving(false)
+      setCelebrating(false)
       setSaveError(err instanceof Error ? `${err.name}: ${err.message}` : String(err))
     }
   }
@@ -450,7 +474,14 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
         paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))',
       }}
     >
-      <div className="sheet-height flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-card shadow-xl">
+      <div
+        ref={cardRef}
+        className={`sheet-height flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-card transition-all duration-200 ${
+          celebrating
+            ? 'shadow-[0_0_45px_var(--color-accent-glow)] ring-4 ring-accent'
+            : 'shadow-xl ring-0 ring-transparent'
+        }`}
+      >
         {/* Navigation lives on the edges and in the swipe, so the header only
             carries the close affordance. */}
         <div className="shrink-0 px-5 pt-5">
@@ -547,7 +578,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                       <button
                         type="submit"
                         disabled={saving}
-                        className="w-full rounded-lg bg-input-hover py-3 text-sm font-medium text-text transition-colors hover:bg-input cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="w-full rounded-lg bg-accent py-3 text-sm font-semibold text-white transition-all duration-150 hover:brightness-110 active:scale-[0.98] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         {saving ? '…' : mode === 'create-list' ? t.createList : t.addPrayer}
                       </button>
