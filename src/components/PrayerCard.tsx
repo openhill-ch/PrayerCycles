@@ -5,15 +5,26 @@ import { FormattedText } from './FormattedText'
 
 type PrayerCardProps = {
   surfaced: SurfacedPrayer
-  onComplete: (prayerId: string, listId: string) => void
-  /** Tapping opens a read-only view; completing is confirmed from there. */
-  onOpen: (surfaced: SurfacedPrayer) => void
+  onComplete?: (prayerId: string, listId: string) => void
+  /** Tapping starts this prayer's timer, or stops it if it's already running. */
+  onTap: (surfaced: SurfacedPrayer) => void
+  /** Seconds counted so far, or null when this card isn't the one being timed. */
+  activeSeconds?: number | null
   /** Set once the quick view's check is tapped — flips the card and completes. */
   confirmed?: boolean
   autoFlip?: boolean
 }
 
-export function PrayerCard({ surfaced, onComplete, onOpen, confirmed, autoFlip }: PrayerCardProps) {
+/** m:ss, growing to h:mm:ss only once it needs to. */
+function formatElapsed(total: number): string {
+  const h = Math.floor(total / 3600)
+  const m = Math.floor((total % 3600) / 60)
+  const s = total % 60
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`
+}
+
+export function PrayerCard({ surfaced, onComplete, onTap, activeSeconds, confirmed, autoFlip }: PrayerCardProps) {
   const { t } = useT()
   const [flipping, setFlipping] = useState(false)
   const [fading, setFading] = useState(false)
@@ -41,7 +52,7 @@ export function PrayerCard({ surfaced, onComplete, onOpen, confirmed, autoFlip }
     setFlipping(true)
     setTimeout(() => setFading(true), 400)
     setTimeout(() => {
-      onComplete(prayer.id, surfaced.listId)
+      onComplete?.(prayer.id, surfaced.listId)
     }, 700)
   }
 
@@ -55,8 +66,10 @@ export function PrayerCard({ surfaced, onComplete, onOpen, confirmed, autoFlip }
 
   function handleClick() {
     if (flipping) return
-    onOpen(surfaced)
+    onTap(surfaced)
   }
+
+  const isTiming = activeSeconds != null
 
   return (
     <div
@@ -76,7 +89,13 @@ export function PrayerCard({ surfaced, onComplete, onOpen, confirmed, autoFlip }
         className={`relative transition-all duration-500 transform-3d ${flipping ? 'rotate-y-180' : ''}`}
       >
         {/* Front */}
-        <div className="rounded-lg bg-card p-4 shadow-md backface-hidden border-2 border-accent-text/80 shadow-[0_0_14px_var(--color-accent-glow)] overflow-hidden break-words">
+        <div
+          className={`rounded-lg bg-card p-4 shadow-md backface-hidden overflow-hidden break-words transition-all duration-300 ${
+            isTiming
+              ? 'border-2 border-accent-text shadow-[0_0_22px_var(--color-accent-glow)]'
+              : 'border-2 border-accent-text/80 shadow-[0_0_14px_var(--color-accent-glow)]'
+          }`}
+        >
           <div className="mb-1 text-xs font-medium text-text-tertiary uppercase tracking-wide">
             {listName}
           </div>
@@ -86,6 +105,15 @@ export function PrayerCard({ surfaced, onComplete, onOpen, confirmed, autoFlip }
           )}
           {tallyLabel && (
             <div className="mt-3 text-xs text-accent-text">{tallyLabel}</div>
+          )}
+          {/* Live count for the prayer being timed — tap the card again to stop. */}
+          {isTiming && (
+            <div className="mt-3 flex items-center gap-2 border-t border-accent-text/30 pt-2">
+              <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-accent-text" />
+              <span className="text-base font-semibold tabular-nums text-accent-text">
+                {formatElapsed(activeSeconds)}
+              </span>
+            </div>
           )}
         </div>
         {/* Back — blank solid */}

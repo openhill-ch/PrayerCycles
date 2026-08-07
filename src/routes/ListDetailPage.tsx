@@ -107,7 +107,7 @@ export function ListDetailPage() {
     if (!id) return
     await deleteList(id)
     refreshTimerLists()
-    navigate('/lists')
+    navigate('/')
   }
 
   async function handleToggleArchive() {
@@ -249,7 +249,7 @@ export function ListDetailPage() {
       <div className="mx-auto max-w-lg">
         {/* Header */}
         <button
-          onClick={() => navigate('/lists')}
+          onClick={() => navigate('/')}
           className="mb-4 flex items-center gap-1 text-sm text-text-tertiary hover:text-text-secondary"
         >
           <ArrowLeft size={16} />

@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react'
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import { TimerBar } from './components/TimerBar'
 import { BottomNav } from './components/BottomNav'
@@ -26,7 +26,7 @@ import { TrashPage } from './routes/TrashPage'
 import { TagsPage } from './routes/TagsPage'
 
 /** The bottom-nav destinations, in order, for swipe navigation. */
-const NAV_ROUTES = ['/', '/lists', '/timer', '/tags']
+const NAV_ROUTES = ['/', '/tap', '/timer', '/tags']
 
 /** Past this fraction of the screen the swipe commits; short of it, it snaps back. */
 const COMMIT_RATIO = 0.3
@@ -42,8 +42,9 @@ const SETTLE_EASE = 'cubic-bezier(0.22, 0.61, 0.36, 1)'
 function AppRoutes({ location }: { location?: ReturnType<typeof useLocation> }) {
   return (
     <Routes location={location}>
-      <Route path="/" element={<TapPrayPage />} />
-      <Route path="/lists" element={<ListsPage />} />
+      <Route path="/" element={<ListsPage />} />
+      <Route path="/tap" element={<TapPrayPage />} />
+      <Route path="/lists" element={<Navigate to="/" replace />} />
       <Route path="/lists/:id" element={<ListDetailPage />} />
       <Route path="/timer" element={<TimerPage />} />
       <Route path="/history" element={<HistoryPage />} />
@@ -74,6 +75,16 @@ function AppContent() {
 
   const routeIndex = NAV_ROUTES.indexOf(location.pathname)
   useEffect(() => () => { if (settleTimer.current) clearTimeout(settleTimer.current) }, [])
+
+  // Clear the drag in the same commit that first renders the new page. navigate()
+  // updates the URL synchronously but the router's location arrives a render
+  // later, so zeroing the transform on a timer instead parked the outgoing page
+  // back at centre for a frame -- a visible flash of the screen you just left.
+  useLayoutEffect(() => {
+    setDx(0)
+    setSettling(false)
+    setNeighbor(null)
+  }, [location.pathname])
 
   function resetGesture() {
     gesture.current = null
@@ -134,7 +145,7 @@ function AppContent() {
     if (hasNeighbor && (far || flicked)) {
       // Carry it the rest of the way, then swap routes at rest so nothing flashes.
       setDx(dx < 0 ? -width : width)
-      settleTimer.current = setTimeout(() => { navigate(NAV_ROUTES[target]); resetGesture() }, SETTLE_MS)
+      settleTimer.current = setTimeout(() => navigate(NAV_ROUTES[target]), SETTLE_MS)
     } else {
       setDx(0)
       settleTimer.current = setTimeout(() => { setSettling(false); setNeighbor(null) }, SETTLE_MS)
@@ -223,7 +234,10 @@ function AppContent() {
           </button>
         )}
 
-        <AddModal open={addOpen} onClose={() => setAddOpen(false)} onAdded={() => window.dispatchEvent(new Event('prayercycles:refresh'))} />
+        <AddModal open={addOpen} onClose={() => setAddOpen(false)} onAdded={(focusListId) => {
+          window.dispatchEvent(new Event('prayercycles:refresh'))
+          navigate(focusListId ? `/?focus=${encodeURIComponent(focusListId)}` : '/')
+        }} />
         <ExportImportModal open={exportOpen} onClose={() => setExportOpen(false)} />
         <LanguageModal open={langOpen} onClose={() => setLangOpen(false)} />
         <ThemeModal open={themeOpen} onClose={() => setThemeOpen(false)} />

@@ -16,6 +16,8 @@ export type Translations = {
 
   // Bottom nav
   navTapPray: string
+  stepDown: string
+  stepUp: string
   navPrayerLists: string
   navTimebox: string
 

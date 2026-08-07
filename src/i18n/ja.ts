@@ -13,7 +13,9 @@ export const ja: Translations = {
   no: 'いいえ',
   loading: '読み込み中...',
 
-  navTapPray: '今日',
+  navTapPray: 'タップ',
+  stepDown: '頻度を下げる',
+  stepUp: '頻度を上げる',
   navPrayerLists: 'リスト',
   navTimebox: 'タイマー',
 

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Square, ScrollText, Clock, Hash } from 'lucide-react'
+import { Pointer, ScrollText, Clock, Hash } from 'lucide-react'
 import { useT } from '../i18n'
 
 type BottomNavProps = {
@@ -10,8 +10,8 @@ export function BottomNav({ onNavigate }: BottomNavProps) {
   const { t } = useT()
 
   const tabs = [
-    { to: '/', icon: Square, label: t.navTapPray },
-    { to: '/lists', icon: ScrollText, label: t.navPrayerLists },
+    { to: '/', icon: ScrollText, label: t.navPrayerLists },
+    { to: '/tap', icon: Pointer, label: t.navTapPray },
     { to: '/timer', icon: Clock, label: t.navTimebox },
     { to: '/tags', icon: Hash, label: t.navPrayerTags },
   ] as const

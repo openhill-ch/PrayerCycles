@@ -13,7 +13,9 @@ export const en: Translations = {
   no: 'No',
   loading: 'Loading...',
 
-  navTapPray: 'Today',
+  navTapPray: 'Tap',
+  stepDown: 'Less often',
+  stepUp: 'More often',
   navPrayerLists: 'Lists',
   navTimebox: 'Timer',
 

@@ -13,7 +13,9 @@ export const mn: Translations = {
   no: 'Үгүй',
   loading: 'Ачааллаж байна...',
 
-  navTapPray: 'Өнөөдөр',
+  navTapPray: 'Товших',
+  stepDown: 'Бага давтамж',
+  stepUp: 'Их давтамж',
   navPrayerLists: 'Жагсаалт',
   navTimebox: 'Цаг',
 

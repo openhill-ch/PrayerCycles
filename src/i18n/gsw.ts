@@ -13,7 +13,9 @@ export const gsw: Translations = {
   no: 'Nei',
   loading: 'Am Lade...',
 
-  navTapPray: 'Hüt',
+  navTapPray: 'Tippe',
+  stepDown: 'Weniger oft',
+  stepUp: 'Öfter',
   navPrayerLists: 'Lischte',
   navTimebox: 'Timer',
 

@@ -13,7 +13,8 @@ import { getAllTags } from '../features/tags/tag-operations'
 type AddModalProps = {
   open: boolean
   onClose: () => void
-  onAdded: () => void
+  /** Receives the list to scroll to on the lists page, so a new entry isn't lost. */
+  onAdded: (focusListId?: string) => void
 }
 
 type Mode = 'create-list' | 'add-single'
@@ -44,7 +45,6 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   const [cadence, setCadence] = useState<Cadence>('daily')
   const [persistenceUnit, setPersistenceUnit] = useState<PersistenceUnit>('wake')
   const [persistenceEvery, setPersistenceEvery] = useState(1)
-  const [everyText, setEveryText] = useState('1')
   const [lifecycleType, setLifecycleType] = useState<'indefinite' | 'finite'>('indefinite')
   const [retireAfter, setRetireAfter] = useState(1)
   const [initialPrayers, setInitialPrayers] = useState('')
@@ -223,9 +223,10 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     setSaving(true)
     burst()
     try {
+      let focusListId: string | undefined
       if (mode === 'create-list') {
         const titles = initialPrayers.split('\n').filter((x) => x.trim())
-        await createList(
+        focusListId = await createList(
           listName.trim(),
           {
             cadence,
@@ -238,10 +239,11 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
         )
         refreshTimerLists()
       } else {
-        await createPrayer(title.trim(), [selectedListId || UNSCHEDULED_ID], description.trim(), prayerTags)
+        focusListId = selectedListId || UNSCHEDULED_ID
+        await createPrayer(title.trim(), [focusListId], description.trim(), prayerTags)
       }
       reset()
-      onAdded()
+      onAdded(focusListId)
       onClose()
     } catch (err) {
       setSaving(false)
@@ -268,6 +270,12 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     weekly: t.weekly,
     monthly: t.monthly,
     annually: t.annually,
+  }
+
+  /** Nudge the interval, clamped, so it can never be blank or out of range. */
+  function stepEvery(delta: number) {
+    if (cadence === 'daily') return
+    setPersistenceEvery((n) => Math.max(1, Math.min(99, n + delta)))
   }
 
   const visibleUnits = allUnits.filter(([unit]) => allowedUnits(cadence).includes(unit))
@@ -350,7 +358,6 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                     if (c === 'daily') {
                       setPersistenceUnit('wake')
                       setPersistenceEvery(1)
-                      setEveryText('1')
                     } else {
                       const allowed = allowedUnits(c)
                       if (!allowed.includes(persistenceUnit)) setPersistenceUnit(allowed[0])
@@ -363,35 +370,41 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
               ))}
             </div>
             <div className="rounded-lg border border-border p-3">
-              <div className="flex flex-wrap items-center justify-center gap-2">
+              {/* Stepper rather than a keyboard: one-handed, and it can't end up empty. */}
+              <div className="flex items-center justify-center gap-3">
                 <span className="text-sm text-text-tertiary">{t.every}</span>
-                {cadence === 'daily' ? (
-                  <span className="w-14 rounded bg-input px-2 py-1 text-center text-sm text-text">1</span>
-                ) : (
-                  <input
-                    type="number"
-                    min={1}
-                    max={99}
-                    value={everyText}
-                    onChange={(e) => {
-                      const digits = e.target.value.replace(/\D/g, '').slice(0, 2)
-                      setEveryText(digits)
-                      if (digits) setPersistenceEvery(Math.max(1, Math.min(99, Number(digits))))
-                    }}
-                    onBlur={() => {
-                      const n = Math.max(1, Math.min(99, Number(everyText) || 1))
-                      setPersistenceEvery(n)
-                      setEveryText(String(n))
-                    }}
-                    className="w-14 rounded bg-input px-2 py-1 text-center text-sm text-text outline-none focus:ring-2 focus:ring-text-muted"
-                  />
-                )}
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    aria-label={t.stepDown}
+                    disabled={cadence === 'daily' || persistenceEvery <= 1}
+                    onClick={() => stepEvery(-1)}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg bg-input text-text-secondary transition-colors hover:bg-input-hover disabled:opacity-30"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  <span className="w-10 text-center text-lg font-semibold tabular-nums text-text">
+                    {cadence === 'daily' ? 1 : persistenceEvery}
+                  </span>
+                  <button
+                    type="button"
+                    aria-label={t.stepUp}
+                    disabled={cadence === 'daily' || persistenceEvery >= 99}
+                    onClick={() => stepEvery(1)}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg bg-input text-text-secondary transition-colors hover:bg-input-hover disabled:opacity-30"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+              </div>
+              {/* Units on their own row, sized to match the cadence buttons above. */}
+              <div className="mt-3 flex justify-center gap-1">
                 {visibleUnits.map(([unit, label]) => (
                   <button
                     key={unit}
                     type="button"
                     onClick={() => { if (cadence !== 'daily') setPersistenceUnit(unit) }}
-                    className={`whitespace-nowrap rounded-lg px-1 py-2 text-xs transition-colors ${persistenceUnit === unit ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
+                    className={`flex-1 whitespace-nowrap rounded-lg px-1 py-2 text-xs transition-colors ${persistenceUnit === unit ? 'bg-input-hover text-text' : 'bg-input text-text-tertiary'}`}
                   >
                     {label}
                   </button>

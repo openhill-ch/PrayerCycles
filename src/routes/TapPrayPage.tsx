@@ -2,19 +2,19 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useT } from '../i18n'
 import { useTimer } from '../context/TimerContext'
 import { PrayerCard } from '../components/PrayerCard'
-import { PrayerQuickView } from '../components/PrayerQuickView'
 import { completePrayer, type SurfacedPrayer } from '../lib/surfacing'
+import { addTimePrayed } from '../features/prayers/prayer-operations'
 
 import { MasonryColumns } from '../components/MasonryColumns'
+
+/** The prayer currently being timed by tapping its card. */
+type ActiveTap = { key: string; prayerId: string; listId: string }
 
 export function TapPrayPage() {
   const { t } = useT()
   const { surfacedPrayers, selectedListId, currentIndex, running, timeLeft } = useTimer()
   const [hiddenIds, setHiddenIds] = useState<Record<string, true>>({})
   const [autoFlipIds, setAutoFlipIds] = useState<Record<string, true>>({})
-  // Prayer currently open in the quick view, and the one whose check was tapped
-  const [viewing, setViewing] = useState<SurfacedPrayer | null>(null)
-  const [confirmedIds, setConfirmedIds] = useState<Record<string, true>>({})
   const prevListRef = useRef(selectedListId)
   const prevIndexRef = useRef(currentIndex)
   const prevTimeLeftRef = useRef(timeLeft)
@@ -72,20 +72,67 @@ export function TapPrayPage() {
     (s) => hiddenIds[`${s.prayer.id}-${s.listId}`],
   )
 
-  const complete = useCallback(
-    async (prayerId: string, listId: string) => {
-      const key = `${prayerId}-${listId}`
-      const index = surfacedPrayers.findIndex(
-        (s) => s.prayer.id === prayerId && s.listId === listId,
-      )
-      if (index === -1) return
+  // ---- Tap to time a single prayer ------------------------------------
+  const [active, setActive] = useState<ActiveTap | null>(null)
+  const [elapsed, setElapsed] = useState(0)
+  // Mirrors for the unmount flush, which can't read state after teardown.
+  const activeRef = useRef<ActiveTap | null>(null)
+  const elapsedRef = useRef(0)
+  activeRef.current = active
+  elapsedRef.current = elapsed
 
-      setHiddenIds((prev) => ({ ...prev, [key]: true }))
+  useEffect(() => {
+    if (!active) return
+    const id = setInterval(() => setElapsed((e) => e + 1), 1000)
+    return () => clearInterval(id)
+  }, [active])
 
-      await completePrayer(prayerId, listId)
+  /** Log the running prayer's time and flip its card away. */
+  const stopActive = useCallback(() => {
+    const a = activeRef.current
+    const secs = elapsedRef.current
+    if (!a) return
+    activeRef.current = null
+    setActive(null)
+    setElapsed(0)
+    if (secs > 0) {
+      // completePrayer records the session for history; addTimePrayed keeps the
+      // list's own total in step. They're separate stores, so both are needed.
+      completePrayer(a.prayerId, a.listId, secs)
+      addTimePrayed(a.prayerId, secs)
+      setAutoFlipIds((prev) => ({ ...prev, [a.key]: true }))
+      setTimeout(() => setHiddenIds((prev) => ({ ...prev, [a.key]: true })), 800)
+    }
+  }, [])
+
+  const handleTap = useCallback(
+    (s: SurfacedPrayer) => {
+      const key = `${s.prayer.id}-${s.listId}`
+      // Tapping the running card stops it; tapping another hands the timer over.
+      if (activeRef.current?.key === key) {
+        stopActive()
+        return
+      }
+      if (activeRef.current) stopActive()
+      setActive({ key, prayerId: s.prayer.id, listId: s.listId })
+      setElapsed(0)
     },
-    [surfacedPrayers],
+    [stopActive],
   )
+
+  // Leaving the page shouldn't silently discard time already counted.
+  useEffect(
+    () => () => {
+      const a = activeRef.current
+      const secs = elapsedRef.current
+      if (a && secs > 0) {
+        completePrayer(a.prayerId, a.listId, secs)
+        addTimePrayed(a.prayerId, secs)
+      }
+    },
+    [],
+  )
+  // ---------------------------------------------------------------------
 
   return (
     <div className="flex-1 overflow-y-auto px-4 pb-nav pt-4">
@@ -103,9 +150,8 @@ export function TapPrayPage() {
                 <div key={key} className={isHidden ? 'invisible' : ''}>
                   <PrayerCard
                     surfaced={s}
-                    onComplete={complete}
-                    onOpen={setViewing}
-                    confirmed={!!confirmedIds[key]}
+                    onTap={handleTap}
+                    activeSeconds={active?.key === key ? elapsed : null}
                     autoFlip={!!autoFlipIds[key]}
                   />
                 </div>
@@ -113,18 +159,6 @@ export function TapPrayPage() {
             })}
           </MasonryColumns>
         </div>
-      )}
-
-      {viewing && (
-        <PrayerQuickView
-          surfaced={viewing}
-          onClose={() => setViewing(null)}
-          onConfirm={() => {
-            const key = `${viewing.prayer.id}-${viewing.listId}`
-            setViewing(null)
-            setConfirmedIds((prev) => ({ ...prev, [key]: true }))
-          }}
-        />
       )}
     </div>
   )

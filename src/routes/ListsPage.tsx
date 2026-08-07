@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Search, ChevronDown, ChevronUp } from 'lucide-react'
 import { useT } from '../i18n'
 import { MasonryColumns } from '../components/MasonryColumns'
@@ -28,6 +28,14 @@ type ListWithPrayers = {
 
 export function ListsPage() {
   const { t } = useT()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const focusId = searchParams.get('focus')
+  useEffect(() => {
+    if (!focusId) return
+    // Clear it once consumed, so revisiting the page doesn't scroll again.
+    const id = setTimeout(() => setSearchParams({}, { replace: true }), 1500)
+    return () => clearTimeout(id)
+  }, [focusId, setSearchParams])
   const [data, setData] = useState<ListWithPrayers[]>([])
   const [todayPrayers, setTodayPrayers] = useState<SurfacedPrayer[]>([])
   const [loading, setLoading] = useState(true)
@@ -191,7 +199,7 @@ export function ListsPage() {
             <TodayCard key="today" prayers={todayPrayers} onSelect={() => setSelectedListId(TODAY_ID)} query={searchQuery} />
           )}
           {active.map(({ list, prayers }) => (
-            <ListCard key={list.id} list={list} prayers={prayers} query={searchQuery} />
+            <ListCard key={list.id} list={list} prayers={prayers} query={searchQuery} focused={list.id === focusId} />
           ))}
         </MasonryColumns>
 
@@ -202,7 +210,7 @@ export function ListsPage() {
             </div>
             <MasonryColumns>
               {archived.map(({ list, prayers }) => (
-                <ListCard key={list.id} list={list} prayers={prayers} query={searchQuery} />
+                <ListCard key={list.id} list={list} prayers={prayers} query={searchQuery} focused={list.id === focusId} />
               ))}
             </MasonryColumns>
           </>
@@ -222,10 +230,10 @@ function TodayCard({ prayers, onSelect, query }: { prayers: SurfacedPrayer[]; on
   return (
     <div
       className="rounded-lg pt-2 px-4 pb-4 shadow-md break-inside-avoid cursor-pointer bg-card hover:bg-input transition border-2 border-success-border shadow-[0_0_14px_var(--color-success-glow)]"
-      onClick={() => { onSelect(); navigate('/') }}
+      onClick={() => { onSelect(); navigate('/tap') }}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter') { onSelect(); navigate('/') } }}
+      onKeyDown={(e) => { if (e.key === 'Enter') { onSelect(); navigate('/tap') } }}
     >
       <p className="text-xs text-success-alt leading-tight">{t.surfacedLabel}</p>
       <h3 className="text-lg font-semibold text-text -mt-0.5">{t.todaysPrayers}</h3>
@@ -254,8 +262,14 @@ function TodayCard({ prayers, onSelect, query }: { prayers: SurfacedPrayer[]; on
 
 const MAX_VISIBLE = 30
 
-function ListCard({ list, prayers, query }: { list: PrayerList; prayers: Prayer[]; query: string }) {
+function ListCard({ list, prayers, query, focused }: { list: PrayerList; prayers: Prayer[]; query: string; focused?: boolean }) {
   const { t } = useT()
+  const cardRef = useRef<HTMLDivElement>(null)
+  // Scroll a just-created list into view and ring it, so you can see where it landed.
+  useEffect(() => {
+    if (!focused) return
+    cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [focused])
   const navigate = useNavigate()
   const descRef = useRef<HTMLParagraphElement>(null)
   const [isClamped, setIsClamped] = useState(false)
@@ -282,7 +296,8 @@ function ListCard({ list, prayers, query }: { list: PrayerList; prayers: Prayer[
 
   return (
     <div
-      className={`rounded-lg pt-2 px-4 pb-4 shadow-md break-inside-avoid cursor-pointer bg-card hover:bg-input transition ${borderClass} ${isArchived ? 'opacity-50' : ''}`}
+      ref={cardRef}
+      className={`rounded-lg pt-2 px-4 pb-4 shadow-md break-inside-avoid cursor-pointer bg-card hover:bg-input transition ${borderClass} ${isArchived ? 'opacity-50' : ''} ${focused ? 'ring-4 ring-accent-text ring-offset-2 ring-offset-base' : ''}`}
       onClick={() => navigate(`/lists/${list.id}`)}
       role="button"
       tabIndex={0}
