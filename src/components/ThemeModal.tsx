@@ -27,7 +27,7 @@ export function ThemeModal({ open, onClose }: ThemeModalProps) {
   const tRecord = t as unknown as Record<string, string>
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-overlay p-4">
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-overlay p-4">
       <div className="max-h-[85vh] w-full max-w-sm overflow-y-auto rounded-2xl bg-card p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-text">{t.themes}</h2>

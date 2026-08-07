@@ -28,6 +28,31 @@ import { TagsPage } from './routes/TagsPage'
 /** The bottom-nav destinations, in order, for swipe navigation. */
 const NAV_ROUTES = ['/', '/lists', '/timer', '/tags']
 
+/** Past this fraction of the screen the swipe commits; short of it, it snaps back. */
+const COMMIT_RATIO = 0.3
+/** A quick flick commits even when it hasn't travelled far. */
+const FLICK_VELOCITY = 0.45
+const SETTLE_MS = 260
+const SETTLE_EASE = 'cubic-bezier(0.22, 0.61, 0.36, 1)'
+
+/**
+ * Rendered twice during a swipe — once for the page you're on and once for the
+ * one sliding in — so `location` can be forced for the incoming copy.
+ */
+function AppRoutes({ location }: { location?: ReturnType<typeof useLocation> }) {
+  return (
+    <Routes location={location}>
+      <Route path="/" element={<TapPrayPage />} />
+      <Route path="/lists" element={<ListsPage />} />
+      <Route path="/lists/:id" element={<ListDetailPage />} />
+      <Route path="/timer" element={<TimerPage />} />
+      <Route path="/history" element={<HistoryPage />} />
+      <Route path="/tags" element={<TagsPage />} />
+      <Route path="/trash" element={<TrashPage />} />
+    </Routes>
+  )
+}
+
 function AppContent() {
   const [addOpen, setAddOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -38,35 +63,86 @@ function AppContent() {
   const [ready, setReady] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
-  const swipeStart = useRef<{ x: number; y: number } | null>(null)
+  // Horizontal drag between the main pages. The incoming page is rendered and
+  // moved with your finger so the swipe reads as a physical push, and anything
+  // short of COMMIT_RATIO springs back to where it started.
+  const [dx, setDx] = useState(0)
+  const [settling, setSettling] = useState(false)
+  const [neighbor, setNeighbor] = useState<string | null>(null)
+  const gesture = useRef<{ x: number; y: number; axis: 'x' | 'y' | null; lastX: number; lastT: number; v: number } | null>(null)
+  const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Swipe left/right between the main pages, in addition to the bottom nav.
+  const routeIndex = NAV_ROUTES.indexOf(location.pathname)
+  useEffect(() => () => { if (settleTimer.current) clearTimeout(settleTimer.current) }, [])
+
+  function resetGesture() {
+    gesture.current = null
+    setDx(0)
+    setSettling(false)
+    setNeighbor(null)
+  }
+
   function onPageTouchStart(e: React.TouchEvent) {
+    if (settling || routeIndex === -1) return
     const el = e.target as HTMLElement
     // leave gestures inside the wizard, drag handles and side-scrollers alone
-    if (el.closest('[data-step], [data-no-page-swipe], input, textarea, select')) {
-      swipeStart.current = null
-      return
-    }
+    if (el.closest('[data-step], [data-no-page-swipe], input, textarea, select')) return
     const p = e.touches[0]
-    swipeStart.current = { x: p.clientX, y: p.clientY }
+    gesture.current = { x: p.clientX, y: p.clientY, axis: null, lastX: p.clientX, lastT: e.timeStamp, v: 0 }
   }
 
-  function onPageTouchEnd(e: React.TouchEvent) {
-    const start = swipeStart.current
-    swipeStart.current = null
-    if (!start) return
-    const p = e.changedTouches[0]
-    const dx = p.clientX - start.x
-    const dy = p.clientY - start.y
-    // decisive horizontal only, so vertical scrolling is untouched
-    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 2) return
+  function onPageTouchMove(e: React.TouchEvent) {
+    const g = gesture.current
+    if (!g) return
+    const p = e.touches[0]
+    const totalX = p.clientX - g.x
+    const totalY = p.clientY - g.y
 
-    const i = NAV_ROUTES.indexOf(location.pathname)
-    if (i === -1) return
-    const next = dx < 0 ? i + 1 : i - 1
-    if (next >= 0 && next < NAV_ROUTES.length) navigate(NAV_ROUTES[next])
+    // Lock to one axis on the first decisive movement, so a vertical scroll is
+    // never hijacked and a horizontal swipe isn't fighting the scroller.
+    if (g.axis === null) {
+      if (Math.abs(totalX) > 12 && Math.abs(totalX) > Math.abs(totalY)) g.axis = 'x'
+      else if (Math.abs(totalY) > 12) { gesture.current = null; return }
+      else return
+    }
+
+    const dt = e.timeStamp - g.lastT
+    if (dt > 0) g.v = (p.clientX - g.lastX) / dt
+    g.lastX = p.clientX
+    g.lastT = e.timeStamp
+
+    const target = totalX < 0 ? routeIndex + 1 : routeIndex - 1
+    const hasNeighbor = target >= 0 && target < NAV_ROUTES.length
+    // No page that way? Let it move a little and resist, rather than feeling dead.
+    const offset = hasNeighbor ? totalX : totalX / 4
+    setNeighbor(hasNeighbor ? NAV_ROUTES[target] : null)
+    setDx(offset)
   }
+
+  function onPageTouchEnd() {
+    const g = gesture.current
+    if (!g || g.axis !== 'x') { gesture.current = null; setDx(0); setNeighbor(null); return }
+    gesture.current = null
+
+    const width = window.innerWidth || 1
+    const target = dx < 0 ? routeIndex + 1 : routeIndex - 1
+    const hasNeighbor = target >= 0 && target < NAV_ROUTES.length
+    const far = Math.abs(dx) > width * COMMIT_RATIO
+    const flicked = Math.abs(g.v) > FLICK_VELOCITY && Math.sign(g.v) === Math.sign(dx)
+
+    setSettling(true)
+    if (hasNeighbor && (far || flicked)) {
+      // Carry it the rest of the way, then swap routes at rest so nothing flashes.
+      setDx(dx < 0 ? -width : width)
+      settleTimer.current = setTimeout(() => { navigate(NAV_ROUTES[target]); resetGesture() }, SETTLE_MS)
+    } else {
+      setDx(0)
+      settleTimer.current = setTimeout(() => { setSettling(false); setNeighbor(null) }, SETTLE_MS)
+    }
+  }
+
+  const swiping = dx !== 0 || settling
+  const pageTransition = settling ? `transform ${SETTLE_MS}ms ${SETTLE_EASE}` : 'none'
 
   // While a modal is up, hide the bottom nav and the add button: the nav would
   // otherwise ride above the keyboard on top of the modal's own buttons, and
@@ -103,25 +179,37 @@ function AppContent() {
         <SideMenu
           open={menuOpen}
           onClose={() => setMenuOpen(false)}
-          onExportImport={() => setExportOpen(true)}
-          onLanguages={() => setLangOpen(true)}
-          onThemes={() => setThemeOpen(true)}
-          onResetData={() => setResetOpen(true)}
+          onExportImport={() => { setMenuOpen(false); setExportOpen(true) }}
+          onLanguages={() => { setMenuOpen(false); setLangOpen(true) }}
+          onThemes={() => { setMenuOpen(false); setThemeOpen(true) }}
+          onResetData={() => { setMenuOpen(false); setResetOpen(true) }}
         />
         <div
-          className="flex flex-1 flex-col"
+          className={`relative flex flex-1 flex-col ${swiping ? 'overflow-hidden' : ''}`}
+          style={{ touchAction: 'pan-y' }}
           onTouchStart={onPageTouchStart}
+          onTouchMove={onPageTouchMove}
           onTouchEnd={onPageTouchEnd}
+          onTouchCancel={resetGesture}
         >
-          <Routes>
-            <Route path="/" element={<TapPrayPage />} />
-            <Route path="/lists" element={<ListsPage />} />
-            <Route path="/lists/:id" element={<ListDetailPage />} />
-            <Route path="/timer" element={<TimerPage />} />
-            <Route path="/history" element={<HistoryPage />} />
-            <Route path="/tags" element={<TagsPage />} />
-            <Route path="/trash" element={<TrashPage />} />
-          </Routes>
+          <div
+            className="flex flex-1 flex-col"
+            style={{ transform: `translate3d(${dx}px, 0, 0)`, transition: pageTransition, willChange: swiping ? 'transform' : undefined }}
+          >
+            <AppRoutes />
+          </div>
+          {neighbor && (
+            <div
+              className="absolute inset-0 flex flex-col bg-base"
+              style={{
+                transform: `translate3d(calc(${dx < 0 ? '100%' : '-100%'} + ${dx}px), 0, 0)`,
+                transition: pageTransition,
+                willChange: 'transform',
+              }}
+            >
+              <AppRoutes location={{ ...location, pathname: neighbor }} />
+            </div>
+          )}
         </div>
 
         {!modalOpen && (
