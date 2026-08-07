@@ -487,6 +487,16 @@ html, body {
   }
 }
 
+/* iOS shows a text-selection highlight when you press and hold a control,
+   and a grey tap flash. Neither belongs on our buttons. */
+button,
+[role="button"] {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Clearance for the fixed bottom nav (plus the home-indicator inset) so the
    last card on a scrolling page isn't cut off at the bottom. */
 .pb-nav {

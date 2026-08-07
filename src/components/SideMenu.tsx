@@ -25,14 +25,14 @@ export function SideMenu({ open, onClose, onExportImport, onLanguages, onThemes,
       {/* Overlay */}
       {open && (
         <div
-          className="fixed inset-0 z-50 bg-overlay"
+          className="fixed inset-0 z-[70] bg-overlay"
           onClick={onClose}
         />
       )}
 
       {/* Drawer */}
       <div
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-card shadow-xl transition-transform duration-200 ${
+        className={`fixed top-0 left-0 z-[71] h-full w-72 bg-card shadow-2xl transition-transform duration-200 ${
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >

@@ -273,7 +273,17 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       }
       timeAccumRef.current = {}
     }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+      // Flush here too. Completions log their full duration immediately, but
+      // totalTimePrayed only lands in 10s chunks, so unmounting mid-run used to
+      // drop the remainder and leave history reading higher than the list.
+      const pending = timeAccumRef.current
+      for (const [pid, secs] of Object.entries(pending)) {
+        if (secs > 0) addTimePrayed(pid, secs)
+      }
+      timeAccumRef.current = {}
+    }
   }, [running])
 
   function handleStart() {

@@ -44,6 +44,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
   const [cadence, setCadence] = useState<Cadence>('daily')
   const [persistenceUnit, setPersistenceUnit] = useState<PersistenceUnit>('wake')
   const [persistenceEvery, setPersistenceEvery] = useState(1)
+  const [everyText, setEveryText] = useState('1')
   const [lifecycleType, setLifecycleType] = useState<'indefinite' | 'finite'>('indefinite')
   const [retireAfter, setRetireAfter] = useState(1)
   const [initialPrayers, setInitialPrayers] = useState('')
@@ -59,9 +60,6 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
 
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
-  // Brief flourish when the list is created: the sheet's edge lights up and
-  // confetti bursts from its centre, same as finishing a timebox.
-  const [celebrating, setCelebrating] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
 
   // Swipe/drag state
@@ -124,7 +122,6 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     setDragX(0)
     setSaveError(null)
     setSaving(false)
-    setCelebrating(false)
   }
 
   function handleClose() {
@@ -224,7 +221,6 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     }
     setSaveError(null)
     setSaving(true)
-    setCelebrating(true)
     burst()
     try {
       if (mode === 'create-list') {
@@ -244,14 +240,11 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
       } else {
         await createPrayer(title.trim(), [selectedListId || UNSCHEDULED_ID], description.trim(), prayerTags)
       }
-      // let the edge flash and confetti register before it disappears
-      await new Promise((r) => setTimeout(r, 420))
       reset()
       onAdded()
       onClose()
     } catch (err) {
       setSaving(false)
-      setCelebrating(false)
       setSaveError(err instanceof Error ? `${err.name}: ${err.message}` : String(err))
     }
   }
@@ -357,6 +350,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                     if (c === 'daily') {
                       setPersistenceUnit('wake')
                       setPersistenceEvery(1)
+                      setEveryText('1')
                     } else {
                       const allowed = allowedUnits(c)
                       if (!allowed.includes(persistenceUnit)) setPersistenceUnit(allowed[0])
@@ -378,8 +372,17 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
                     type="number"
                     min={1}
                     max={99}
-                    value={persistenceEvery}
-                    onChange={(e) => setPersistenceEvery(Math.max(1, Math.min(99, Number(e.target.value))))}
+                    value={everyText}
+                    onChange={(e) => {
+                      const digits = e.target.value.replace(/\D/g, '').slice(0, 2)
+                      setEveryText(digits)
+                      if (digits) setPersistenceEvery(Math.max(1, Math.min(99, Number(digits))))
+                    }}
+                    onBlur={() => {
+                      const n = Math.max(1, Math.min(99, Number(everyText) || 1))
+                      setPersistenceEvery(n)
+                      setEveryText(String(n))
+                    }}
                     className="w-14 rounded bg-input px-2 py-1 text-center text-sm text-text outline-none focus:ring-2 focus:ring-text-muted"
                   />
                 )}
@@ -476,11 +479,7 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     >
       <div
         ref={cardRef}
-        className={`sheet-height flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-card transition-all duration-200 ${
-          celebrating
-            ? 'shadow-[0_0_45px_var(--color-accent-glow)] ring-4 ring-accent'
-            : 'shadow-xl ring-0 ring-transparent'
-        }`}
+        className="sheet-height flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-card shadow-xl"
       >
         {/* Navigation lives on the edges and in the swipe, so the header only
             carries the close affordance. */}

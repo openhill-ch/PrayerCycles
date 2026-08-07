@@ -36,6 +36,7 @@ export function ListDetailPage() {
   // Drag-and-drop state
   const [dragIdx, setDragIdx] = useState<number | null>(null)
   const [overIdx, setOverIdx] = useState<number | null>(null)
+  const [dragArmed, setDragArmed] = useState(false)
   const dragTouchY = useRef<number>(0)
   const listContainerRef = useRef<HTMLDivElement>(null)
   const [showFulfilled, setShowFulfilled] = useState(false)
@@ -213,7 +214,7 @@ export function ListDetailPage() {
   }
 
   function handleTouchMove(e: React.TouchEvent) {
-    if (dragIdx === null || !listContainerRef.current) return
+    if (!dragArmed || dragIdx === null || !listContainerRef.current) return
     const touch = e.touches[0]
     const container = listContainerRef.current
     const children = Array.from(container.children) as HTMLElement[]
@@ -227,6 +228,7 @@ export function ListDetailPage() {
   }
 
   async function handleTouchEnd() {
+    setDragArmed(false)
     if (dragIdx !== null && overIdx !== null && dragIdx !== overIdx && id) {
       await handleDrop(overIdx)
     } else {
@@ -541,19 +543,27 @@ export function ListDetailPage() {
             {visiblePrayers.map((prayer, idx) => (
               <div
                 key={prayer.id}
-                draggable
+                draggable={dragArmed}
                 onDragStart={() => handleDragStart(idx)}
                 onDragOver={(e) => handleDragOver(e, idx)}
                 onDrop={() => handleDrop(idx)}
-                onDragEnd={() => { setDragIdx(null); setOverIdx(null) }}
-                onTouchStart={(e) => handleTouchStart(idx, e)}
+                onDragEnd={() => { setDragIdx(null); setOverIdx(null); setDragArmed(false) }}
                 className={`w-full flex items-center justify-between rounded-lg px-3 py-2 text-sm text-text-secondary hover:bg-card transition-colors cursor-pointer ${
                   dragIdx === idx ? 'opacity-40' : ''
                 } ${overIdx === idx && dragIdx !== null && dragIdx !== idx ? 'border-t-2 border-accent' : ''}`}
                 onClick={() => { if (dragIdx === null) setSelectedPrayer(prayer) }}
               >
                 <div className="flex items-center gap-2 min-w-0">
-                  <GripVertical size={14} className="text-input-hover shrink-0 cursor-grab" />
+                  {/* Dragging is armed by the handle only — otherwise scrolling a
+                      long list drags people around by accident. */}
+                  <span
+                    className="-m-1 shrink-0 cursor-grab p-1 touch-none"
+                    onPointerDown={() => setDragArmed(true)}
+                    onPointerUp={() => setDragArmed(false)}
+                    onTouchStart={(e) => { setDragArmed(true); handleTouchStart(idx, e) }}
+                  >
+                    <GripVertical size={16} className="text-text-tertiary" />
+                  </span>
                   <span className={`truncate ${prayer.fulfilled ? 'line-through opacity-50' : ''}`}>{prayer.title}</span>
                   {prayer.fulfilled && (
                     <span className="text-[10px] text-accent-text/60 shrink-0">{t.fulfilled}</span>

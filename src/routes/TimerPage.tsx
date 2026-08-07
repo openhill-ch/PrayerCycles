@@ -157,6 +157,39 @@ export function TimerPage() {
   const prevTimeLeftRef = useRef(timeLeft)
   const wasRunningRef = useRef(false)
 
+  // Hold a screen wake lock while this page is open so the phone doesn't
+  // dim mid-prayer. Re-acquired when returning to the tab, since iOS drops it.
+  useEffect(() => {
+    type WakeLockSentinel = { release: () => Promise<void> }
+    const nav = navigator as Navigator & { wakeLock?: { request: (t: 'screen') => Promise<WakeLockSentinel> } }
+    if (!nav.wakeLock) return
+
+    let sentinel: WakeLockSentinel | null = null
+    let cancelled = false
+
+    const acquire = async () => {
+      try {
+        const lock = await nav.wakeLock!.request('screen')
+        if (cancelled) { lock.release().catch(() => {}); return }
+        sentinel = lock
+      } catch {
+        // denied or unsupported — the screen just dims as usual
+      }
+    }
+    acquire()
+
+    const onVisible = () => {
+      if (document.visibilityState === 'visible' && !cancelled) acquire()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+
+    return () => {
+      cancelled = true
+      document.removeEventListener('visibilitychange', onVisible)
+      sentinel?.release().catch(() => {})
+    }
+  }, [])
+
   // Refresh lists when page is visited
   useEffect(() => { refreshLists() }, [refreshLists])
 
