@@ -21,6 +21,13 @@ function Highlight({ text, query }: { text: string; query: string }): ReactNode 
   )
 }
 
+/**
+ * Last successful load, kept outside the component. Committing a page swipe
+ * unmounts the copy that slid in and mounts a fresh one, so without this the
+ * page you just swiped to blanks to Loading... at the moment it arrives.
+ */
+let lastLoad: { data: ListWithPrayers[]; todayPrayers: SurfacedPrayer[]; allTags: string[] } | null = null
+
 type ListWithPrayers = {
   list: PrayerList
   prayers: Prayer[]
@@ -36,11 +43,12 @@ export function ListsPage() {
     const id = setTimeout(() => setSearchParams({}, { replace: true }), 1500)
     return () => clearTimeout(id)
   }, [focusId, setSearchParams])
-  const [data, setData] = useState<ListWithPrayers[]>([])
-  const [todayPrayers, setTodayPrayers] = useState<SurfacedPrayer[]>([])
-  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState<ListWithPrayers[]>(() => lastLoad?.data ?? [])
+  const [todayPrayers, setTodayPrayers] = useState<SurfacedPrayer[]>(() => lastLoad?.todayPrayers ?? [])
+  // Only the very first load of the session has nothing to show.
+  const [loading, setLoading] = useState(lastLoad === null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [allTags, setAllTags] = useState<string[]>([])
+  const [allTags, setAllTags] = useState<string[]>(() => lastLoad?.allTags ?? [])
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set())
   const [tagsExpanded, setTagsExpanded] = useState(false)
   const [tagsOverflow, setTagsOverflow] = useState(false)
@@ -59,6 +67,7 @@ export function ListsPage() {
         prayers: await getPrayersByList(list.id),
       })),
     )
+    lastLoad = { data: withPrayers, todayPrayers: surfaced, allTags: tags }
     setData(withPrayers)
     setTodayPrayers(surfaced)
     setAllTags(tags)

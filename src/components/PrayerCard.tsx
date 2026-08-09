@@ -6,26 +6,31 @@ type PrayerCardProps = {
   surfaced: SurfacedPrayer
   /** Tapping starts this prayer's timer, or stops it if it's already running. */
   onTap: (surfaced: SurfacedPrayer) => void
-  /** Seconds counted so far, or null when this card isn't the one being timed. */
-  activeSeconds?: number | null
+  /** Everything prayed for this one, including any run in progress. */
+  totalMs: number
+  /** True while this card is the one being timed. */
+  running?: boolean
   /** Times prayed this session — the surfaced data won't know about them yet. */
   tallyBonus?: number
 }
 
-/** m:ss, growing to h:mm:ss only once it needs to. */
-function formatElapsed(total: number): string {
-  const h = Math.floor(total / 3600)
-  const m = Math.floor((total % 3600) / 60)
-  const s = total % 60
+/** m:ss.hh, growing to h:mm:ss.hh only once it needs to. */
+function formatElapsed(totalMs: number): string {
+  const total = Math.floor(totalMs / 10) // hundredths
+  const hundredths = total % 100
+  const secs = Math.floor(total / 100)
+  const h = Math.floor(secs / 3600)
+  const m = Math.floor((secs % 3600) / 60)
+  const s = secs % 60
   const pad = (n: number) => String(n).padStart(2, '0')
-  return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`
+  const base = h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`
+  return `${base}.${pad(hundredths)}`
 }
 
-export function PrayerCard({ surfaced, onTap, activeSeconds, tallyBonus = 0 }: PrayerCardProps) {
+export function PrayerCard({ surfaced, onTap, totalMs, running, tallyBonus = 0 }: PrayerCardProps) {
   const { t } = useT()
   const { prayer, listName } = surfaced
 
-  const isTiming = activeSeconds != null
   const tally = prayer.prayerTally + tallyBonus
   const startDate = new Date(prayer.createdAt)
   // Kept as the accessible/long-form description behind the compact count.
@@ -54,17 +59,21 @@ export function PrayerCard({ surfaced, onTap, activeSeconds, tallyBonus = 0 }: P
           <FormattedText text={prayer.description} className="mt-1 text-sm text-text-secondary" />
         )}
 
-        {/* Quiet footer: elapsed on the left while praying, times prayed on the right. */}
-        {(isTiming || tally > 0) && (
-          <div className="mt-3 flex items-center justify-between gap-2 text-xs text-text-tertiary">
-            <span className="tabular-nums">{isTiming ? formatElapsed(activeSeconds ?? 0) : ''}</span>
-            {tally > 0 && (
-              <span className="tabular-nums" title={tallyLabel} aria-label={tallyLabel}>
-                &times;{tally}
-              </span>
-            )}
-          </div>
-        )}
+        {/* Total time on the left, always shown; times prayed on the right. */}
+        <div className="mt-3 flex items-center justify-between gap-2 text-xs">
+          <span
+            className={`tabular-nums transition-colors ${
+              running ? 'text-accent-text' : 'text-text-tertiary'
+            }`}
+          >
+            {formatElapsed(totalMs)}
+          </span>
+          {tally > 0 && (
+            <span className="tabular-nums text-text-tertiary" title={tallyLabel} aria-label={tallyLabel}>
+              {tally}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   )
