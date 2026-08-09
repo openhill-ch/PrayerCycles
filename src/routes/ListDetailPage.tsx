@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Trash2, GripVertical, Timer } from 'lucide-react'
 import type { PrayerList, Prayer, Cadence, PersistenceUnit } from '../db/types'
 import { getList, updateList, deleteList, archiveList, reactivateList } from '../features/cycles/list-operations'
-import { getPrayersByList, createPrayer, bulkCreatePrayers, reorderPrayers } from '../features/prayers/prayer-operations'
+import { getPrayersByList, reorderPrayers } from '../features/prayers/prayer-operations'
 import { PrayerDetailModal } from '../components/PrayerDetailModal'
 import { TagInput } from '../components/TagInput'
 import { getAllTags } from '../features/tags/tag-operations'
@@ -20,8 +20,6 @@ export function ListDetailPage() {
   const [selectedPrayer, setSelectedPrayer] = useState<Prayer | null>(null)
   const [editing, setEditing] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const [showAddPrayer, setShowAddPrayer] = useState(false)
-  const [newPrayerText, setNewPrayerText] = useState('')
   type SortMode = 'default' | 'az' | 'za' | 'most' | 'least'
   const storageKey = `prayercycles-sort-${id}`
   // Older builds stored 'original'/'custom'; both are just 'default' now.
@@ -121,20 +119,6 @@ export function ListDetailPage() {
     load()
   }
 
-  async function handleAddPrayers() {
-    if (!id || !newPrayerText.trim()) return
-    const lines = newPrayerText.split('\n').filter((t) => t.trim())
-    if (lines.length === 0) return
-    if (lines.length === 1) {
-      await createPrayer(lines[0].trim(), [id])
-    } else {
-      await bulkCreatePrayers(lines, id)
-    }
-    setNewPrayerText('')
-    setShowAddPrayer(false)
-    load()
-    window.dispatchEvent(new Event('prayercycles:refresh'))
-  }
 
   if (!list) {
     return <div className="flex h-40 items-center justify-center text-text-muted">{t.loading}</div>
@@ -429,7 +413,11 @@ export function ListDetailPage() {
                   {t.prayNow}
                 </button>
                 <button
-                  onClick={() => setShowAddPrayer(true)}
+                  onClick={() =>
+                    window.dispatchEvent(
+                      new CustomEvent('prayercycles:add-prayer', { detail: { listId: id } }),
+                    )
+                  }
                   className="rounded-lg border border-border-light bg-input px-3 py-1 text-sm text-text-secondary hover:bg-input-hover transition-colors"
                 >
                   {t.newPrayer}
@@ -470,36 +458,6 @@ export function ListDetailPage() {
           )}
         </div>
 
-        {/* Add prayers inline — opened from the "+ Prayer" action above */}
-        {showAddPrayer && (
-          <div className="mt-4">
-            <div className="rounded-lg bg-card p-4 space-y-3">
-              <textarea
-                placeholder={`${t.addPrayersPlaceholder}\n${t.addPrayersExample}`}
-                value={newPrayerText}
-                onChange={(e) => setNewPrayerText(e.target.value)}
-                rows={4}
-                className={`w-full rounded-lg px-3 py-2 text-text placeholder-text-tertiary text-sm resize-none ${editInputClass}`}
-                autoFocus
-              />
-              <div className="flex gap-2">
-                <button
-                  onClick={handleAddPrayers}
-                  disabled={!newPrayerText.trim()}
-                  className="rounded-lg bg-input px-3 py-1 text-sm text-text hover:bg-input-hover disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  {t.add}
-                </button>
-                <button
-                  onClick={() => { setShowAddPrayer(false); setNewPrayerText('') }}
-                  className="rounded-lg border border-border-light bg-input px-3 py-1 text-sm text-text-secondary hover:bg-input-hover transition-colors"
-                >
-                  {t.cancel}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Total time prayed */}
         {listTotalTimePrayed > 0 && (

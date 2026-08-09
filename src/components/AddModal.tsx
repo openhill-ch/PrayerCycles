@@ -15,6 +15,8 @@ type AddModalProps = {
   onClose: () => void
   /** Receives the list to scroll to on the lists page, so a new entry isn't lost. */
   onAdded: (focusListId?: string) => void
+  /** Opens straight into "add a prayer" with this list already chosen. */
+  initialListId?: string
 }
 
 type Mode = 'create-list' | 'add-single'
@@ -31,7 +33,7 @@ const COMMIT_RATIO = 0.28
 /** px/ms — a quick flick commits even if you didn't drag far. */
 const FLICK_VELOCITY = 0.4
 
-export function AddModal({ open, onClose, onAdded }: AddModalProps) {
+export function AddModal({ open, onClose, onAdded, initialListId }: AddModalProps) {
   const { t } = useT()
   const { refreshLists: refreshTimerLists } = useTimer()
   const [mode, setMode] = useState<Mode>('create-list')
@@ -78,11 +80,13 @@ export function AddModal({ open, onClose, onAdded }: AddModalProps) {
     if (open) {
       getAllLists().then(setLists)
       getAllTags().then(setExistingTags)
-      setMode('create-list')
+      // Arriving from a list's "+ Prayer" skips the choice of what to make.
+      setMode(initialListId ? 'add-single' : 'create-list')
+      setSelectedListId(initialListId ?? '')
       setStep(0)
       setDragX(0)
     }
-  }, [open])
+  }, [open, initialListId])
 
   // On open, focus immediately so the keyboard rises with the modal as a single
   // motion (a delay here reads as the window "glitching" a moment later). When

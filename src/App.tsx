@@ -56,6 +56,7 @@ function AppRoutes({ location }: { location?: ReturnType<typeof useLocation> }) 
 
 function AppContent() {
   const [addOpen, setAddOpen] = useState(false)
+  const [addListId, setAddListId] = useState<string | undefined>(undefined)
   const [menuOpen, setMenuOpen] = useState(false)
   const [exportOpen, setExportOpen] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
@@ -160,6 +161,16 @@ function AppContent() {
   // navigating away mid-flow would silently discard what you were entering.
   const modalOpen = addOpen || exportOpen || langOpen || themeOpen || resetOpen
 
+  // A list's "+ Prayer" asks for the wizard with that list already chosen.
+  useEffect(() => {
+    function onAddPrayer(e: Event) {
+      setAddListId((e as CustomEvent<{ listId: string }>).detail?.listId)
+      setAddOpen(true)
+    }
+    window.addEventListener('prayercycles:add-prayer', onAddPrayer)
+    return () => window.removeEventListener('prayercycles:add-prayer', onAddPrayer)
+  }, [])
+
   useEffect(() => {
     applyTheme(getSavedTheme())
     initEncryption()
@@ -205,7 +216,14 @@ function AppContent() {
         >
           <div
             className="flex flex-1 flex-col"
-            style={{ transform: `translate3d(${dx}px, 0, 0)`, transition: pageTransition, willChange: swiping ? 'transform' : undefined }}
+            // No transform at rest: any transform makes this a containing block
+            // for position:fixed descendants, which would anchor a page's modals
+            // to this element instead of the viewport.
+            style={{
+              transform: swiping ? `translate3d(${dx}px, 0, 0)` : undefined,
+              transition: pageTransition,
+              willChange: swiping ? 'transform' : undefined,
+            }}
           >
             <AppRoutes />
           </div>
@@ -225,16 +243,16 @@ function AppContent() {
 
         {!modalOpen && (
           <button
-            onClick={() => setAddOpen(true)}
-            className="fixed right-4 z-40 flex h-20 w-20 items-center justify-center rounded-full bg-input-hover text-text shadow-lg transition-colors hover:bg-input"
+            onClick={() => { setAddListId(undefined); setAddOpen(true) }}
+            className="fixed right-4 z-40 flex h-16 w-16 items-center justify-center rounded-full bg-input-hover text-text shadow-lg transition-colors hover:bg-input"
             style={{ bottom: 'calc(5.25rem + env(safe-area-inset-bottom))' }}
             aria-label="Add"
           >
-            <Plus size={36} />
+            <Plus size={30} />
           </button>
         )}
 
-        <AddModal open={addOpen} onClose={() => setAddOpen(false)} onAdded={(focusListId) => {
+        <AddModal open={addOpen} initialListId={addListId} onClose={() => { setAddOpen(false); setAddListId(undefined) }} onAdded={(focusListId) => {
           window.dispatchEvent(new Event('prayercycles:refresh'))
           navigate(focusListId ? `/?focus=${encodeURIComponent(focusListId)}` : '/')
         }} />
