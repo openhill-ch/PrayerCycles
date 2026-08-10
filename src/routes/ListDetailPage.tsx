@@ -1,12 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Trash2, GripVertical, Timer } from 'lucide-react'
-import type { PrayerList, Prayer, Cadence, PersistenceUnit } from '../db/types'
-import { getList, updateList, deleteList, archiveList, reactivateList } from '../features/cycles/list-operations'
+import type { PrayerList, Prayer, PersistenceUnit } from '../db/types'
+import { getList, deleteList, archiveList, reactivateList } from '../features/cycles/list-operations'
 import { getPrayersByList, reorderPrayers } from '../features/prayers/prayer-operations'
 import { PrayerDetailModal } from '../components/PrayerDetailModal'
-import { TagInput } from '../components/TagInput'
-import { getAllTags } from '../features/tags/tag-operations'
 import { useTimer } from '../context/TimerContext'
 import { useT } from '../i18n'
 
@@ -18,7 +16,6 @@ export function ListDetailPage() {
   const [list, setList] = useState<PrayerList | null>(null)
   const [prayers, setPrayers] = useState<Prayer[]>([])
   const [selectedPrayer, setSelectedPrayer] = useState<Prayer | null>(null)
-  const [editing, setEditing] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   type SortMode = 'default' | 'az' | 'za' | 'most' | 'least'
   const storageKey = `prayercycles-sort-${id}`
@@ -56,50 +53,26 @@ export function ListDetailPage() {
     return 'bg-card text-text-muted'
   }
 
-  // Edit fields
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [cadence, setCadence] = useState<Cadence>('daily')
-  const [persistenceUnit, setPersistenceUnit] = useState<PersistenceUnit>('wake')
-  const [persistenceEvery, setPersistenceEvery] = useState(1)
-  const [lifecycleType, setLifecycleType] = useState<'indefinite' | 'finite'>('indefinite')
-  const [retireAfter, setRetireAfter] = useState(1)
-  const [editTags, setEditTags] = useState<string[]>([])
-  const [existingTags, setExistingTags] = useState<string[]>([])
 
   const load = useCallback(async () => {
     if (!id) return
     const l = await getList(id)
     if (!l) return
     setList(l)
-    setName(l.name)
-    setDescription(l.description)
-    setCadence(l.cycle.cadence)
-    setPersistenceUnit(l.cycle.persistence.unit)
-    setPersistenceEvery(l.cycle.persistence.every)
-    setLifecycleType(l.cycle.lifecycle.type)
-    setRetireAfter(l.cycle.lifecycle.retireAfter ?? 1)
-    setEditTags(l.tags ?? [])
-    const [p, tags] = await Promise.all([getPrayersByList(id), getAllTags()])
-    setPrayers(p)
-    setExistingTags(tags)
+    setPrayers(await getPrayersByList(id))
   }, [id])
 
   useEffect(() => {
     load()
   }, [load])
 
-  async function handleSaveList() {
-    if (!id || !name.trim()) return
-    await updateList(id, {
-      name: name.trim(),
-      description: description.trim(),
-      cycle: { cadence, persistence: { unit: persistenceUnit, every: persistenceEvery }, lifecycle: { type: lifecycleType, ...(lifecycleType === 'finite' ? { retireAfter } : {}) } },
-      tags: editTags,
-    })
-    setEditing(false)
-    load()
-  }
+  // The edit wizard lives at the app root, so it reports back by event.
+  useEffect(() => {
+    const handler = () => load()
+    window.addEventListener('prayercycles:refresh', handler)
+    return () => window.removeEventListener('prayercycles:refresh', handler)
+  }, [load])
+
 
   async function handleDeleteList() {
     if (!id) return
@@ -124,20 +97,11 @@ export function ListDetailPage() {
     return <div className="flex h-40 items-center justify-center text-text-muted">{t.loading}</div>
   }
 
-  function allowedUnitsForCadence(c: Cadence): PersistenceUnit[] {
-    if (c === 'daily') return ['wake']
-    if (c === 'weekly') return ['wake', 'passage']
-    if (c === 'monthly') return ['wake', 'passage', 'season']
-    return ['wake', 'passage', 'season', 'orbit']
-  }
-
-  const cadenceLabels: Record<Cadence, string> = { daily: t.daily, weekly: t.weekly, monthly: t.monthly, annually: t.annually }
   const persistenceLabels: Record<PersistenceUnit, string> = { wake: t.day, passage: t.week, season: t.month, orbit: t.year }
   const persistenceLabelPlural: Record<PersistenceUnit, string> = { wake: t.days, passage: t.weeks, season: t.months, orbit: t.years }
   const pUnit = list.cycle.persistence.unit
   const pEvery = list.cycle.persistence.every
   const freqLabel = pEvery === 1 ? `${t.every} ${persistenceLabels[pUnit]}` : `${t.every} ${pEvery} ${persistenceLabelPlural[pUnit]}`
-  const lifecycleLabel = list.cycle.lifecycle.type === 'indefinite' ? 'x ∞' : `x ${list.cycle.lifecycle.retireAfter ?? 1}`
 
 
   function formatTime(seconds: number): string {
@@ -226,7 +190,6 @@ export function ListDetailPage() {
   const listTotalTimePrayed = prayers.reduce((sum, p) => sum + (p.totalTimePrayed ?? 0), 0)
 
   // Edit mode input style — consistent for all fields including TagInput
-  const editInputClass = 'bg-white/10 outline-none focus:ring-2 focus:ring-white/30'
 
   return (
     <div className="flex-1 overflow-y-auto px-4 pb-nav pt-4">
@@ -240,140 +203,20 @@ export function ListDetailPage() {
           {t.backToPrayerLists}
         </button>
 
-        {/* List info */}
-        <div className="rounded-lg p-5 shadow-md bg-card">
-          {editing ? (
-            <div className="space-y-3">
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className={`w-full rounded-lg px-3 py-2 text-text font-semibold text-lg ${editInputClass}`}
-              />
-              <textarea
-                placeholder={t.descriptionOptional}
-                value={description}
-                onChange={(e) => setDescription(e.target.value.slice(0, 500))}
-                maxLength={500}
-                rows={2}
-                className={`w-full rounded-lg px-3 py-2 text-text-secondary text-sm resize-none ${editInputClass}`}
-              />
-              <div>
-                <div className="mb-1 text-xs text-text-secondary">{t.tags}</div>
-                <TagInput tags={editTags} onChange={setEditTags} placeholder={t.tagsPlaceholder} allTags={existingTags} className="bg-white/10" />
-              </div>
-              <div>
-                <div className="mb-1 text-xs text-text-secondary">{t.cycle}</div>
-                <div className="flex flex-wrap gap-1">
-                  {(['daily', 'weekly', 'monthly', 'annually'] as Cadence[]).map((c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => {
-                        setCadence(c)
-                        if (c === 'daily') { setPersistenceUnit('wake'); setPersistenceEvery(1) }
-                        else {
-                          const allowed = allowedUnitsForCadence(c)
-                          if (!allowed.includes(persistenceUnit)) setPersistenceUnit(allowed[0])
-                        }
-                      }}
-                      className={`rounded px-2 py-0.5 text-xs ${cadence === c ? 'bg-input text-text' : 'bg-white/10 text-text-secondary'}`}
-                    >
-                      {cadenceLabels[c]}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div className="mb-1 text-xs text-text-secondary">{t.frequency}</div>
-                <div className="flex flex-wrap gap-1">
-                  {([[('wake' as PersistenceUnit), t.wake], [('passage' as PersistenceUnit), t.passage], [('season' as PersistenceUnit), t.season], [('orbit' as PersistenceUnit), t.orbit]] as [PersistenceUnit, string][])
-                    .filter(([unit]) => allowedUnitsForCadence(cadence).includes(unit))
-                    .map(([unit, label]) => (
-                    <button
-                      key={unit}
-                      type="button"
-                      onClick={() => { if (cadence !== 'daily') setPersistenceUnit(unit) }}
-                      className={`rounded px-2 py-0.5 text-xs ${persistenceUnit === unit ? 'bg-input text-text' : 'bg-white/10 text-text-secondary'}`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                <div className="mt-1 flex items-center gap-2 h-6">
-                  <span className="text-xs text-text-tertiary">{t.every}</span>
-                  {cadence === 'daily' ? (
-                    <span className="w-14 text-xs text-text text-center">1</span>
-                  ) : (
-                    <input
-                      type="number"
-                      min={1}
-                      max={99}
-                      value={persistenceEvery}
-                      onChange={(e) => setPersistenceEvery(Math.max(1, Math.min(99, Number(e.target.value))))}
-                      className={`w-14 rounded px-2 py-0.5 text-xs text-text text-center ${editInputClass}`}
-                    />
-                  )}
-                  <span className="text-xs text-text-tertiary">
-                    {persistenceUnit === 'wake' ? (persistenceEvery === 1 ? t.day : t.days)
-                      : persistenceUnit === 'passage' ? (persistenceEvery === 1 ? t.week : t.weeks)
-                      : persistenceUnit === 'season' ? (persistenceEvery === 1 ? t.month : t.months)
-                      : (persistenceEvery === 1 ? t.year : t.years)}
-                  </span>
-                </div>
-              </div>
-              <div>
-                <div className="mb-1 text-xs text-text-secondary">{t.lifecycle}</div>
-                <div className="flex gap-1">
-                  {([['indefinite', t.indefinite], ['finite', t.finite]] as const).map(([l, label]) => (
-                    <button
-                      key={l}
-                      type="button"
-                      onClick={() => setLifecycleType(l)}
-                      className={`rounded px-2 py-0.5 text-xs capitalize ${lifecycleType === l ? 'bg-input text-text' : 'bg-white/10 text-text-secondary'}`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                <div className="mt-1 flex items-center gap-2 h-6">
-                  <span className="text-xs text-text-tertiary">{t.retiresAfter}</span>
-                  {lifecycleType === 'indefinite' ? (
-                    <span className="w-14 text-xs text-text text-center">∞</span>
-                  ) : (
-                    <input
-                      type="number"
-                      min={1}
-                      max={999}
-                      value={retireAfter}
-                      onChange={(e) => setRetireAfter(Math.max(1, Math.min(999, Number(e.target.value))))}
-                      className={`w-14 rounded px-2 py-0.5 text-xs text-text text-center ${editInputClass}`}
-                    />
-                  )}
-                  <span className="text-xs text-text-tertiary">{lifecycleType === 'indefinite' ? t.completions : (retireAfter === 1 ? t.completion : t.completions)}</span>
-                </div>
-              </div>
-              <div className="flex gap-2 pt-1">
-                <button
-                  onClick={handleSaveList}
-                  className="rounded-lg border border-border-light bg-input px-3 py-1 text-sm text-text-secondary hover:bg-input-hover transition-colors"
-                >
-                  {t.save}
-                </button>
-                <button
-                  onClick={() => { setEditing(false); setName(list.name); setDescription(list.description); setEditTags(list.tags ?? []) }}
-                  className="rounded-lg border border-border-light bg-input px-3 py-1 text-sm text-text-secondary hover:bg-input-hover transition-colors"
-                >
-                  {t.cancel}
-                </button>
-              </div>
-            </div>
-          ) : (
-            <>
+        {/* List info — tapping it anywhere but the controls opens the editor */}
+        <div
+          className="cursor-pointer rounded-lg bg-card p-5 shadow-md"
+          onClick={(e) => {
+            if (!id) return
+            // let the toggle, the action buttons and any link do their own thing
+            if ((e.target as HTMLElement).closest('button, a')) return
+            window.dispatchEvent(new CustomEvent('prayercycles:edit-list', { detail: { listId: id } }))
+          }}
+        >
               {/* Active/Deactivated toggle — top right */}
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs text-text-tertiary leading-tight"><span className="capitalize">{list.cycle.cadence}</span> | {freqLabel} | {lifecycleLabel}</p>
+                  <p className="text-xs text-text-tertiary leading-tight"><span className="capitalize">{list.cycle.cadence}</span> | {freqLabel}</p>
                   <h2 className="text-xl font-semibold text-text -mt-0.5">{list.name}</h2>
                 </div>
                 <button
@@ -399,7 +242,7 @@ export function ListDetailPage() {
                   ))}
                 </div>
               )}
-              {/* Pray Now · + Prayer · Edit · Delete */}
+              {/* Pray Now · + Prayer · Delete — editing is a tap on the card */}
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <button
                   onClick={() => {
@@ -421,12 +264,6 @@ export function ListDetailPage() {
                   className="rounded-lg border border-border-light bg-input px-3 py-1 text-sm text-text-secondary hover:bg-input-hover transition-colors"
                 >
                   {t.newPrayer}
-                </button>
-                <button
-                  onClick={() => setEditing(true)}
-                  className="rounded-lg border border-border-light bg-input px-3 py-1 text-sm text-text-secondary hover:bg-input-hover transition-colors"
-                >
-                  {t.edit}
                 </button>
                 {!confirmDelete ? (
                   <button
@@ -454,8 +291,6 @@ export function ListDetailPage() {
                   </div>
                 )}
               </div>
-            </>
-          )}
         </div>
 
 

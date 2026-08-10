@@ -13,7 +13,7 @@ export const gsw: Translations = {
   no: 'Nei',
   loading: 'Am Lade...',
 
-  navTapPray: 'Tippe',
+  navTapPray: 'Tipp-Gebät',
   stepDown: 'Weniger oft',
   stepUp: 'Öfter',
   navPrayerLists: 'Lischte',
@@ -43,7 +43,7 @@ export const gsw: Translations = {
   searchPrayers: 'Gebät sueche...',
   noListsYet: 'No kei Lischte.',
   deactivated: 'Deaktiviert',
-  surfacedLabel: 'Uuftaucht | Täglic | x ∞',
+  surfacedLabel: 'Uuftaucht | Täglic',
   todaysPrayersDesc: 'Es Gebet us jedere aktive Lischte, wo am wenigschte kürzlich bätet worde isch.',
   noPrayersSurfaced: 'Hüt si kei Gebät uuftaucht',
   expand: 'erweitere',
@@ -75,9 +75,6 @@ export const gsw: Translations = {
   months: 'Mönet',
   year: 'Jahr',
   years: 'Jahr',
-  lifecycle: 'Lebenszyklus',
-  indefinite: 'Unbegränzt',
-  finite: 'Begränzt',
   retiresAfter: 'Hört uf nach',
   completion: 'Erledigung',
   completions: 'Erledigunge',
@@ -116,7 +113,6 @@ export const gsw: Translations = {
   qWhichList: 'I welli Lischte söll das?',
   cycleHelp: 'Wähl de Rhythmus und denn, wie vil Zit vergaht bis es wieder dra chunt.',
   peopleHelp: 'Es Gebet pro Zile, druck Enter für e nöii Zile',
-  lifecycleHelp: 'Die meischte Lischte laufe ewig. Setz es Änd, wenn s nur für e Ziit isch.',
   runsForever: 'Lauft ewig',
   endsAfterCycles: 'Hört uf nach ere Aazahl',
   optionalStep: 'Optional',
@@ -188,9 +184,6 @@ export const gsw: Translations = {
     if (days > 0) return `${days} ${days === 1 ? 'Tag' : 'Täg'} ${time}`
     return time
   },
-
-  timesInfinite: 'x ∞',
-  timesCount: (count) => `x ${count}`,
   everyUnit: (every, singular, plural) => every === 1 ? `Jede ${singular}` : `Jede ${every} ${plural}`,
 
   navPrayerTags: 'Tags',

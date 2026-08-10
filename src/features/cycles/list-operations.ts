@@ -12,7 +12,7 @@ export async function ensureUnscheduledList(): Promise<void> {
     id: UNSCHEDULED_ID,
     name: 'Unscheduled',
     description: '',
-    cycle: { cadence: 'daily', persistence: { unit: 'wake', every: 1 }, lifecycle: { type: 'indefinite' } },
+    cycle: { cadence: 'daily', persistence: { unit: 'wake', every: 1 } },
     status: 'active',
     rotationState: { queue: [], pointer: 0, lastCadenceBoundary: Date.now(), tallyOffsets: {} },
     completionTally: 0,

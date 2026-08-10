@@ -294,7 +294,6 @@ function ListCard({ list, prayers, query, focused }: { list: PrayerList; prayers
   const unitLabels: Record<string, [string, string]> = { wake: [t.day, t.days], passage: [t.week, t.weeks], season: [t.month, t.months], orbit: [t.year, t.years] }
   const [singular, plural] = unitLabels[pUnit] || [t.day, t.days]
   const freqLabel = t.everyUnit(pEvery, singular, plural)
-  const lifecycleLabel = list.cycle.lifecycle.type === 'indefinite' ? t.timesInfinite : t.timesCount(list.cycle.lifecycle.retireAfter ?? 1)
   const visible = prayers.slice(0, MAX_VISIBLE)
   const overflow = prayers.length - MAX_VISIBLE
 
@@ -313,7 +312,7 @@ function ListCard({ list, prayers, query, focused }: { list: PrayerList; prayers
       onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/lists/${list.id}`) }}
     >
       {!isUnscheduled && (
-        <p className="text-xs text-text-tertiary leading-tight"><span className="capitalize">{list.cycle.cadence}</span> | {freqLabel} | {lifecycleLabel}</p>
+        <p className="text-xs text-text-tertiary leading-tight"><span className="capitalize">{list.cycle.cadence}</span> | {freqLabel}</p>
       )}
       <h3 className="text-lg font-semibold text-text -mt-0.5"><Highlight text={displayName} query={query} /></h3>
       {list.description && (

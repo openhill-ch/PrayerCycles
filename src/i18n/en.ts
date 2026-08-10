@@ -13,7 +13,7 @@ export const en: Translations = {
   no: 'No',
   loading: 'Loading...',
 
-  navTapPray: 'Tap',
+  navTapPray: 'Tap Prayer',
   stepDown: 'Less often',
   stepUp: 'More often',
   navPrayerLists: 'Lists',
@@ -43,7 +43,7 @@ export const en: Translations = {
   searchPrayers: 'Search prayers...',
   noListsYet: 'No lists yet.',
   deactivated: 'Deactivated',
-  surfacedLabel: 'Surfaced | Daily | x ∞',
+  surfacedLabel: 'Surfaced | Daily',
   todaysPrayersDesc: 'One prayer surfaced from each active list, prioritizing those prayed least recently.',
   noPrayersSurfaced: 'No prayers surfaced today',
   expand: 'expand',
@@ -75,9 +75,6 @@ export const en: Translations = {
   months: 'months',
   year: 'year',
   years: 'years',
-  lifecycle: 'Lifecycle',
-  indefinite: 'Indefinite',
-  finite: 'Finite',
   retiresAfter: 'Retires after',
   completion: 'completion',
   completions: 'completions',
@@ -116,7 +113,6 @@ export const en: Translations = {
   qWhichList: 'Which list should this go in?',
   cycleHelp: 'Pick the rhythm, then how much time passes before it comes around again.',
   peopleHelp: 'Type one prayer per line, press enter after a prayer to add another line',
-  lifecycleHelp: 'Most lists run forever. Set an end if this is just for a season.',
   runsForever: 'Runs forever',
   endsAfterCycles: 'Ends after a set number',
   optionalStep: 'Optional',
@@ -188,9 +184,6 @@ export const en: Translations = {
     if (days > 0) return `${days} ${days === 1 ? 'day' : 'days'} ${time}`
     return time
   },
-
-  timesInfinite: 'x ∞',
-  timesCount: (count) => `x ${count}`,
   everyUnit: (every, singular, plural) => `Every ${every === 1 ? singular : `${every} ${plural}`}`,
 
   navPrayerTags: 'Tags',

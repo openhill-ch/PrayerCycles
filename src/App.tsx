@@ -57,6 +57,7 @@ function AppRoutes({ location }: { location?: ReturnType<typeof useLocation> }) 
 function AppContent() {
   const [addOpen, setAddOpen] = useState(false)
   const [addListId, setAddListId] = useState<string | undefined>(undefined)
+  const [editListId, setEditListId] = useState<string | undefined>(undefined)
   const [menuOpen, setMenuOpen] = useState(false)
   const [exportOpen, setExportOpen] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
@@ -167,8 +168,17 @@ function AppContent() {
       setAddListId((e as CustomEvent<{ listId: string }>).detail?.listId)
       setAddOpen(true)
     }
+    function onEditList(e: Event) {
+      setAddListId(undefined)
+      setEditListId((e as CustomEvent<{ listId: string }>).detail?.listId)
+      setAddOpen(true)
+    }
     window.addEventListener('prayercycles:add-prayer', onAddPrayer)
-    return () => window.removeEventListener('prayercycles:add-prayer', onAddPrayer)
+    window.addEventListener('prayercycles:edit-list', onEditList)
+    return () => {
+      window.removeEventListener('prayercycles:add-prayer', onAddPrayer)
+      window.removeEventListener('prayercycles:edit-list', onEditList)
+    }
   }, [])
 
   useEffect(() => {
@@ -243,7 +253,7 @@ function AppContent() {
 
         {!modalOpen && (
           <button
-            onClick={() => { setAddListId(undefined); setAddOpen(true) }}
+            onClick={() => { setAddListId(undefined); setEditListId(undefined); setAddOpen(true) }}
             className="fixed right-4 z-40 flex h-16 w-16 items-center justify-center rounded-full bg-input-hover text-text shadow-lg transition-colors hover:bg-input"
             style={{ bottom: 'calc(5.25rem + env(safe-area-inset-bottom))' }}
             aria-label="Add"
@@ -252,8 +262,10 @@ function AppContent() {
           </button>
         )}
 
-        <AddModal open={addOpen} initialListId={addListId} onClose={() => { setAddOpen(false); setAddListId(undefined) }} onAdded={(focusListId) => {
+        <AddModal open={addOpen} initialListId={addListId} editListId={editListId} onClose={() => { setAddOpen(false); setAddListId(undefined); setEditListId(undefined) }} onAdded={(focusListId) => {
           window.dispatchEvent(new Event('prayercycles:refresh'))
+          // Editing happens in place; only a brand new entry is worth going to see.
+          if (editListId) return
           navigate(focusListId ? `/?focus=${encodeURIComponent(focusListId)}` : '/')
         }} />
         <ExportImportModal open={exportOpen} onClose={() => setExportOpen(false)} />

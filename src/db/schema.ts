@@ -3,7 +3,6 @@ import { z } from 'zod/v4'
 const cycleSchema = z.object({
   cadence: z.enum(['daily', 'weekly', 'monthly', 'custom']),
   persistence: z.enum(['one-session', 'sustained']),
-  lifecycle: z.enum(['indefinite', 'finite']),
 })
 
 const rotationStateSchema = z.object({

@@ -6,8 +6,8 @@ import { useTimer } from '../context/TimerContext'
 import { TagInput } from './TagInput'
 import { DescriptionToolbar, useDescriptionKeyDown } from './DescriptionToolbar'
 import type { PrayerList, Cadence, PersistenceUnit } from '../db/types'
-import { createList, getAllLists, UNSCHEDULED_ID } from '../features/cycles/list-operations'
-import { createPrayer } from '../features/prayers/prayer-operations'
+import { createList, updateList, getList, getAllLists, UNSCHEDULED_ID } from '../features/cycles/list-operations'
+import { createPrayer, bulkCreatePrayers } from '../features/prayers/prayer-operations'
 import { getAllTags } from '../features/tags/tag-operations'
 
 type AddModalProps = {
@@ -17,9 +17,11 @@ type AddModalProps = {
   onAdded: (focusListId?: string) => void
   /** Opens straight into "add a prayer" with this list already chosen. */
   initialListId?: string
+  /** Opens the same wizard over an existing list, to edit it rather than create. */
+  editListId?: string
 }
 
-type Mode = 'create-list' | 'add-single'
+type Mode = 'create-list' | 'add-single' | 'edit-list'
 
 const LIST_STEPS = ['name', 'people', 'cycle'] as const
 const PRAYER_STEPS = ['who', 'list', 'details'] as const
@@ -33,7 +35,7 @@ const COMMIT_RATIO = 0.28
 /** px/ms — a quick flick commits even if you didn't drag far. */
 const FLICK_VELOCITY = 0.4
 
-export function AddModal({ open, onClose, onAdded, initialListId }: AddModalProps) {
+export function AddModal({ open, onClose, onAdded, initialListId, editListId }: AddModalProps) {
   const { t } = useT()
   const { refreshLists: refreshTimerLists } = useTimer()
   const [mode, setMode] = useState<Mode>('create-list')
@@ -47,8 +49,6 @@ export function AddModal({ open, onClose, onAdded, initialListId }: AddModalProp
   const [cadence, setCadence] = useState<Cadence>('daily')
   const [persistenceUnit, setPersistenceUnit] = useState<PersistenceUnit>('wake')
   const [persistenceEvery, setPersistenceEvery] = useState(1)
-  const [lifecycleType, setLifecycleType] = useState<'indefinite' | 'finite'>('indefinite')
-  const [retireAfter, setRetireAfter] = useState(1)
   const [initialPrayers, setInitialPrayers] = useState('')
   const [listTags, setListTags] = useState<string[]>([])
 
@@ -71,7 +71,8 @@ export function AddModal({ open, onClose, onAdded, initialListId }: AddModalProp
   const gestureStart = useRef<{ x: number; y: number; t: number } | null>(null)
   const axis = useRef<'h' | 'v' | null>(null)
 
-  const steps: readonly StepKey[] = mode === 'create-list' ? LIST_STEPS : PRAYER_STEPS
+  const isListMode = mode === 'create-list' || mode === 'edit-list'
+  const steps: readonly StepKey[] = isListMode ? LIST_STEPS : PRAYER_STEPS
   const total = steps.length
   const current = steps[step]
   const isLast = step === total - 1
@@ -81,12 +82,24 @@ export function AddModal({ open, onClose, onAdded, initialListId }: AddModalProp
       getAllLists().then(setLists)
       getAllTags().then(setExistingTags)
       // Arriving from a list's "+ Prayer" skips the choice of what to make.
-      setMode(initialListId ? 'add-single' : 'create-list')
+      setMode(editListId ? 'edit-list' : initialListId ? 'add-single' : 'create-list')
       setSelectedListId(initialListId ?? '')
       setStep(0)
       setDragX(0)
+      if (editListId) {
+        getList(editListId).then((l) => {
+          if (!l) return
+          setListName(l.name)
+          setListDescription(l.description)
+          setCadence(l.cycle.cadence)
+          setPersistenceUnit(l.cycle.persistence.unit)
+          setPersistenceEvery(l.cycle.persistence.every)
+          setListTags(l.tags ?? [])
+          setInitialPrayers('')
+        })
+      }
     }
-  }, [open, initialListId])
+  }, [open, initialListId, editListId])
 
   // On open, focus immediately so the keyboard rises with the modal as a single
   // motion (a delay here reads as the window "glitching" a moment later). When
@@ -113,8 +126,6 @@ export function AddModal({ open, onClose, onAdded, initialListId }: AddModalProp
     setCadence('daily')
     setPersistenceUnit('wake')
     setPersistenceEvery(1)
-    setLifecycleType('indefinite')
-    setRetireAfter(1)
     setInitialPrayers('')
     setListTags([])
     setTitle('')
@@ -228,14 +239,26 @@ export function AddModal({ open, onClose, onAdded, initialListId }: AddModalProp
     burst()
     try {
       let focusListId: string | undefined
-      if (mode === 'create-list') {
+      if (mode === 'edit-list' && editListId) {
+        await updateList(editListId, {
+          name: listName.trim(),
+          description: listDescription.trim(),
+          cycle: { cadence, persistence: { unit: persistenceUnit, every: persistenceEvery } },
+          tags: listTags,
+        })
+        // The people step adds to the list here rather than defining it, so an
+        // edit that only renames the list leaves its prayers untouched.
+        const added = initialPrayers.split('\n').map((x) => x.trim()).filter(Boolean)
+        if (added.length) await bulkCreatePrayers(added, editListId)
+        refreshTimerLists()
+        focusListId = editListId
+      } else if (mode === 'create-list') {
         const titles = initialPrayers.split('\n').filter((x) => x.trim())
         focusListId = await createList(
           listName.trim(),
           {
             cadence,
             persistence: { unit: persistenceUnit, every: persistenceEvery },
-            lifecycle: { type: lifecycleType, ...(lifecycleType === 'finite' ? { retireAfter } : {}) },
           },
           listDescription.trim(),
           titles,
@@ -522,10 +545,10 @@ export function AddModal({ open, onClose, onAdded, initialListId }: AddModalProp
 
           {step === 0 && (
             <div className="mt-4 flex justify-center gap-2">
-              <button type="button" onClick={() => switchMode('create-list')} className={pill(mode === 'create-list')}>
+              <button type="button" onClick={() => switchMode('create-list')} className={pill(mode === 'create-list')} hidden={mode === 'edit-list'}>
                 {t.newPrayerList}
               </button>
-              <button type="button" onClick={() => switchMode('add-single')} className={pill(mode === 'add-single')}>
+              <button type="button" onClick={() => switchMode('add-single')} className={pill(mode === 'add-single')} hidden={mode === 'edit-list'}>
                 {t.newPrayer}
               </button>
             </div>
@@ -596,7 +619,7 @@ export function AddModal({ open, onClose, onAdded, initialListId }: AddModalProp
                         disabled={saving}
                         className="w-full rounded-lg bg-accent py-3 text-sm font-semibold text-white transition-all duration-150 hover:brightness-110 active:scale-[0.98] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                       >
-                        {saving ? '…' : mode === 'create-list' ? t.createList : t.addPrayer}
+                        {saving ? '…' : mode === 'edit-list' ? t.save : mode === 'create-list' ? t.createList : t.addPrayer}
                       </button>
                     </>
                   )}

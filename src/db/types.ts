@@ -1,9 +1,5 @@
 export type Cadence = 'daily' | 'weekly' | 'monthly' | 'annually'
 export type PersistenceUnit = 'wake' | 'passage' | 'season' | 'orbit'
-export type Lifecycle = {
-  type: 'indefinite' | 'finite'
-  retireAfter?: number
-}
 export type ListStatus = 'active' | 'archived' | 'deleted'
 
 export type Persistence = {
@@ -14,7 +10,6 @@ export type Persistence = {
 export type Cycle = {
   cadence: Cadence
   persistence: Persistence
-  lifecycle: Lifecycle
 }
 
 export type RotationState = {

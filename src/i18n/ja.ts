@@ -13,7 +13,7 @@ export const ja: Translations = {
   no: 'いいえ',
   loading: '読み込み中...',
 
-  navTapPray: 'タップ',
+  navTapPray: 'タップ祈り',
   stepDown: '頻度を下げる',
   stepUp: '頻度を上げる',
   navPrayerLists: 'リスト',
@@ -43,7 +43,7 @@ export const ja: Translations = {
   searchPrayers: '祈りを検索...',
   noListsYet: 'リストはまだありません。',
   deactivated: '無効',
-  surfacedLabel: '浮上 | 毎日 | x ∞',
+  surfacedLabel: '浮上 | 毎日',
   todaysPrayersDesc: '各アクティブリストから最も祈られていない祈りを1つずつ表示します。',
   noPrayersSurfaced: '今日浮上した祈りはありません',
   expand: '展開',
@@ -75,9 +75,6 @@ export const ja: Translations = {
   months: 'ヶ月',
   year: '年',
   years: '年',
-  lifecycle: 'ライフサイクル',
-  indefinite: '無期限',
-  finite: '有限',
   retiresAfter: '終了まで',
   completion: '回完了',
   completions: '回完了',
@@ -116,7 +113,6 @@ export const ja: Translations = {
   qWhichList: 'どのリストに追加しますか？',
   cycleHelp: 'リズムを選び、次に一巡するまでの間隔を選びます。',
   peopleHelp: '1行に1つの祈り。次の行を追加するにはEnterを押してください',
-  lifecycleHelp: 'ほとんどのリストは無期限です。期間限定なら終わりを設定してください。',
   runsForever: 'ずっと続く',
   endsAfterCycles: '回数を決めて終了',
   optionalStep: '任意',
@@ -188,9 +184,6 @@ export const ja: Translations = {
     if (days > 0) return `${days}日 ${time}`
     return time
   },
-
-  timesInfinite: 'x ∞',
-  timesCount: (count) => `x ${count}`,
   everyUnit: (every, singular, plural) => every === 1 ? `毎${singular}` : `${every}${plural}ごと`,
 
   navPrayerTags: 'タグ',

@@ -41,10 +41,6 @@ function advanceRotation(list: PrayerList, now: Date): PrayerList {
 
   let pointer = list.rotationState.pointer
 
-  if (list.cycle.lifecycle.type === 'finite' && pointer >= queue.length) {
-    return { ...list, status: 'archived' }
-  }
-
   if (pointer >= queue.length) {
     pointer = 0
   }
@@ -202,11 +198,6 @@ export async function completePrayer(
       const effectiveTally = (p: Prayer) => (p.id === prayerId ? p.prayerTally + 1 : p.prayerTally) + (offsets[p.id] ?? 0)
       const minTally = Math.min(...valid.map(effectiveTally))
       if (minTally > (list.completionTally ?? 0)) {
-        // Check if finite lifecycle reached its limit
-        if (list.cycle.lifecycle.type === 'finite' && list.cycle.lifecycle.retireAfter && minTally >= list.cycle.lifecycle.retireAfter) {
-          await db.prayerLists.put({ ...list, completionTally: minTally, status: 'archived' })
-          return
-        }
         await db.prayerLists.put({ ...list, completionTally: minTally })
       }
     }

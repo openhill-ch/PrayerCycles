@@ -13,7 +13,7 @@ export const mn: Translations = {
   no: 'Үгүй',
   loading: 'Ачааллаж байна...',
 
-  navTapPray: 'Товших',
+  navTapPray: 'Товших залбирал',
   stepDown: 'Бага давтамж',
   stepUp: 'Их давтамж',
   navPrayerLists: 'Жагсаалт',
@@ -43,7 +43,7 @@ export const mn: Translations = {
   searchPrayers: 'Залбирал хайх...',
   noListsYet: 'Жагсаалт байхгүй байна.',
   deactivated: 'Идэвхгүй',
-  surfacedLabel: 'Гарсан | Өдөр бүр | x ∞',
+  surfacedLabel: 'Гарсан | Өдөр бүр',
   todaysPrayersDesc: 'Идэвхтэй жагсаалт бүрээс хамгийн бага залбирсан залбирлыг нэгийг харуулна.',
   noPrayersSurfaced: 'Өнөөдөр гарсан залбирал байхгүй',
   expand: 'дэлгэх',
@@ -75,9 +75,6 @@ export const mn: Translations = {
   months: 'сар',
   year: 'жил',
   years: 'жил',
-  lifecycle: 'Амьдралын Мөчлөг',
-  indefinite: 'Хязгааргүй',
-  finite: 'Хязгаартай',
   retiresAfter: 'Дуусах хугацаа',
   completion: 'гүйцэтгэл',
   completions: 'гүйцэтгэл',
@@ -116,7 +113,6 @@ export const mn: Translations = {
   qWhichList: 'Аль жагсаалтад нэмэх вэ?',
   cycleHelp: 'Хэмнэлээ сонгоод, дараа нь дахин эргэж ирэх хугацааг сонгоно.',
   peopleHelp: 'Мөр бүрт нэг залбирал, шинэ мөр нэмэхийн тулд Enter дарна уу',
-  lifecycleHelp: 'Ихэнх жагсаалт үргэлж үргэлжилнэ. Хугацаатай бол төгсгөлийг тохируулна уу.',
   runsForever: 'Үргэлж үргэлжилнэ',
   endsAfterCycles: 'Тодорхой тооны дараа дуусна',
   optionalStep: 'Заавал биш',
@@ -188,9 +184,6 @@ export const mn: Translations = {
     if (days > 0) return `${days} өдөр ${time}`
     return time
   },
-
-  timesInfinite: 'x ∞',
-  timesCount: (count) => `x ${count}`,
   everyUnit: (every, singular, plural) => every === 1 ? `${singular} бүр` : `${every} ${plural} тутам`,
 
   navPrayerTags: 'Шошго',

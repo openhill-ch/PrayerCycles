@@ -82,9 +82,6 @@ export type Translations = {
   months: string
   year: string
   years: string
-  lifecycle: string
-  indefinite: string
-  finite: string
   retiresAfter: string
   completion: string
   completions: string
@@ -131,7 +128,6 @@ export type Translations = {
   qWhichList: string
   cycleHelp: string
   peopleHelp: string
-  lifecycleHelp: string
   runsForever: string
   endsAfterCycles: string
   optionalStep: string
@@ -191,10 +187,6 @@ export type Translations = {
   // Total time prayed
   totalTimePrayed: string
   formatTimePrayed: (totalSeconds: number) => string
-
-  // Lifecycle
-  timesInfinite: string
-  timesCount: (count: number) => string
   everyUnit: (every: number, singular: string, plural: string) => string
 
   // Tags
