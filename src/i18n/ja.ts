@@ -13,7 +13,7 @@ export const ja: Translations = {
   no: 'いいえ',
   loading: '読み込み中...',
 
-  navTapPray: 'タップ祈り',
+  navTapPray: 'タップ\n祈り',
   stepDown: '頻度を下げる',
   stepUp: '頻度を上げる',
   navPrayerLists: 'リスト',

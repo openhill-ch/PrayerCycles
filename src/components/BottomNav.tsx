@@ -35,7 +35,8 @@ export function BottomNav({ onNavigate }: BottomNavProps) {
             }
           >
             <Icon size={26} strokeWidth={1.75} />
-            <span>{label}</span>
+            {/* Labels may carry a line break, so Tap Pray stacks over two rows. */}
+            <span className="whitespace-pre-line text-center leading-tight">{label}</span>
           </NavLink>
         ))}
       </div>

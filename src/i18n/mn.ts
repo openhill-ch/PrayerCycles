@@ -13,7 +13,7 @@ export const mn: Translations = {
   no: 'Үгүй',
   loading: 'Ачааллаж байна...',
 
-  navTapPray: 'Товших залбирал',
+  navTapPray: 'Товших\nЗалбирах',
   stepDown: 'Бага давтамж',
   stepUp: 'Их давтамж',
   navPrayerLists: 'Жагсаалт',

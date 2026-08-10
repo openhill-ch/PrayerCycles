@@ -13,7 +13,7 @@ export const en: Translations = {
   no: 'No',
   loading: 'Loading...',
 
-  navTapPray: 'Tap Prayer',
+  navTapPray: 'Tap\nPray',
   stepDown: 'Less often',
   stepUp: 'More often',
   navPrayerLists: 'Lists',
