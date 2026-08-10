@@ -9,9 +9,16 @@ type TagEntry = {
   prayerCount: number
 }
 
+/**
+ * Last load, kept outside the component. Committing a page swipe unmounts the
+ * copy that slid in and mounts a fresh one, so without this the tags page
+ * flashed its "no tags yet" state at the moment it arrived.
+ */
+let lastTags: TagEntry[] | null = null
+
 export function TagsPage() {
   const { t } = useT()
-  const [tags, setTags] = useState<TagEntry[]>([])
+  const [tags, setTags] = useState<TagEntry[]>(() => lastTags ?? [])
   const [editingTag, setEditingTag] = useState<string | null>(null)
   const [editValue, setEditValue] = useState('')
   const [confirmDeleteTag, setConfirmDeleteTag] = useState<string | null>(null)
@@ -22,12 +29,12 @@ export function TagsPage() {
 
   const load = useCallback(async () => {
     const [allTags, counts] = await Promise.all([getAllTags(), getTagCounts()])
-    setTags(
-      allTags.map((name) => {
-        const c = counts.get(name) ?? { lists: 0, prayers: 0 }
-        return { name, listCount: c.lists, prayerCount: c.prayers }
-      }),
-    )
+    const next = allTags.map((name) => {
+      const c = counts.get(name) ?? { lists: 0, prayers: 0 }
+      return { name, listCount: c.lists, prayerCount: c.prayers }
+    })
+    lastTags = next
+    setTags(next)
   }, [])
 
   useEffect(() => {

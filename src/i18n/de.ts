@@ -18,7 +18,7 @@ export const de: Translations = {
   navPrayerLists: 'Gebets\nlisten',
   navTimebox: 'Zeit\nbox',
 
-  exportImport: 'Gebete exportieren / importieren',
+  exportImport: 'Export / Import',
   deletedLists: 'Gelöschte Gebetslisten',
   resetPrayerData: 'Gebetsdaten zurücksetzen',
   languages: 'Sprachen',
@@ -116,7 +116,7 @@ export const de: Translations = {
   addDescription: 'Beschreibung hinzufügen ...',
   deletePrayerConfirm: 'Dieses Gebet löschen?',
 
-  exportImportTitle: 'Gebete exportieren / importieren',
+  exportImportTitle: 'Export / Import',
   exportImportDesc: 'Exportiere deine Gebetsdaten als Sicherungsdatei oder importiere eine frühere Sicherung.',
   exportBtn: 'Exportieren',
   importBtn: 'Importieren',
@@ -178,8 +178,6 @@ export const de: Translations = {
 
   resetAll: 'Alle Gebetsdaten entfernen',
   resetAllDesc: 'Vollständiger Reset – entfernt alle Listen, Gebete und Tags.',
-  resetStats: 'Gebetszähler zurücksetzen',
-  resetStatsDesc: 'Setzt die Zähler zurück, die bestimmen, welches Gebet als Nächstes angezeigt wird.',
   resetTags: 'Gebetstags entfernen',
   resetTagsDesc: 'Entfernt alle Tags von Gebeten und Listen.',
   resetConfirmTap: 'Zum Bestätigen erneut tippen',

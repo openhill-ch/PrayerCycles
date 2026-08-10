@@ -18,7 +18,7 @@ export const ja: Translations = {
   navPrayerLists: '祈りの\nリスト',
   navTimebox: 'タイム\nボックス',
 
-  exportImport: '祈りのエクスポート / インポート',
+  exportImport: 'エクスポート / インポート',
   deletedLists: '削除した祈りのリスト',
   resetPrayerData: 'データをリセット',
   languages: '言語',
@@ -118,7 +118,7 @@ export const ja: Translations = {
   addDescription: '説明を追加...',
   deletePrayerConfirm: 'この祈りを削除しますか？',
 
-  exportImportTitle: '祈りのエクスポート / インポート',
+  exportImportTitle: 'エクスポート / インポート',
   exportImportDesc: '祈りデータをバックアップファイルとしてエクスポートするか、以前のバックアップからインポートして復元します。',
   exportBtn: 'エクスポート',
   importBtn: 'インポート',
@@ -180,9 +180,7 @@ export const ja: Translations = {
   themeGroupAmerican: 'アメリカ',
 
   resetAll: 'すべての祈りデータを削除',
-  resetAllDesc: '完全リセット — すべてのリスト、祈り、履歴、タグを削除します。',
-  resetStats: '祈りの統計を削除',
-  resetStatsDesc: '祈り回数と祈り時間をゼロに戻します。',
+  resetAllDesc: '完全リセット — すべてのリスト、祈り、タグを削除します。',
   resetTags: '祈りのタグを削除',
   resetTagsDesc: '祈りとリストからすべてのタグを削除します。',
   resetConfirmTap: 'もう一度タップして確認',

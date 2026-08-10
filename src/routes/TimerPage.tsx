@@ -225,9 +225,6 @@ export function TimerPage() {
   const displayName = isToday ? t.todaysPrayers : (selectedList?.name ?? t.selectAPrayerList)
   const hasSelection = isToday || !!selectedList
   const currentPrayer = prayers.length > 0 ? (prayers[currentIndex] ?? prayers[0]) : null
-  const upcomingPrayers = currentPrayer
-    ? prayers.slice((running || timeLeft < totalTime) ? currentIndex + 1 : 1)
-    : []
 
   // Big timer: shows per-prayer countdown when running or paused mid-session
   const midSession = timeLeft > 0 && timeLeft < totalTime
@@ -445,18 +442,6 @@ export function TimerPage() {
             )}
           </div>
         </div>
-
-        {/* Up next — below the timebox */}
-        {upcomingPrayers.length > 0 && (
-          <div className="space-y-1">
-            <div className="px-1 text-xs uppercase tracking-wide text-text-muted">{t.upNext}</div>
-            {upcomingPrayers.slice(0, 2).map((prayer, i) => (
-              <div key={prayer.id} className="px-1" style={{ opacity: i === 0 ? 1 : 0.45 }}>
-                <div className="text-sm text-text-secondary">{prayer.title}</div>
-              </div>
-            ))}
-          </div>
-        )}
 
         {selectedListId && prayers.length === 0 && (
           <p className="pt-2 text-sm italic text-text-muted">{t.noPrayersInListYet}</p>

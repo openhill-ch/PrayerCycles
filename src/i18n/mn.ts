@@ -18,7 +18,7 @@ export const mn: Translations = {
   navPrayerLists: 'Залбирлын\nЖагсаалт',
   navTimebox: 'Цагийн\nХайрцаг',
 
-  exportImport: 'Залбирлыг гаргах / оруулах',
+  exportImport: 'Экспорт / Импорт',
   deletedLists: 'Устгасан залбирлын жагсаалт',
   resetPrayerData: 'Өгөгдлийг Шинэчлэх',
   languages: 'Хэл',
@@ -118,7 +118,7 @@ export const mn: Translations = {
   addDescription: 'Тайлбар нэмэх...',
   deletePrayerConfirm: 'Энэ залбирлыг устгах уу?',
 
-  exportImportTitle: 'Залбирлыг гаргах / оруулах',
+  exportImportTitle: 'Экспорт / Импорт',
   exportImportDesc: 'Залбирлын өгөгдлийг нөөц файл болгон экспортлох, эсвэл өмнөх нөөцөөс импортлон сэргээх.',
   exportBtn: 'Экспорт',
   importBtn: 'Импорт',
@@ -180,9 +180,7 @@ export const mn: Translations = {
   themeGroupAmerican: 'Америк',
 
   resetAll: 'Бүх залбирлын өгөгдлийг устгах',
-  resetAllDesc: 'Бүрэн шинэчлэл — бүх жагсаалт, залбирал, түүх, шошгыг устгана.',
-  resetStats: 'Залбирлын статистикийг устгах',
-  resetStatsDesc: 'Залбирлын тоолуур болон хугацааг тэглэнэ.',
+  resetAllDesc: 'Бүрэн шинэчлэл — бүх жагсаалт, залбирал, шошгыг устгана.',
   resetTags: 'Залбирлын шошгыг устгах',
   resetTagsDesc: 'Залбирал болон жагсаалтаас бүх шошгыг хасна.',
   resetConfirmTap: 'Баталгаажуулахын тулд дахин товш',

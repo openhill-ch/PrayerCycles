@@ -18,7 +18,7 @@ export const gsw: Translations = {
   navPrayerLists: 'Gebäts\nLischte',
   navTimebox: 'Ziit\nBox',
 
-  exportImport: 'Gebät exportiere / importiere',
+  exportImport: 'Export / Import',
   deletedLists: 'Glöschti Gebätslischte',
   resetPrayerData: 'Gebetsdate zruggsetze',
   languages: 'Sprache',
@@ -118,7 +118,7 @@ export const gsw: Translations = {
   addDescription: 'Beschribig dezuefüege...',
   deletePrayerConfirm: 'Das Gebet lösche?',
 
-  exportImportTitle: 'Gebät exportiere / importiere',
+  exportImportTitle: 'Export / Import',
   exportImportDesc: 'Gebetsdate als Backup-Datei exportiere, oder es früeneres Backup importiere zum wiederherstelle.',
   exportBtn: 'Exportiere',
   importBtn: 'Importiere',
@@ -180,9 +180,7 @@ export const gsw: Translations = {
   themeGroupAmerican: 'Amerikanisch',
 
   resetAll: 'Alli Gebetsdate lösche',
-  resetAllDesc: 'Komplett-Reset — löscht alli Lischte, Gebät, Gschicht und Tags.',
-  resetStats: 'Gebetsstatistike lösche',
-  resetStatsDesc: 'Setzt Gebetszähler und Gebetszit uf Null zrugg.',
+  resetAllDesc: 'Komplett-Reset — löscht alli Lischte, Gebät und Tags.',
   resetTags: 'Gebets-Tags lösche',
   resetTagsDesc: 'Entfernt alli Tags vo Gebät und Lischte.',
   resetConfirmTap: 'Nomol tippe zum bestätige',

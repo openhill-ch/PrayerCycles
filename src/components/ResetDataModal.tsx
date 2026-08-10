@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Trash2, BarChart3, Hash, Check, AlertTriangle } from 'lucide-react'
+import { X, Trash2, Hash, Check, AlertTriangle } from 'lucide-react'
 import { useT } from '../i18n'
 import { useTimer } from '../context/TimerContext'
 import { db } from '../db/db'
@@ -45,26 +45,6 @@ export function ResetDataModal({ open, onClose }: ResetDataModalProps) {
           localStorage.removeItem('prayercycles-locale')
           break
 
-        case 'stats':
-          {
-            // Collection.modify() goes down a cursor path that fights the
-            // encryption middleware ("not a valid key"), so read then put.
-            const [prayers, lists] = await Promise.all([db.prayers.toArray(), db.prayerLists.toArray()])
-            await db.transaction('rw', [db.prayers, db.prayerLists], async () => {
-              for (const p of prayers) {
-                await db.prayers.put({ ...p, prayerTally: 0, lastPrayedAt: null })
-              }
-              for (const l of lists) {
-                await db.prayerLists.put({
-                  ...l,
-                  completionTally: 0,
-                  rotationState: { ...l.rotationState, tallyOffsets: {} },
-                })
-              }
-            })
-          }
-          break
-
         case 'tags':
           {
             const [prayers, lists] = await Promise.all([db.prayers.toArray(), db.prayerLists.toArray()])
@@ -98,7 +78,6 @@ export function ResetDataModal({ open, onClose }: ResetDataModalProps) {
 
   const options = [
     { id: 'all', icon: Trash2, label: t.resetAll, desc: t.resetAllDesc, danger: true },
-    { id: 'stats', icon: BarChart3, label: t.resetStats, desc: t.resetStatsDesc, danger: false },
     { id: 'tags', icon: Hash, label: t.resetTags, desc: t.resetTagsDesc, danger: false },
   ]
 

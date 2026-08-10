@@ -18,7 +18,7 @@ export const en: Translations = {
   navPrayerLists: 'Prayer\nLists',
   navTimebox: 'Time\nBox',
 
-  exportImport: 'Export / Import Prayers',
+  exportImport: 'Export / Import',
   deletedLists: 'Deleted Prayer Lists',
   resetPrayerData: 'Reset Prayer Data',
   languages: 'Languages',
@@ -118,7 +118,7 @@ export const en: Translations = {
   addDescription: 'Add a description...',
   deletePrayerConfirm: 'Delete this prayer?',
 
-  exportImportTitle: 'Export / Import Prayers',
+  exportImportTitle: 'Export / Import',
   exportImportDesc: 'Export your prayer data as a backup file, or import a previous backup to restore.',
   exportBtn: 'Export',
   importBtn: 'Import',
@@ -180,9 +180,7 @@ export const en: Translations = {
   themeGroupAmerican: 'American',
 
   resetAll: 'Remove All Prayer Data',
-  resetAllDesc: 'Complete reset — removes all lists, prayers, history, and tags.',
-  resetStats: 'Remove Prayer Stats',
-  resetStatsDesc: 'Resets prayer counts and time prayed back to zero.',
+  resetAllDesc: 'Complete reset — removes all lists, prayers, and tags.',
   resetTags: 'Remove Prayer Tags',
   resetTagsDesc: 'Removes all tags from prayers and lists.',
   resetConfirmTap: 'Tap again to confirm',

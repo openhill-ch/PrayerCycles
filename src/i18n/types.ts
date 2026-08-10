@@ -202,8 +202,6 @@ export type Translations = {
   // Reset data
   resetAll: string
   resetAllDesc: string
-  resetStats: string
-  resetStatsDesc: string
   resetTags: string
   resetTagsDesc: string
   resetConfirmTap: string

@@ -12,14 +12,6 @@ export type ThemeDef = {
   group: ThemeGroup
 }
 
-export const themeGroups: { id: ThemeGroup; labelKey: string }[] = [
-  { id: 'default', labelKey: '' },
-  { id: 'mongolian', labelKey: 'themeGroupMongolian' },
-  { id: 'swiss', labelKey: 'themeGroupSwiss' },
-  { id: 'japanese', labelKey: 'themeGroupJapanese' },
-  { id: 'american', labelKey: 'themeGroupAmerican' },
-]
-
 export const themes: ThemeDef[] = [
   {
     id: 'slate',
