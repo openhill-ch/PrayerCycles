@@ -16,8 +16,8 @@ export const en: Translations = {
   navTapPray: 'Tap\nPray',
   stepDown: 'Less often',
   stepUp: 'More often',
-  navPrayerLists: 'Lists',
-  navTimebox: 'Timer',
+  navPrayerLists: 'Prayer\nLists',
+  navTimebox: 'Time\nBox',
 
   prayerHistory: 'Prayer History',
   exportImport: 'Export / Import',
@@ -186,7 +186,7 @@ export const en: Translations = {
   },
   everyUnit: (every, singular, plural) => `Every ${every === 1 ? singular : `${every} ${plural}`}`,
 
-  navPrayerTags: 'Tags',
+  navPrayerTags: 'Prayer\nTags',
   prayerTags: 'Prayer Tags',
   prayerTagsDesc: 'Create, edit, or remove tags to organize your prayers and prayer lists.',
   noTagsYet: 'No tags yet. Add tags when creating prayers or lists.',
@@ -228,10 +228,4 @@ export const en: Translations = {
   resetTagsDesc: 'Removes all tags from prayers and lists.',
   resetConfirmTap: 'Tap again to confirm',
   resetSuccess: 'Data reset successfully!',
-
-  fulfilled: 'Fulfilled',
-  markAsFulfilled: 'Mark as Fulfilled',
-  unfulfill: 'Unfulfill',
-  showFulfilled: 'Show Fulfilled',
-  fulfilledCount: (count) => `${count} fulfilled`,
 }

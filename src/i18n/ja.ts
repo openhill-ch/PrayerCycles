@@ -16,8 +16,8 @@ export const ja: Translations = {
   navTapPray: 'タップ\n祈り',
   stepDown: '頻度を下げる',
   stepUp: '頻度を上げる',
-  navPrayerLists: 'リスト',
-  navTimebox: 'タイマー',
+  navPrayerLists: '祈りの\nリスト',
+  navTimebox: 'タイム\nボックス',
 
   prayerHistory: '祈りの履歴',
   exportImport: 'エクスポート / インポート',
@@ -186,7 +186,7 @@ export const ja: Translations = {
   },
   everyUnit: (every, singular, plural) => every === 1 ? `毎${singular}` : `${every}${plural}ごと`,
 
-  navPrayerTags: 'タグ',
+  navPrayerTags: '祈りの\nタグ',
   prayerTags: '祈りタグ',
   prayerTagsDesc: 'タグを作成・編集・削除して、祈りと祈りリストを整理します。',
   noTagsYet: 'タグはまだありません。祈りやリスト作成時にタグを追加してください。',
@@ -228,10 +228,4 @@ export const ja: Translations = {
   resetTagsDesc: '祈りとリストからすべてのタグを削除します。',
   resetConfirmTap: 'もう一度タップして確認',
   resetSuccess: 'データがリセットされました！',
-
-  fulfilled: '成就',
-  markAsFulfilled: '成就済みにする',
-  unfulfill: '成就を取り消す',
-  showFulfilled: '成就済みを表示',
-  fulfilledCount: (count) => `${count}件成就`,
 }

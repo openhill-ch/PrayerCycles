@@ -16,8 +16,8 @@ export const mn: Translations = {
   navTapPray: 'Товших\nЗалбирах',
   stepDown: 'Бага давтамж',
   stepUp: 'Их давтамж',
-  navPrayerLists: 'Жагсаалт',
-  navTimebox: 'Цаг',
+  navPrayerLists: 'Залбирлын\nЖагсаалт',
+  navTimebox: 'Цагийн\nХайрцаг',
 
   prayerHistory: 'Залбирлын Түүх',
   exportImport: 'Экспорт / Импорт',
@@ -186,7 +186,7 @@ export const mn: Translations = {
   },
   everyUnit: (every, singular, plural) => every === 1 ? `${singular} бүр` : `${every} ${plural} тутам`,
 
-  navPrayerTags: 'Шошго',
+  navPrayerTags: 'Залбирлын\nШошго',
   prayerTags: 'Залбирлын Шошго',
   prayerTagsDesc: 'Залбирал болон залбирлын жагсаалтыг зохион байгуулахын тулд шошго үүсгэх, засах, устгах.',
   noTagsYet: 'Шошго байхгүй байна. Залбирал эсвэл жагсаалт үүсгэх үед шошго нэмнэ үү.',
@@ -228,10 +228,4 @@ export const mn: Translations = {
   resetTagsDesc: 'Залбирал болон жагсаалтаас бүх шошгыг хасна.',
   resetConfirmTap: 'Баталгаажуулахын тулд дахин товш',
   resetSuccess: 'Өгөгдөл амжилттай шинэчлэгдлээ!',
-
-  fulfilled: 'Биелсэн',
-  markAsFulfilled: 'Биелсэн гэж тэмдэглэх',
-  unfulfill: 'Биелээгүй болгох',
-  showFulfilled: 'Биелсэн залбирлыг харуулах',
-  fulfilledCount: (count) => `${count} биелсэн`,
 }

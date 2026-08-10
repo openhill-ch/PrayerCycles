@@ -59,7 +59,7 @@ async function pickLeastPrayed(queue: string[], offsets: Record<string, number> 
   if (queue.length === 0) return undefined
 
   const prayers = await Promise.all(queue.map((id) => db.prayers.get(id)))
-  const valid = prayers.filter((p): p is Prayer => p !== undefined && !p.fulfilled)
+  const valid = prayers.filter((p): p is Prayer => p !== undefined)
   if (valid.length === 0) return undefined
 
   // Use effective tally (real + ghost offset) for comparison
@@ -133,7 +133,7 @@ export async function getSurfacedPrayers(): Promise<SurfacedPrayer[]> {
     const remembered = picks[list.id]
     if (remembered && remembered.boundary === boundary && queue.includes(remembered.prayerId)) {
       const p = await db.prayers.get(remembered.prayerId)
-      if (p && !p.fulfilled) prayer = p
+      if (p) prayer = p
     }
 
     if (!prayer) {

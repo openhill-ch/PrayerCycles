@@ -4,7 +4,6 @@ import confetti from 'canvas-confetti'
 import { useT } from '../i18n'
 import { useTimer } from '../context/TimerContext'
 import { TagInput } from './TagInput'
-import { DescriptionToolbar, useDescriptionKeyDown } from './DescriptionToolbar'
 import type { PrayerList, Cadence, PersistenceUnit } from '../db/types'
 import { createList, updateList, getList, getAllLists, UNSCHEDULED_ID } from '../features/cycles/list-operations'
 import { createPrayer, bulkCreatePrayers } from '../features/prayers/prayer-operations'
@@ -57,7 +56,6 @@ export function AddModal({ open, onClose, onAdded, initialListId, editListId }: 
   const [description, setDescription] = useState('')
   const [selectedListId, setSelectedListId] = useState('')
   const addDescRef = useRef<HTMLTextAreaElement>(null)
-  const handleDescKeyDown = useDescriptionKeyDown(addDescRef, description, setDescription, 2000)
   const [prayerTags, setPrayerTags] = useState<string[]>([])
 
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -359,7 +357,7 @@ export function AddModal({ open, onClose, onAdded, initialListId, editListId }: 
               placeholder={t.prayersPlaceholder}
               value={initialPrayers}
               onChange={(e) => setInitialPrayers(e.target.value)}
-              rows={6}
+              rows={3}
               className={`${inputClass} resize-none text-center`}
             />
             <div>
@@ -482,12 +480,6 @@ export function AddModal({ open, onClose, onAdded, initialListId, editListId }: 
             <p className={titleClass}>{t.detailsTitle}</p>
             <div>
               <div className="mb-1 flex items-center justify-between">
-                <DescriptionToolbar
-                  textareaRef={addDescRef}
-                  value={description}
-                  onChange={setDescription}
-                  maxLength={2000}
-                />
                 <span className="text-xs text-text-muted">{description.length}/2000</span>
               </div>
               <textarea
@@ -495,7 +487,6 @@ export function AddModal({ open, onClose, onAdded, initialListId, editListId }: 
                 placeholder={t.descriptionOptional}
                 value={description}
                 onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
-                onKeyDown={handleDescKeyDown}
                 maxLength={2000}
                 rows={4}
                 className={`${inputClass} resize-none text-center`}

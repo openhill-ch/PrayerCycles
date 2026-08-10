@@ -50,14 +50,13 @@ db.version(4).stores({
   ])
 })
 
+// The version stays even though its upgrade is gone: existing installs are
+// already at 5, and dropping it would break the schema chain. It only ever
+// seeded `fulfilled`, which no longer exists.
 db.version(5).stores({
   prayerLists: 'id, name, status, createdAt',
   prayers: 'id, title, *listIds, createdAt, lastPrayedAt',
   prayerLogs: 'id, prayerId, listId, prayedAt',
-}).upgrade((tx) => {
-  return tx.table('prayers').toCollection().modify((prayer) => {
-    if (prayer.fulfilled === undefined) prayer.fulfilled = false
-  })
 })
 
 db.use(encryptionMiddleware)

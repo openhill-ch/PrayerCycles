@@ -234,11 +234,4 @@ export type Translations = {
   resetTagsDesc: string
   resetConfirmTap: string
   resetSuccess: string
-
-  // Fulfilled
-  fulfilled: string
-  markAsFulfilled: string
-  unfulfill: string
-  showFulfilled: string
-  fulfilledCount: (count: number) => string
 }

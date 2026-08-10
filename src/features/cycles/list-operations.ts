@@ -55,7 +55,6 @@ export async function createList(
         totalTimePrayed: 0,
         sortOrder: {},
         tags: [] as string[],
-        fulfilled: false,
       }
     })
 

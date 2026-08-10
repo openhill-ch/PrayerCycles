@@ -16,8 +16,8 @@ export const gsw: Translations = {
   navTapPray: 'Tipp\nBäte',
   stepDown: 'Weniger oft',
   stepUp: 'Öfter',
-  navPrayerLists: 'Lischte',
-  navTimebox: 'Timer',
+  navPrayerLists: 'Gebäts\nLischte',
+  navTimebox: 'Ziit\nBox',
 
   prayerHistory: 'Gebetsgschicht',
   exportImport: 'Export / Import',
@@ -186,7 +186,7 @@ export const gsw: Translations = {
   },
   everyUnit: (every, singular, plural) => every === 1 ? `Jede ${singular}` : `Jede ${every} ${plural}`,
 
-  navPrayerTags: 'Tags',
+  navPrayerTags: 'Gebäts\nTags',
   prayerTags: 'Gebets-Tags',
   prayerTagsDesc: 'Tags erstelle, bearbeite oder lösche zum Organisiere vo dine Gebät und Gebetslischte.',
   noTagsYet: 'No kei Tags. Füeg Tags bi zum Gebät oder Lischte erstelle dezue.',
@@ -228,10 +228,4 @@ export const gsw: Translations = {
   resetTagsDesc: 'Entfernt alli Tags vo Gebät und Lischte.',
   resetConfirmTap: 'Nomol tippe zum bestätige',
   resetSuccess: 'Date erfolgriich zrugggsetzt!',
-
-  fulfilled: 'Erfüllt',
-  markAsFulfilled: 'Als erfüllt markiere',
-  unfulfill: 'Nöd erfüllt',
-  showFulfilled: 'Erfüllti aazeige',
-  fulfilledCount: (count) => `${count} erfüllt`,
 }

@@ -106,7 +106,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       })
     } else {
       getPrayersByList(selectedListId).then((p) => {
-        const active = p.filter((prayer) => !prayer.fulfilled)
+        const active = p
         setPrayers(active)
         const list = lists.find((l) => l.id === selectedListId)
         const listName = list?.name ?? ''
