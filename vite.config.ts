@@ -17,8 +17,8 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/privacy/],
       },
       manifest: {
-        name: 'Watchful Prayer',
-        short_name: 'Watchful Prayer',
+        name: 'Prayer Cycles',
+        short_name: 'Prayer Cycles',
         description: 'Remember to pray for the people in your life.',
         theme_color: '#1e293b',
         background_color: '#0f172a',

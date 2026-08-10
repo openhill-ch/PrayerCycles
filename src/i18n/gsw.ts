@@ -1,7 +1,7 @@
 import type { Translations } from './types'
 
 export const gsw: Translations = {
-  appName: 'Watchful Prayer',
+  appName: 'Gebets-Zykle',
   close: 'Zuemache',
   cancel: 'Abbreche',
   save: 'Speichere',

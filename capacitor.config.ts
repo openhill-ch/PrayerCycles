@@ -3,7 +3,7 @@ import { KeyboardResize } from '@capacitor/keyboard';
 
 const config: CapacitorConfig = {
   appId: 'com.prayercycles.app',
-  appName: 'Watchful Prayer',
+  appName: 'Prayer Cycles',
   webDir: 'dist',
   ios: {
     // 'never' lets the web content extend under the status bar / Dynamic Island

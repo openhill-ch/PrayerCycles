@@ -1,7 +1,7 @@
 import type { Translations } from './types'
 
 export const ja: Translations = {
-  appName: 'Watchful Prayer',
+  appName: 'プレイヤーサイクル',
   close: '閉じる',
   cancel: 'キャンセル',
   save: '保存',

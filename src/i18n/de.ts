@@ -1,7 +1,7 @@
 import type { Translations } from './types'
 
 export const de: Translations = {
-  appName: 'Watchful Prayer',
+  appName: 'Prayer Cycles',
   close: 'Schließen',
   cancel: 'Abbrechen',
   save: 'Speichern',

@@ -1,7 +1,7 @@
 import type { Translations } from './types'
 
 export const mn: Translations = {
-  appName: 'Watchful Prayer',
+  appName: 'Залбирлын Мөчлөг',
   close: 'Хаах',
   cancel: 'Цуцлах',
   save: 'Хадгалах',
