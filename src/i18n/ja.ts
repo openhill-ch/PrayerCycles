@@ -18,8 +18,8 @@ export const ja: Translations = {
   navPrayerLists: '祈りの\nリスト',
   navTimebox: 'タイム\nボックス',
 
-  exportImport: 'エクスポート / インポート',
-  deletedLists: '削除済みリスト',
+  exportImport: '祈りのエクスポート / インポート',
+  deletedLists: '削除した祈りのリスト',
   resetPrayerData: 'データをリセット',
   languages: '言語',
   themes: 'テーマ',
@@ -35,7 +35,6 @@ export const ja: Translations = {
   autoToggleOnTooltip: '合計時間は、祈り1件あたりの割り当て時間に基づいて自動調整されます。',
   autoToggleOffTooltip: '合計時間は手動設定です。オンにすると祈りリストに基づいて自動調整されます。',
 
-  undoLastCompletion: '最後の完了を取り消す',
 
   searchPrayers: '祈りを検索...',
   noListsYet: 'リストはまだありません。',
@@ -72,9 +71,6 @@ export const ja: Translations = {
   months: 'ヶ月',
   year: '年',
   years: '年',
-  retiresAfter: '終了まで',
-  completion: '回完了',
-  completions: '回完了',
   active: '有効',
   inactive: '無効',
   activeTapToDeactivate: '有効 — タップで無効化',
@@ -103,13 +99,10 @@ export const ja: Translations = {
   qListName: 'この祈りリストの名前は？',
   qHowOften: 'このリストの祈りをどのくらいの頻度でメイン画面に表示しますか？',
   qWhoInList: 'このリストには誰が入りますか？',
-  qHowLong: 'このリストはいつまで続けますか？',
   qAnythingElse: '他に追加したいことはありますか？',
   qWhichList: 'どのリストに追加しますか？',
   cycleHelp: 'リズムを選び、次に一巡するまでの間隔を選びます。',
   peopleHelp: '1行に1つの祈り。次の行を追加するにはEnterを押してください',
-  runsForever: 'ずっと続く',
-  endsAfterCycles: '回数を決めて終了',
   optionalStep: '任意',
   prayersAndTags: '祈りとタグ',
   cycleFrequency: 'サイクル頻度',
@@ -120,15 +113,12 @@ export const ja: Translations = {
   noListsCreateFirst: 'リストがありません。先に作成してください。',
   addToList: 'リストに追加',
 
-  markAsPrayed: (title) => `${title}を祈り済みにする`,
-  time: '回',
-  times: '回',
 
   prayer: '祈り',
   addDescription: '説明を追加...',
   deletePrayerConfirm: 'この祈りを削除しますか？',
 
-  exportImportTitle: 'エクスポート / インポート',
+  exportImportTitle: '祈りのエクスポート / インポート',
   exportImportDesc: '祈りデータをバックアップファイルとしてエクスポートするか、以前のバックアップからインポートして復元します。',
   exportBtn: 'エクスポート',
   importBtn: 'インポート',
@@ -148,21 +138,12 @@ export const ja: Translations = {
   noPrayersInListYet: 'このリストにはまだ祈りがありません。',
   pickRandomList: 'ランダムに選ぶ',
 
-  deletedListsTitle: '削除済みリスト',
+  deletedListsTitle: '削除した祈りのリスト',
   noDeletedLists: '削除済みリストはありません。',
   restore: '復元',
   daysUntilDeletion: (days) => `${days}日後に完全削除`,
   deletedListsDesc: '削除済みリストは50日後に完全に削除されます。',
 
-  historyComingSoon: '祈りの履歴 — 近日公開',
-  prayerListView: '祈りリスト表示',
-  noHistoryYet: '祈りの履歴はまだありません。',
-  formatDuration: (seconds) => {
-    const h = Math.floor(seconds / 3600)
-    const m = Math.floor((seconds % 3600) / 60)
-    const s = Math.floor(seconds % 60)
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-  },
 
   everyUnit: (every, singular, plural) => every === 1 ? `毎${singular}` : `${every}${plural}ごと`,
 

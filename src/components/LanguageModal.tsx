@@ -6,7 +6,9 @@ type LanguageModalProps = {
   onClose: () => void
 }
 
-const locales: Locale[] = ['en', 'ja', 'gsw', 'mn']
+// Derived from the labels rather than listed again here — a second hardcoded
+// list is how German shipped without appearing in the picker.
+const locales = Object.keys(localeLabels) as Locale[]
 
 export function LanguageModal({ open, onClose }: LanguageModalProps) {
   const { locale, setLocale, t } = useT()

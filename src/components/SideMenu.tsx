@@ -60,14 +60,6 @@ export function SideMenu({ open, onClose, onExportImport, onLanguages, onThemes,
           </button>
 
           <button
-            onClick={() => goTo('/trash')}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-text-secondary hover:bg-input transition-colors"
-          >
-            <Trash2 size={18} />
-            {t.deletedLists}
-          </button>
-
-          <button
             onClick={() => onLanguages()}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-text-secondary hover:bg-input transition-colors"
           >
@@ -81,6 +73,14 @@ export function SideMenu({ open, onClose, onExportImport, onLanguages, onThemes,
           >
             <Palette size={18} />
             {t.themes}
+          </button>
+
+          <button
+            onClick={() => goTo('/trash')}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-text-secondary hover:bg-input transition-colors"
+          >
+            <Trash2 size={18} />
+            {t.deletedLists}
           </button>
 
           <button

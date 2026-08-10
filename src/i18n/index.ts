@@ -2,15 +2,17 @@ import { createContext, useContext } from 'react'
 import type { Locale, Translations } from './types'
 import { en } from './en'
 import { ja } from './ja'
+import { de } from './de'
 import { gsw } from './gsw'
 import { mn } from './mn'
 
 export type { Locale, Translations }
 
-export const translations: Record<Locale, Translations> = { en, ja, gsw, mn }
+export const translations: Record<Locale, Translations> = { en, de, ja, gsw, mn }
 
 export const localeLabels: Record<Locale, string> = {
   en: 'English',
+  de: 'Deutsch',
   ja: '日本語',
   gsw: 'Schwiizerdütsch',
   mn: 'Монгол',

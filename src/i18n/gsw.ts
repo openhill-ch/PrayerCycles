@@ -18,8 +18,8 @@ export const gsw: Translations = {
   navPrayerLists: 'Gebäts\nLischte',
   navTimebox: 'Ziit\nBox',
 
-  exportImport: 'Export / Import',
-  deletedLists: 'Glöschti Lischte',
+  exportImport: 'Gebät exportiere / importiere',
+  deletedLists: 'Glöschti Gebätslischte',
   resetPrayerData: 'Gebetsdate zruggsetze',
   languages: 'Sprache',
   themes: 'Themes',
@@ -35,7 +35,6 @@ export const gsw: Translations = {
   autoToggleOnTooltip: 'D Gsamtzit passt sich automatisch aa, basierend uf de Zit pro Gebet.',
   autoToggleOffTooltip: 'D Gsamtzit isch manuell gsetzt. Aaschalte zum automatisch aapassse.',
 
-  undoLastCompletion: 'Letschti Erledigung rückgängig mache',
 
   searchPrayers: 'Gebät sueche...',
   noListsYet: 'No kei Lischte.',
@@ -72,9 +71,6 @@ export const gsw: Translations = {
   months: 'Mönet',
   year: 'Jahr',
   years: 'Jahr',
-  retiresAfter: 'Hört uf nach',
-  completion: 'Erledigung',
-  completions: 'Erledigunge',
   active: 'Aktiv',
   inactive: 'Inaktiv',
   activeTapToDeactivate: 'Aktiv — tippe zum Deaktiviere',
@@ -103,13 +99,10 @@ export const gsw: Translations = {
   qListName: 'Wie heisst die Gebetslischte?',
   qHowOften: 'Wie oft söll es Gebet vo dere Lischte uf de Hauptsite erschine?',
   qWhoInList: 'Wär ghört i die Lischte?',
-  qHowLong: 'Wie lang söll die Lischte laufe?',
   qAnythingElse: 'Wotsch no öppis dezuefüege?',
   qWhichList: 'I welli Lischte söll das?',
   cycleHelp: 'Wähl de Rhythmus und denn, wie vil Zit vergaht bis es wieder dra chunt.',
   peopleHelp: 'Es Gebet pro Zile, druck Enter für e nöii Zile',
-  runsForever: 'Lauft ewig',
-  endsAfterCycles: 'Hört uf nach ere Aazahl',
   optionalStep: 'Optional',
   prayersAndTags: 'Gebät & Tags',
   cycleFrequency: 'Zyklus-Hüfigkeit',
@@ -120,15 +113,12 @@ export const gsw: Translations = {
   noListsCreateFirst: 'No kei Lischte. Zerscht eini erstelle.',
   addToList: 'Zu Lischte dezuefüege',
 
-  markAsPrayed: (title) => `${title} als bätet markiere`,
-  time: 'Mal',
-  times: 'Mal',
 
   prayer: 'Gebet',
   addDescription: 'Beschribig dezuefüege...',
   deletePrayerConfirm: 'Das Gebet lösche?',
 
-  exportImportTitle: 'Export / Import',
+  exportImportTitle: 'Gebät exportiere / importiere',
   exportImportDesc: 'Gebetsdate als Backup-Datei exportiere, oder es früeneres Backup importiere zum wiederherstelle.',
   exportBtn: 'Exportiere',
   importBtn: 'Importiere',
@@ -148,21 +138,12 @@ export const gsw: Translations = {
   noPrayersInListYet: 'No kei Gebät i dere Lischte.',
   pickRandomList: 'Zuefällig uuswähle',
 
-  deletedListsTitle: 'Glöschti Lischte',
+  deletedListsTitle: 'Glöschti Gebätslischte',
   noDeletedLists: 'Kei glöschti Lischte.',
   restore: 'Wiederherstelle',
   daysUntilDeletion: (days) => `Wird in ${days} ${days === 1 ? 'Tag' : 'Täg'} ändgültig glöscht`,
   deletedListsDesc: 'Glöschti Lischte wärde nach 50 Täg ändgültig glöscht.',
 
-  historyComingSoon: 'Gebetsgschicht — chunnt bald',
-  prayerListView: 'Gebetslischte-Aasicht',
-  noHistoryYet: 'No kei Gebetsgschicht.',
-  formatDuration: (seconds) => {
-    const h = Math.floor(seconds / 3600)
-    const m = Math.floor((seconds % 3600) / 60)
-    const s = Math.floor(seconds % 60)
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-  },
 
   everyUnit: (every, singular, plural) => every === 1 ? `Jede ${singular}` : `Jede ${every} ${plural}`,
 

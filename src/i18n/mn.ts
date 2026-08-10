@@ -18,8 +18,8 @@ export const mn: Translations = {
   navPrayerLists: 'Залбирлын\nЖагсаалт',
   navTimebox: 'Цагийн\nХайрцаг',
 
-  exportImport: 'Экспорт / Импорт',
-  deletedLists: 'Устгасан Жагсаалт',
+  exportImport: 'Залбирлыг гаргах / оруулах',
+  deletedLists: 'Устгасан залбирлын жагсаалт',
   resetPrayerData: 'Өгөгдлийг Шинэчлэх',
   languages: 'Хэл',
   themes: 'Загвар',
@@ -35,7 +35,6 @@ export const mn: Translations = {
   autoToggleOnTooltip: 'Нийт хугацаа нь залбирал бүрт оноосон хугацаан дээр үндэслэн автоматаар тохируулагдана.',
   autoToggleOffTooltip: 'Нийт хугацаа гараар тохируулагдсан. Залбирлын жагсаалтад тулгуурлан автоматаар тохируулахын тулд асаана уу.',
 
-  undoLastCompletion: 'Сүүлийн гүйцэтгэлийг буцаах',
 
   searchPrayers: 'Залбирал хайх...',
   noListsYet: 'Жагсаалт байхгүй байна.',
@@ -72,9 +71,6 @@ export const mn: Translations = {
   months: 'сар',
   year: 'жил',
   years: 'жил',
-  retiresAfter: 'Дуусах хугацаа',
-  completion: 'гүйцэтгэл',
-  completions: 'гүйцэтгэл',
   active: 'Идэвхтэй',
   inactive: 'Идэвхгүй',
   activeTapToDeactivate: 'Идэвхтэй — идэвхгүй болгохын тулд товш',
@@ -103,13 +99,10 @@ export const mn: Translations = {
   qListName: 'Энэ залбирлын жагсаалтын нэр юу вэ?',
   qHowOften: 'Энэ жагсаалтын залбирлыг үндсэн хуудсанд хэр давтамжтай харуулах вэ?',
   qWhoInList: 'Энэ жагсаалтад хэн багтах вэ?',
-  qHowLong: 'Энэ жагсаалт хэр удаан үргэлжлэх вэ?',
   qAnythingElse: 'Өөр нэмэх зүйл байна уу?',
   qWhichList: 'Аль жагсаалтад нэмэх вэ?',
   cycleHelp: 'Хэмнэлээ сонгоод, дараа нь дахин эргэж ирэх хугацааг сонгоно.',
   peopleHelp: 'Мөр бүрт нэг залбирал, шинэ мөр нэмэхийн тулд Enter дарна уу',
-  runsForever: 'Үргэлж үргэлжилнэ',
-  endsAfterCycles: 'Тодорхой тооны дараа дуусна',
   optionalStep: 'Заавал биш',
   prayersAndTags: 'Залбирал ба Шошго',
   cycleFrequency: 'Мөчлөгийн давтамж',
@@ -120,15 +113,12 @@ export const mn: Translations = {
   noListsCreateFirst: 'Жагсаалт байхгүй. Эхлээд нэгийг үүсгэнэ үү.',
   addToList: 'Жагсаалтад нэмэх',
 
-  markAsPrayed: (title) => `${title}-г залбирсан гэж тэмдэглэх`,
-  time: 'удаа',
-  times: 'удаа',
 
   prayer: 'Залбирал',
   addDescription: 'Тайлбар нэмэх...',
   deletePrayerConfirm: 'Энэ залбирлыг устгах уу?',
 
-  exportImportTitle: 'Экспорт / Импорт',
+  exportImportTitle: 'Залбирлыг гаргах / оруулах',
   exportImportDesc: 'Залбирлын өгөгдлийг нөөц файл болгон экспортлох, эсвэл өмнөх нөөцөөс импортлон сэргээх.',
   exportBtn: 'Экспорт',
   importBtn: 'Импорт',
@@ -148,21 +138,12 @@ export const mn: Translations = {
   noPrayersInListYet: 'Энэ жагсаалтад залбирал байхгүй байна.',
   pickRandomList: 'Санамсаргүй сонгох',
 
-  deletedListsTitle: 'Устгасан Жагсаалт',
+  deletedListsTitle: 'Устгасан залбирлын жагсаалт',
   noDeletedLists: 'Устгасан жагсаалт байхгүй.',
   restore: 'Сэргээх',
   daysUntilDeletion: (days) => `${days} өдрийн дараа бүрмөсөн устгагдана`,
   deletedListsDesc: 'Устгасан жагсаалт 50 өдрийн дараа бүрмөсөн устгагдана.',
 
-  historyComingSoon: 'Залбирлын түүх — удахгүй',
-  prayerListView: 'Залбирлын жагсаалт харах',
-  noHistoryYet: 'Залбирлын түүх байхгүй байна.',
-  formatDuration: (seconds) => {
-    const h = Math.floor(seconds / 3600)
-    const m = Math.floor((seconds % 3600) / 60)
-    const s = Math.floor(seconds % 60)
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-  },
 
   everyUnit: (every, singular, plural) => every === 1 ? `${singular} бүр` : `${every} ${plural} тутам`,
 

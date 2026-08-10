@@ -18,8 +18,8 @@ export const en: Translations = {
   navPrayerLists: 'Prayer\nLists',
   navTimebox: 'Time\nBox',
 
-  exportImport: 'Export / Import',
-  deletedLists: 'Deleted Lists',
+  exportImport: 'Export / Import Prayers',
+  deletedLists: 'Deleted Prayer Lists',
   resetPrayerData: 'Reset Prayer Data',
   languages: 'Languages',
   themes: 'Themes',
@@ -35,7 +35,6 @@ export const en: Translations = {
   autoToggleOnTooltip: 'The total timebox automatically adjusts to cover every prayer in the list based on your allotted time per prayer.',
   autoToggleOffTooltip: 'Total timebox is set manually. Turn on to automatically adjust based on your prayer list.',
 
-  undoLastCompletion: 'Undo last completion',
 
   searchPrayers: 'Search prayers...',
   noListsYet: 'No lists yet.',
@@ -72,9 +71,6 @@ export const en: Translations = {
   months: 'months',
   year: 'year',
   years: 'years',
-  retiresAfter: 'Retires after',
-  completion: 'completion',
-  completions: 'completions',
   active: 'Active',
   inactive: 'Inactive',
   activeTapToDeactivate: 'Active — tap to deactivate',
@@ -103,13 +99,10 @@ export const en: Translations = {
   qListName: 'What is the name of this prayer list?',
   qHowOften: 'How often do you want a prayer on this list to show up on the main page?',
   qWhoInList: "Who's in this list?",
-  qHowLong: 'How long should this list run?',
   qAnythingElse: 'Anything else you want to add?',
   qWhichList: 'Which list should this go in?',
   cycleHelp: 'Pick the rhythm, then how much time passes before it comes around again.',
   peopleHelp: 'Type one prayer per line, press enter after a prayer to add another line',
-  runsForever: 'Runs forever',
-  endsAfterCycles: 'Ends after a set number',
   optionalStep: 'Optional',
   prayersAndTags: 'Prayers & Tags',
   cycleFrequency: 'Cycle Frequency',
@@ -120,15 +113,12 @@ export const en: Translations = {
   noListsCreateFirst: 'No lists yet. Create one first.',
   addToList: 'Add to list',
 
-  markAsPrayed: (title) => `Mark ${title} as prayed`,
-  time: 'time',
-  times: 'times',
 
   prayer: 'Prayer',
   addDescription: 'Add a description...',
   deletePrayerConfirm: 'Delete this prayer?',
 
-  exportImportTitle: 'Export / Import',
+  exportImportTitle: 'Export / Import Prayers',
   exportImportDesc: 'Export your prayer data as a backup file, or import a previous backup to restore.',
   exportBtn: 'Export',
   importBtn: 'Import',
@@ -148,21 +138,12 @@ export const en: Translations = {
   noPrayersInListYet: 'No prayers in this list yet.',
   pickRandomList: 'Pick a random list',
 
-  deletedListsTitle: 'Deleted Lists',
+  deletedListsTitle: 'Deleted Prayer Lists',
   noDeletedLists: 'No deleted lists.',
   restore: 'Restore',
   daysUntilDeletion: (days) => `Permanently deleted in ${days} ${days === 1 ? 'day' : 'days'}`,
   deletedListsDesc: 'Deleted lists are permanently removed after 50 days.',
 
-  historyComingSoon: 'Prayer History — coming soon',
-  prayerListView: 'Prayer List View',
-  noHistoryYet: 'No prayer history yet.',
-  formatDuration: (seconds) => {
-    const h = Math.floor(seconds / 3600)
-    const m = Math.floor((seconds % 3600) / 60)
-    const s = Math.floor(seconds % 60)
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-  },
 
   everyUnit: (every, singular, plural) => `Every ${every === 1 ? singular : `${every} ${plural}`}`,
 

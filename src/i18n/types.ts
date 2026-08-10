@@ -1,4 +1,4 @@
-export type Locale = 'en' | 'ja' | 'gsw' | 'mn'
+export type Locale = 'en' | 'de' | 'ja' | 'gsw' | 'mn'
 
 export type Translations = {
   // App-wide
@@ -40,7 +40,6 @@ export type Translations = {
   autoToggleOffTooltip: string
 
   // Tap Pray page
-  undoLastCompletion: string
 
   // Lists page
   searchPrayers: string
@@ -79,9 +78,6 @@ export type Translations = {
   months: string
   year: string
   years: string
-  retiresAfter: string
-  completion: string
-  completions: string
   active: string
   inactive: string
   activeTapToDeactivate: string
@@ -118,13 +114,10 @@ export type Translations = {
   qListName: string
   qHowOften: string
   qWhoInList: string
-  qHowLong: string
   qAnythingElse: string
   qWhichList: string
   cycleHelp: string
   peopleHelp: string
-  runsForever: string
-  endsAfterCycles: string
   optionalStep: string
   prayersAndTags: string
   cycleFrequency: string
@@ -132,9 +125,6 @@ export type Translations = {
   listDescriptionOptional: string
 
   // Prayer card
-  markAsPrayed: (title: string) => string
-  time: string
-  times: string
 
   // Prayer detail modal
   prayer: string
@@ -171,10 +161,6 @@ export type Translations = {
   deletedListsDesc: string
 
   // History page
-  historyComingSoon: string
-  prayerListView: string
-  noHistoryYet: string
-  formatDuration: (seconds: number) => string
 
   // Total time prayed
   everyUnit: (every: number, singular: string, plural: string) => string
