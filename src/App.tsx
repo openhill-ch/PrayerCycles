@@ -17,16 +17,14 @@ import { getSavedTheme, applyTheme } from './lib/themes'
 import { initEncryption } from './lib/key-manager'
 import { migrateUnencryptedData } from './db/encryption-hooks'
 import { db } from './db/db'
-import { TapPrayPage } from './routes/TapPrayPage'
 import { ListsPage } from './routes/ListsPage'
 import { ListDetailPage } from './routes/ListDetailPage'
 import { TimerPage } from './routes/TimerPage'
-import { HistoryPage } from './routes/HistoryPage'
 import { TrashPage } from './routes/TrashPage'
 import { TagsPage } from './routes/TagsPage'
 
 /** The bottom-nav destinations, in order, for swipe navigation. */
-const NAV_ROUTES = ['/', '/tap', '/timer', '/tags']
+const NAV_ROUTES = ['/', '/timer', '/tags']
 
 /** Past this fraction of the screen the swipe commits; short of it, it snaps back. */
 const COMMIT_RATIO = 0.3
@@ -43,13 +41,14 @@ function AppRoutes({ location }: { location?: ReturnType<typeof useLocation> }) 
   return (
     <Routes location={location}>
       <Route path="/" element={<ListsPage />} />
-      <Route path="/tap" element={<TapPrayPage />} />
       <Route path="/lists" element={<Navigate to="/" replace />} />
       <Route path="/lists/:id" element={<ListDetailPage />} />
       <Route path="/timer" element={<TimerPage />} />
-      <Route path="/history" element={<HistoryPage />} />
       <Route path="/tags" element={<TagsPage />} />
       <Route path="/trash" element={<TrashPage />} />
+      {/* /tap and /history are gone; a saved link or restored PWA route would
+          otherwise land on an empty shell. */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

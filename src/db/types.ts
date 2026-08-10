@@ -40,15 +40,7 @@ export type Prayer = {
   createdAt: number
   lastPrayedAt: number | null
   prayerTally: number
-  totalTimePrayed: number
   sortOrder?: Record<string, number>
   tags: string[]
 }
 
-export type PrayerLog = {
-  id: string
-  prayerId: string
-  listId: string
-  prayedAt: number
-  duration: number
-}

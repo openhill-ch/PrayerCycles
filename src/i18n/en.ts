@@ -13,13 +13,11 @@ export const en: Translations = {
   no: 'No',
   loading: 'Loading...',
 
-  navTapPray: 'Tap\nPray',
   stepDown: 'Less often',
   stepUp: 'More often',
   navPrayerLists: 'Prayer\nLists',
   navTimebox: 'Time\nBox',
 
-  prayerHistory: 'Prayer History',
   exportImport: 'Export / Import',
   deletedLists: 'Deleted Lists',
   resetPrayerData: 'Reset Prayer Data',
@@ -37,7 +35,6 @@ export const en: Translations = {
   autoToggleOnTooltip: 'The total timebox automatically adjusts to cover every prayer in the list based on your allotted time per prayer.',
   autoToggleOffTooltip: 'Total timebox is set manually. Turn on to automatically adjust based on your prayer list.',
 
-  noPrayersToShow: 'No prayers to show.',
   undoLastCompletion: 'Undo last completion',
 
   searchPrayers: 'Search prayers...',
@@ -88,8 +85,6 @@ export const en: Translations = {
   sortOriginal: 'Default',
   sortAZ: 'A–Z',
   sortZA: 'Z–A',
-  sortMostPrayed: '> prayed',
-  sortLeastPrayed: '< prayed',
   noPrayersInList: 'No prayers in this list yet.',
   prayNow: 'Pray Now',
 
@@ -125,7 +120,6 @@ export const en: Translations = {
   noListsCreateFirst: 'No lists yet. Create one first.',
   addToList: 'Add to list',
 
-  prayedTally: (count, date) => `Prayed ${count} ${count === 1 ? 'time' : 'times'} since ${date}`,
   markAsPrayed: (title) => `Mark ${title} as prayed`,
   time: 'time',
   times: 'times',
@@ -163,8 +157,6 @@ export const en: Translations = {
   historyComingSoon: 'Prayer History — coming soon',
   prayerListView: 'Prayer List View',
   noHistoryYet: 'No prayer history yet.',
-  timePrayedToday: 'Time prayed today',
-  timesPrayedToday: 'Times prayed today',
   formatDuration: (seconds) => {
     const h = Math.floor(seconds / 3600)
     const m = Math.floor((seconds % 3600) / 60)
@@ -172,18 +164,6 @@ export const en: Translations = {
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   },
 
-  totalTimePrayed: 'Total Time Prayed',
-  formatTimePrayed: (totalSeconds) => {
-    const weeks = Math.floor(totalSeconds / 604800)
-    const days = Math.floor((totalSeconds % 604800) / 86400)
-    const h = Math.floor((totalSeconds % 86400) / 3600)
-    const m = Math.floor((totalSeconds % 3600) / 60)
-    const s = Math.floor(totalSeconds % 60)
-    const time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-    if (weeks > 0) return `${weeks} ${weeks === 1 ? 'week' : 'weeks'}, ${days} ${days === 1 ? 'day' : 'days'} ${time}`
-    if (days > 0) return `${days} ${days === 1 ? 'day' : 'days'} ${time}`
-    return time
-  },
   everyUnit: (every, singular, plural) => `Every ${every === 1 ? singular : `${every} ${plural}`}`,
 
   navPrayerTags: 'Prayer\nTags',
@@ -222,8 +202,6 @@ export const en: Translations = {
   resetAllDesc: 'Complete reset — removes all lists, prayers, history, and tags.',
   resetStats: 'Remove Prayer Stats',
   resetStatsDesc: 'Resets prayer counts and time prayed back to zero.',
-  resetHistory: 'Remove Prayer History',
-  resetHistoryDesc: 'Clears the prayer history log.',
   resetTags: 'Remove Prayer Tags',
   resetTagsDesc: 'Removes all tags from prayers and lists.',
   resetConfirmTap: 'Tap again to confirm',

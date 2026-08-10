@@ -18,7 +18,6 @@ export async function createPrayer(
     createdAt: Date.now(),
     lastPrayedAt: null,
     prayerTally: 0,
-    totalTimePrayed: 0,
     sortOrder: {},
     tags,
   }
@@ -86,7 +85,6 @@ export async function bulkCreatePrayers(
         createdAt: Date.now() + i,
         lastPrayedAt: null,
         prayerTally: 0,
-        totalTimePrayed: 0,
         sortOrder: {},
         tags: [],
       })
@@ -134,7 +132,7 @@ export async function updatePrayer(
 }
 
 export async function deletePrayer(id: string): Promise<void> {
-  await db.transaction('rw', [db.prayers, db.prayerLists, db.prayerLogs], async () => {
+  await db.transaction('rw', [db.prayers, db.prayerLists], async () => {
     const prayer = await db.prayers.get(id)
     if (!prayer) return
 
@@ -152,33 +150,11 @@ export async function deletePrayer(id: string): Promise<void> {
       }
     }
 
-    await db.prayerLogs.where('prayerId').equals(id).delete()
     await db.prayers.delete(id)
   })
   snapshotToLocalStorage()
 }
 
-export async function recordPrayed(prayerId: string, listId: string): Promise<void> {
-  const now = Date.now()
-  await db.transaction('rw', [db.prayers, db.prayerLogs], async () => {
-    await db.prayerLogs.add({
-      id: generateId(),
-      prayerId,
-      listId,
-      prayedAt: now,
-      duration: 0,
-    })
-    const prayer = await db.prayers.get(prayerId)
-    if (prayer) {
-      await db.prayers.put({
-        ...prayer,
-        lastPrayedAt: now,
-        prayerTally: prayer.prayerTally + 1,
-      })
-    }
-  })
-  snapshotToLocalStorage()
-}
 
 export async function reorderPrayers(listId: string, orderedIds: string[]): Promise<void> {
   await db.transaction('rw', db.prayers, async () => {
@@ -205,16 +181,6 @@ export async function resetPrayerOrder(listId: string): Promise<void> {
   snapshotToLocalStorage()
 }
 
-export async function addTimePrayed(prayerId: string, seconds: number): Promise<void> {
-  const prayer = await db.prayers.get(prayerId)
-  if (prayer) {
-    await db.prayers.put({
-      ...prayer,
-      totalTimePrayed: (prayer.totalTimePrayed ?? 0) + seconds,
-    })
-  }
-  snapshotToLocalStorage()
-}
 
 export async function searchPrayers(query: string): Promise<Prayer[]> {
   const lower = query.toLowerCase()

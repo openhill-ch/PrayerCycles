@@ -1,5 +1,4 @@
 import { db } from '../db/db'
-import { generateId } from './id'
 import type { Prayer, PrayerList } from '../db/types'
 
 export type SurfacedPrayer = {
@@ -158,23 +157,11 @@ export async function getSurfacedPrayers(): Promise<SurfacedPrayer[]> {
   return surfaced
 }
 
-export async function completePrayer(
-  prayerId: string,
-  listId: string,
-  duration = 0,
-): Promise<void> {
+export async function completePrayer(prayerId: string, listId: string): Promise<void> {
   const list = await db.prayerLists.get(listId)
   if (!list) return
 
   const now = Date.now()
-
-  await db.prayerLogs.add({
-    id: generateId(),
-    prayerId,
-    listId,
-    prayedAt: now,
-    duration,
-  })
 
   const prayer = await db.prayers.get(prayerId)
   if (prayer) {

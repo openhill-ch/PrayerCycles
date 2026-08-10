@@ -13,13 +13,11 @@ export const ja: Translations = {
   no: 'いいえ',
   loading: '読み込み中...',
 
-  navTapPray: 'タップ\n祈り',
   stepDown: '頻度を下げる',
   stepUp: '頻度を上げる',
   navPrayerLists: '祈りの\nリスト',
   navTimebox: 'タイム\nボックス',
 
-  prayerHistory: '祈りの履歴',
   exportImport: 'エクスポート / インポート',
   deletedLists: '削除済みリスト',
   resetPrayerData: 'データをリセット',
@@ -37,7 +35,6 @@ export const ja: Translations = {
   autoToggleOnTooltip: '合計時間は、祈り1件あたりの割り当て時間に基づいて自動調整されます。',
   autoToggleOffTooltip: '合計時間は手動設定です。オンにすると祈りリストに基づいて自動調整されます。',
 
-  noPrayersToShow: '表示する祈りがありません。',
   undoLastCompletion: '最後の完了を取り消す',
 
   searchPrayers: '祈りを検索...',
@@ -88,8 +85,6 @@ export const ja: Translations = {
   sortOriginal: 'デフォルト',
   sortAZ: 'あ–ん',
   sortZA: 'ん–あ',
-  sortMostPrayed: '> 祈り',
-  sortLeastPrayed: '< 祈り',
   noPrayersInList: 'このリストにはまだ祈りがありません。',
   prayNow: '今すぐ祈る',
 
@@ -125,7 +120,6 @@ export const ja: Translations = {
   noListsCreateFirst: 'リストがありません。先に作成してください。',
   addToList: 'リストに追加',
 
-  prayedTally: (count, date) => `${date}から${count}回祈りました`,
   markAsPrayed: (title) => `${title}を祈り済みにする`,
   time: '回',
   times: '回',
@@ -163,8 +157,6 @@ export const ja: Translations = {
   historyComingSoon: '祈りの履歴 — 近日公開',
   prayerListView: '祈りリスト表示',
   noHistoryYet: '祈りの履歴はまだありません。',
-  timePrayedToday: '今日の祈り時間',
-  timesPrayedToday: '今日の祈り回数',
   formatDuration: (seconds) => {
     const h = Math.floor(seconds / 3600)
     const m = Math.floor((seconds % 3600) / 60)
@@ -172,18 +164,6 @@ export const ja: Translations = {
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   },
 
-  totalTimePrayed: '合計祈り時間',
-  formatTimePrayed: (totalSeconds) => {
-    const weeks = Math.floor(totalSeconds / 604800)
-    const days = Math.floor((totalSeconds % 604800) / 86400)
-    const h = Math.floor((totalSeconds % 86400) / 3600)
-    const m = Math.floor((totalSeconds % 3600) / 60)
-    const s = Math.floor(totalSeconds % 60)
-    const time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-    if (weeks > 0) return `${weeks}週間 ${days}日 ${time}`
-    if (days > 0) return `${days}日 ${time}`
-    return time
-  },
   everyUnit: (every, singular, plural) => every === 1 ? `毎${singular}` : `${every}${plural}ごと`,
 
   navPrayerTags: '祈りの\nタグ',
@@ -222,8 +202,6 @@ export const ja: Translations = {
   resetAllDesc: '完全リセット — すべてのリスト、祈り、履歴、タグを削除します。',
   resetStats: '祈りの統計を削除',
   resetStatsDesc: '祈り回数と祈り時間をゼロに戻します。',
-  resetHistory: '祈りの履歴を削除',
-  resetHistoryDesc: '祈りの履歴ログを消去します。',
   resetTags: '祈りのタグを削除',
   resetTagsDesc: '祈りとリストからすべてのタグを削除します。',
   resetConfirmTap: 'もう一度タップして確認',

@@ -1,4 +1,4 @@
-import { X, History, Download, Trash2, Globe, Palette } from 'lucide-react'
+import { X, Download, Trash2, Globe, Palette } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useT } from '../i18n'
 
@@ -51,13 +51,6 @@ export function SideMenu({ open, onClose, onExportImport, onLanguages, onThemes,
         </div>
 
         <nav className="p-2 space-y-1">
-          <button
-            onClick={() => goTo('/history')}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-text-secondary hover:bg-input transition-colors"
-          >
-            <History size={18} />
-            {t.prayerHistory}
-          </button>
           <button
             onClick={() => onExportImport()}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-text-secondary hover:bg-input transition-colors"

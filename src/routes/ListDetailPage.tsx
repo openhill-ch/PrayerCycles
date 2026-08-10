@@ -17,7 +17,7 @@ export function ListDetailPage() {
   const [prayers, setPrayers] = useState<Prayer[]>([])
   const [selectedPrayer, setSelectedPrayer] = useState<Prayer | null>(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
-  type SortMode = 'default' | 'az' | 'za' | 'most' | 'least'
+  type SortMode = 'default' | 'az' | 'za'
   const storageKey = `prayercycles-sort-${id}`
   // Older builds stored 'original'/'custom'; both are just 'default' now.
   const readSort = (): SortMode => {
@@ -103,9 +103,6 @@ export function ListDetailPage() {
   const freqLabel = pEvery === 1 ? `${t.every} ${persistenceLabels[pUnit]}` : `${t.every} ${pEvery} ${persistenceLabelPlural[pUnit]}`
 
 
-  function formatTime(seconds: number): string {
-    return t.formatTimePrayed(seconds)
-  }
 
 
 
@@ -120,8 +117,6 @@ export function ListDetailPage() {
     }
     if (sortMode === 'az') return a.title.localeCompare(b.title) || a.createdAt - b.createdAt
     if (sortMode === 'za') return b.title.localeCompare(a.title) || a.createdAt - b.createdAt
-    if (sortMode === 'most') return (b.prayerTally - a.prayerTally) || a.title.localeCompare(b.title) || a.createdAt - b.createdAt
-    if (sortMode === 'least') return (a.prayerTally - b.prayerTally) || a.title.localeCompare(b.title) || a.createdAt - b.createdAt
     return a.createdAt - b.createdAt
   })
 
@@ -181,7 +176,6 @@ export function ListDetailPage() {
 
 
   // Calculate total time prayed for all prayers in this list
-  const listTotalTimePrayed = prayers.reduce((sum, p) => sum + (p.totalTimePrayed ?? 0), 0)
 
   // Edit mode input style — consistent for all fields including TagInput
 
@@ -288,18 +282,10 @@ export function ListDetailPage() {
         </div>
 
 
-        {/* Total time prayed */}
-        {listTotalTimePrayed > 0 && (
-          <div className="mt-3 flex items-center gap-2 text-xs text-text-muted">
-            <span>{t.totalTimePrayed}:</span>
-            <span className="text-text-secondary">{formatTime(listTotalTimePrayed)}</span>
-          </div>
-        )}
-
         {/* Prayer list */}
         <div className="mt-4 space-y-1">
           <div className="flex flex-wrap gap-1 mb-2">
-            {([['default', t.sortOriginal], ['az', t.sortAZ], ['za', t.sortZA], ['most', t.sortMostPrayed], ['least', t.sortLeastPrayed]] as [SortMode, string][]).map(([mode, label]) => (
+            {([['default', t.sortOriginal], ['az', t.sortAZ], ['za', t.sortZA]] as [SortMode, string][]).map(([mode, label]) => (
               <button
                 key={mode}
                 onClick={() => handleSort(mode)}
@@ -338,7 +324,6 @@ export function ListDetailPage() {
                   </span>
                   <span className="truncate">{prayer.title}</span>
                 </div>
-                <span className="text-xs text-accent-text ml-2 shrink-0">{prayer.prayerTally}</span>
               </div>
             ))}
           </div>

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback, type ReactNode } from 'react'
 import type { PrayerList, Prayer } from '../db/types'
 import { getAllLists } from '../features/cycles/list-operations'
-import { getPrayersByList, addTimePrayed } from '../features/prayers/prayer-operations'
+import { getPrayersByList } from '../features/prayers/prayer-operations'
 import { getSurfacedPrayers, completePrayer, type SurfacedPrayer } from '../lib/surfacing'
 
 type TimerMode = 'custom' | 'until-done'
@@ -86,8 +86,6 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const [timeLeft, setTimeLeft] = useState(0)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const completedIndicesRef = useRef<Set<number>>(new Set())
-  const timeAccumRef = useRef<Record<string, number>>({})
-  const durationAccumRef = useRef<Record<string, number>>({})
 
   const refreshLists = useCallback(() => {
     getAllLists().then((all) => setLists(all.filter((l) => l.status === 'active')))
@@ -193,8 +191,6 @@ export function TimerProvider({ children }: { children: ReactNode }) {
               const lastActiveIdx = Math.min(Math.floor(lastElapsed / inc), Math.max(0, pp.length - 1))
               const lastActivePrayer = pp[lastActiveIdx]
               if (lastActivePrayer) {
-                durationAccumRef.current[lastActivePrayer.id] = (durationAccumRef.current[lastActivePrayer.id] ?? 0) + 1
-                timeAccumRef.current[lastActivePrayer.id] = (timeAccumRef.current[lastActivePrayer.id] ?? 0) + 1
               }
 
               const lastIdx = pp.length - 1
@@ -203,17 +199,9 @@ export function TimerProvider({ children }: { children: ReactNode }) {
                 const lastPrayer = pp[lastIdx]
                 const listId = getListIdForIndex(lastIdx)
                 if (listId) {
-                  const dur = durationAccumRef.current[lastPrayer.id] ?? 0
-                  completePrayer(lastPrayer.id, listId, dur)
+                  completePrayer(lastPrayer.id, listId)
                 }
               }
-              // Flush accumulated time
-              const accum = timeAccumRef.current
-              for (const [pid, secs] of Object.entries(accum)) {
-                if (secs > 0) addTimePrayed(pid, secs)
-              }
-              timeAccumRef.current = {}
-              durationAccumRef.current = {}
             }
             setRunning(false)
             return 0
@@ -233,13 +221,6 @@ export function TimerProvider({ children }: { children: ReactNode }) {
             // Track time for current prayer
             const currentPrayer = pp[prevIdx]
             if (currentPrayer) {
-              timeAccumRef.current[currentPrayer.id] = (timeAccumRef.current[currentPrayer.id] ?? 0) + 1
-              durationAccumRef.current[currentPrayer.id] = (durationAccumRef.current[currentPrayer.id] ?? 0) + 1
-              // Flush totalTimePrayed every 10 seconds to avoid losing data
-              if ((timeAccumRef.current[currentPrayer.id] ?? 0) >= 10) {
-                addTimePrayed(currentPrayer.id, timeAccumRef.current[currentPrayer.id])
-                timeAccumRef.current[currentPrayer.id] = 0
-              }
             }
 
             // Timer advanced — play transition sound and complete the prayer we just moved past
@@ -251,9 +232,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
                   const prayer = pp[i]
                   const listId = getListIdForIndex(i)
                   if (prayer && listId) {
-                    const dur = durationAccumRef.current[prayer.id] ?? 0
-                    completePrayer(prayer.id, listId, dur)
-                    delete durationAccumRef.current[prayer.id]
+                    completePrayer(prayer.id, listId)
                   }
                 }
               }
@@ -266,23 +245,9 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current)
       intervalRef.current = null
-      // Flush any remaining accumulated time when pausing
-      const accum = timeAccumRef.current
-      for (const [pid, secs] of Object.entries(accum)) {
-        if (secs > 0) addTimePrayed(pid, secs)
-      }
-      timeAccumRef.current = {}
     }
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current)
-      // Flush here too. Completions log their full duration immediately, but
-      // totalTimePrayed only lands in 10s chunks, so unmounting mid-run used to
-      // drop the remainder and leave history reading higher than the list.
-      const pending = timeAccumRef.current
-      for (const [pid, secs] of Object.entries(pending)) {
-        if (secs > 0) addTimePrayed(pid, secs)
-      }
-      timeAccumRef.current = {}
     }
   }, [running])
 
@@ -292,8 +257,6 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     if (timeLeft === 0) {
       setTimeLeft(totalTime)
       completedIndicesRef.current = new Set()
-      timeAccumRef.current = {}
-      durationAccumRef.current = {}
     }
     setRunning(true)
   }
@@ -304,8 +267,6 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     setRunning(false)
     setTimeLeft(totalTime)
     completedIndicesRef.current = new Set()
-    timeAccumRef.current = {}
-    durationAccumRef.current = {}
   }
 
   function pickRandom() {

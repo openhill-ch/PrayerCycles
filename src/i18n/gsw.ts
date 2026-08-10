@@ -13,13 +13,11 @@ export const gsw: Translations = {
   no: 'Nei',
   loading: 'Am Lade...',
 
-  navTapPray: 'Tipp\nBäte',
   stepDown: 'Weniger oft',
   stepUp: 'Öfter',
   navPrayerLists: 'Gebäts\nLischte',
   navTimebox: 'Ziit\nBox',
 
-  prayerHistory: 'Gebetsgschicht',
   exportImport: 'Export / Import',
   deletedLists: 'Glöschti Lischte',
   resetPrayerData: 'Gebetsdate zruggsetze',
@@ -37,7 +35,6 @@ export const gsw: Translations = {
   autoToggleOnTooltip: 'D Gsamtzit passt sich automatisch aa, basierend uf de Zit pro Gebet.',
   autoToggleOffTooltip: 'D Gsamtzit isch manuell gsetzt. Aaschalte zum automatisch aapassse.',
 
-  noPrayersToShow: 'Kei Gebät zum Aazeige.',
   undoLastCompletion: 'Letschti Erledigung rückgängig mache',
 
   searchPrayers: 'Gebät sueche...',
@@ -88,8 +85,6 @@ export const gsw: Translations = {
   sortOriginal: 'Standard',
   sortAZ: 'A–Z',
   sortZA: 'Z–A',
-  sortMostPrayed: '> bätet',
-  sortLeastPrayed: '< bätet',
   noPrayersInList: 'No kei Gebät i dere Lischte.',
   prayNow: 'Jetzt bäte',
 
@@ -125,7 +120,6 @@ export const gsw: Translations = {
   noListsCreateFirst: 'No kei Lischte. Zerscht eini erstelle.',
   addToList: 'Zu Lischte dezuefüege',
 
-  prayedTally: (count, date) => `${count} ${count === 1 ? 'Mal' : 'Mal'} bätet sit ${date}`,
   markAsPrayed: (title) => `${title} als bätet markiere`,
   time: 'Mal',
   times: 'Mal',
@@ -163,8 +157,6 @@ export const gsw: Translations = {
   historyComingSoon: 'Gebetsgschicht — chunnt bald',
   prayerListView: 'Gebetslischte-Aasicht',
   noHistoryYet: 'No kei Gebetsgschicht.',
-  timePrayedToday: 'Hüt bäteti Zit',
-  timesPrayedToday: 'Hüt bäteti Male',
   formatDuration: (seconds) => {
     const h = Math.floor(seconds / 3600)
     const m = Math.floor((seconds % 3600) / 60)
@@ -172,18 +164,6 @@ export const gsw: Translations = {
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   },
 
-  totalTimePrayed: 'Gsamti Gebetszit',
-  formatTimePrayed: (totalSeconds) => {
-    const weeks = Math.floor(totalSeconds / 604800)
-    const days = Math.floor((totalSeconds % 604800) / 86400)
-    const h = Math.floor((totalSeconds % 86400) / 3600)
-    const m = Math.floor((totalSeconds % 3600) / 60)
-    const s = Math.floor(totalSeconds % 60)
-    const time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-    if (weeks > 0) return `${weeks} ${weeks === 1 ? 'Wuche' : 'Wuche'}, ${days} ${days === 1 ? 'Tag' : 'Täg'} ${time}`
-    if (days > 0) return `${days} ${days === 1 ? 'Tag' : 'Täg'} ${time}`
-    return time
-  },
   everyUnit: (every, singular, plural) => every === 1 ? `Jede ${singular}` : `Jede ${every} ${plural}`,
 
   navPrayerTags: 'Gebäts\nTags',
@@ -222,8 +202,6 @@ export const gsw: Translations = {
   resetAllDesc: 'Komplett-Reset — löscht alli Lischte, Gebät, Gschicht und Tags.',
   resetStats: 'Gebetsstatistike lösche',
   resetStatsDesc: 'Setzt Gebetszähler und Gebetszit uf Null zrugg.',
-  resetHistory: 'Gebetsgschicht lösche',
-  resetHistoryDesc: 'Löscht s Gebetsprotokoll.',
   resetTags: 'Gebets-Tags lösche',
   resetTagsDesc: 'Entfernt alli Tags vo Gebät und Lischte.',
   resetConfirmTap: 'Nomol tippe zum bestätige',

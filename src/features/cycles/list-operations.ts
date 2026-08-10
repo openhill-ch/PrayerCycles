@@ -52,7 +52,6 @@ export async function createList(
         createdAt: now + i,
         lastPrayedAt: null,
         prayerTally: 0,
-        totalTimePrayed: 0,
         sortOrder: {},
         tags: [] as string[],
       }
@@ -150,7 +149,7 @@ export async function purgeExpiredLists(): Promise<void> {
   const expired = deleted.filter((l) => l.deletedAt && l.deletedAt < cutoff)
   if (expired.length === 0) return
 
-  await db.transaction('rw', [db.prayerLists, db.prayers, db.prayerLogs], async () => {
+  await db.transaction('rw', [db.prayerLists, db.prayers], async () => {
     for (const list of expired) {
       const prayers = await db.prayers.where('listIds').equals(list.id).toArray()
       for (const prayer of prayers) {
@@ -161,7 +160,6 @@ export async function purgeExpiredLists(): Promise<void> {
           await db.prayers.put({ ...prayer, listIds: remaining })
         }
       }
-      await db.prayerLogs.where('listId').equals(list.id).delete()
       await db.prayerLists.delete(list.id)
     }
   })

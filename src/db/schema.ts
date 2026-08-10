@@ -40,4 +40,3 @@ export const prayerLogSchema = z.object({
 
 export type PrayerListInput = z.infer<typeof prayerListSchema>
 export type PrayerInput = z.infer<typeof prayerSchema>
-export type PrayerLogInput = z.infer<typeof prayerLogSchema>

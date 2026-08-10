@@ -15,14 +15,12 @@ export type Translations = {
   loading: string
 
   // Bottom nav
-  navTapPray: string
   stepDown: string
   stepUp: string
   navPrayerLists: string
   navTimebox: string
 
   // Side menu
-  prayerHistory: string
   exportImport: string
   deletedLists: string
   resetPrayerData: string
@@ -42,7 +40,6 @@ export type Translations = {
   autoToggleOffTooltip: string
 
   // Tap Pray page
-  noPrayersToShow: string
   undoLastCompletion: string
 
   // Lists page
@@ -95,8 +92,6 @@ export type Translations = {
   sortOriginal: string
   sortAZ: string
   sortZA: string
-  sortMostPrayed: string
-  sortLeastPrayed: string
   noPrayersInList: string
 
   prayNow: string
@@ -137,7 +132,6 @@ export type Translations = {
   listDescriptionOptional: string
 
   // Prayer card
-  prayedTally: (count: number, date: string) => string
   markAsPrayed: (title: string) => string
   time: string
   times: string
@@ -180,13 +174,9 @@ export type Translations = {
   historyComingSoon: string
   prayerListView: string
   noHistoryYet: string
-  timePrayedToday: string
-  timesPrayedToday: string
   formatDuration: (seconds: number) => string
 
   // Total time prayed
-  totalTimePrayed: string
-  formatTimePrayed: (totalSeconds: number) => string
   everyUnit: (every: number, singular: string, plural: string) => string
 
   // Tags
@@ -228,8 +218,6 @@ export type Translations = {
   resetAllDesc: string
   resetStats: string
   resetStatsDesc: string
-  resetHistory: string
-  resetHistoryDesc: string
   resetTags: string
   resetTagsDesc: string
   resetConfirmTap: string

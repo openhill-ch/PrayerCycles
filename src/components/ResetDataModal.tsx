@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Trash2, BarChart3, History, Hash, Check, AlertTriangle } from 'lucide-react'
+import { X, Trash2, BarChart3, Hash, Check, AlertTriangle } from 'lucide-react'
 import { useT } from '../i18n'
 import { useTimer } from '../context/TimerContext'
 import { db } from '../db/db'
@@ -35,10 +35,9 @@ export function ResetDataModal({ open, onClose }: ResetDataModalProps) {
     try {
       switch (type) {
         case 'all':
-          await db.transaction('rw', [db.prayerLists, db.prayers, db.prayerLogs], async () => {
+          await db.transaction('rw', [db.prayerLists, db.prayers], async () => {
             await db.prayerLists.clear()
             await db.prayers.clear()
-            await db.prayerLogs.clear()
           })
           clearTagRegistry()
           localStorage.removeItem('prayercycles_surfaced')
@@ -53,7 +52,7 @@ export function ResetDataModal({ open, onClose }: ResetDataModalProps) {
             const [prayers, lists] = await Promise.all([db.prayers.toArray(), db.prayerLists.toArray()])
             await db.transaction('rw', [db.prayers, db.prayerLists], async () => {
               for (const p of prayers) {
-                await db.prayers.put({ ...p, prayerTally: 0, totalTimePrayed: 0, lastPrayedAt: null })
+                await db.prayers.put({ ...p, prayerTally: 0, lastPrayedAt: null })
               }
               for (const l of lists) {
                 await db.prayerLists.put({
@@ -64,10 +63,6 @@ export function ResetDataModal({ open, onClose }: ResetDataModalProps) {
               }
             })
           }
-          break
-
-        case 'history':
-          await db.prayerLogs.clear()
           break
 
         case 'tags':
@@ -104,7 +99,6 @@ export function ResetDataModal({ open, onClose }: ResetDataModalProps) {
   const options = [
     { id: 'all', icon: Trash2, label: t.resetAll, desc: t.resetAllDesc, danger: true },
     { id: 'stats', icon: BarChart3, label: t.resetStats, desc: t.resetStatsDesc, danger: false },
-    { id: 'history', icon: History, label: t.resetHistory, desc: t.resetHistoryDesc, danger: false },
     { id: 'tags', icon: Hash, label: t.resetTags, desc: t.resetTagsDesc, danger: false },
   ]
 

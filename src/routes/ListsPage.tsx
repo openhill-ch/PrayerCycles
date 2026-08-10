@@ -239,10 +239,10 @@ function TodayCard({ prayers, onSelect, query }: { prayers: SurfacedPrayer[]; on
   return (
     <div
       className="rounded-lg pt-2 px-4 pb-4 shadow-md break-inside-avoid cursor-pointer bg-card hover:bg-input transition border-2 border-success-border shadow-[0_0_14px_var(--color-success-glow)]"
-      onClick={() => { onSelect(); navigate('/tap') }}
+      onClick={() => { onSelect(); navigate('/timer') }}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter') { onSelect(); navigate('/tap') } }}
+      onKeyDown={(e) => { if (e.key === 'Enter') { onSelect(); navigate('/timer') } }}
     >
       <p className="text-xs text-success-alt leading-tight">{t.surfacedLabel}</p>
       <h3 className="text-lg font-semibold text-text -mt-0.5">{t.todaysPrayers}</h3>
@@ -349,9 +349,6 @@ function ListCard({ list, prayers, query, focused }: { list: PrayerList; prayers
         </div>
       )}
 
-      <div className="mt-3 text-xs text-accent-text text-right">
-        {list.completionTally}
-      </div>
     </div>
   )
 }

@@ -13,13 +13,11 @@ export const mn: Translations = {
   no: 'Үгүй',
   loading: 'Ачааллаж байна...',
 
-  navTapPray: 'Товших\nЗалбирах',
   stepDown: 'Бага давтамж',
   stepUp: 'Их давтамж',
   navPrayerLists: 'Залбирлын\nЖагсаалт',
   navTimebox: 'Цагийн\nХайрцаг',
 
-  prayerHistory: 'Залбирлын Түүх',
   exportImport: 'Экспорт / Импорт',
   deletedLists: 'Устгасан Жагсаалт',
   resetPrayerData: 'Өгөгдлийг Шинэчлэх',
@@ -37,7 +35,6 @@ export const mn: Translations = {
   autoToggleOnTooltip: 'Нийт хугацаа нь залбирал бүрт оноосон хугацаан дээр үндэслэн автоматаар тохируулагдана.',
   autoToggleOffTooltip: 'Нийт хугацаа гараар тохируулагдсан. Залбирлын жагсаалтад тулгуурлан автоматаар тохируулахын тулд асаана уу.',
 
-  noPrayersToShow: 'Харуулах залбирал байхгүй.',
   undoLastCompletion: 'Сүүлийн гүйцэтгэлийг буцаах',
 
   searchPrayers: 'Залбирал хайх...',
@@ -88,8 +85,6 @@ export const mn: Translations = {
   sortOriginal: 'Үндсэн',
   sortAZ: 'А–Я',
   sortZA: 'Я–А',
-  sortMostPrayed: '> залбирсан',
-  sortLeastPrayed: '< залбирсан',
   noPrayersInList: 'Энэ жагсаалтад залбирал байхгүй байна.',
   prayNow: 'Одоо залбирах',
 
@@ -125,7 +120,6 @@ export const mn: Translations = {
   noListsCreateFirst: 'Жагсаалт байхгүй. Эхлээд нэгийг үүсгэнэ үү.',
   addToList: 'Жагсаалтад нэмэх',
 
-  prayedTally: (count, date) => `${date}-аас хойш ${count} удаа залбирсан`,
   markAsPrayed: (title) => `${title}-г залбирсан гэж тэмдэглэх`,
   time: 'удаа',
   times: 'удаа',
@@ -163,8 +157,6 @@ export const mn: Translations = {
   historyComingSoon: 'Залбирлын түүх — удахгүй',
   prayerListView: 'Залбирлын жагсаалт харах',
   noHistoryYet: 'Залбирлын түүх байхгүй байна.',
-  timePrayedToday: 'Өнөөдөр залбирсан хугацаа',
-  timesPrayedToday: 'Өнөөдөр залбирсан тоо',
   formatDuration: (seconds) => {
     const h = Math.floor(seconds / 3600)
     const m = Math.floor((seconds % 3600) / 60)
@@ -172,18 +164,6 @@ export const mn: Translations = {
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   },
 
-  totalTimePrayed: 'Нийт залбирсан хугацаа',
-  formatTimePrayed: (totalSeconds) => {
-    const weeks = Math.floor(totalSeconds / 604800)
-    const days = Math.floor((totalSeconds % 604800) / 86400)
-    const h = Math.floor((totalSeconds % 86400) / 3600)
-    const m = Math.floor((totalSeconds % 3600) / 60)
-    const s = Math.floor(totalSeconds % 60)
-    const time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-    if (weeks > 0) return `${weeks} долоо хоног, ${days} өдөр ${time}`
-    if (days > 0) return `${days} өдөр ${time}`
-    return time
-  },
   everyUnit: (every, singular, plural) => every === 1 ? `${singular} бүр` : `${every} ${plural} тутам`,
 
   navPrayerTags: 'Залбирлын\nШошго',
@@ -222,8 +202,6 @@ export const mn: Translations = {
   resetAllDesc: 'Бүрэн шинэчлэл — бүх жагсаалт, залбирал, түүх, шошгыг устгана.',
   resetStats: 'Залбирлын статистикийг устгах',
   resetStatsDesc: 'Залбирлын тоолуур болон хугацааг тэглэнэ.',
-  resetHistory: 'Залбирлын түүхийг устгах',
-  resetHistoryDesc: 'Залбирлын түүхийн бүртгэлийг цэвэрлэнэ.',
   resetTags: 'Залбирлын шошгыг устгах',
   resetTagsDesc: 'Залбирал болон жагсаалтаас бүх шошгыг хасна.',
   resetConfirmTap: 'Баталгаажуулахын тулд дахин товш',

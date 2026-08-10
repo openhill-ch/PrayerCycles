@@ -1,6 +1,6 @@
 import { db } from '../../db/db'
 import { snapshotToLocalStorage } from './local-backup'
-import type { Prayer, PrayerList, PrayerLog } from '../../db/types'
+import type { Prayer, PrayerList } from '../../db/types'
 import { encryptBlob, decryptBlob, hasCryptoKey, isEncrypted } from '../../lib/crypto'
 
 const TAG_REGISTRY_KEY = 'prayercycles_tag_registry'
@@ -10,7 +10,6 @@ type BackupDataV1 = {
   exportedAt: number
   prayerLists: PrayerList[]
   prayers: Prayer[]
-  prayerLogs: PrayerLog[]
 }
 
 type BackupDataV2 = {
@@ -18,17 +17,15 @@ type BackupDataV2 = {
   exportedAt: number
   prayerLists: PrayerList[]
   prayers: Prayer[]
-  prayerLogs: PrayerLog[]
   tagRegistry: string[]
 }
 
 type BackupData = BackupDataV1 | BackupDataV2
 
 export async function exportData(): Promise<string> {
-  const [prayerLists, prayers, prayerLogs] = await Promise.all([
+  const [prayerLists, prayers] = await Promise.all([
     db.prayerLists.toArray(),
     db.prayers.toArray(),
-    db.prayerLogs.toArray(),
   ])
 
   let tagRegistry: string[] = []
@@ -45,7 +42,6 @@ export async function exportData(): Promise<string> {
     exportedAt: Date.now(),
     prayerLists,
     prayers,
-    prayerLogs,
     tagRegistry,
   }
 
@@ -58,7 +54,7 @@ export async function importData(json: string): Promise<void> {
   // Normalize v1 backups (no tag registry)
   const tagRegistry = 'tagRegistry' in data ? data.tagRegistry : []
 
-  await db.transaction('rw', [db.prayerLists, db.prayers, db.prayerLogs], async () => {
+  await db.transaction('rw', [db.prayerLists, db.prayers], async () => {
     // Smart merge: upsert imported data, keep local items not in backup
 
     for (const list of data.prayerLists) {
@@ -69,9 +65,6 @@ export async function importData(json: string): Promise<void> {
       await db.prayers.put(prayer)
     }
 
-    for (const log of data.prayerLogs) {
-      await db.prayerLogs.put(log)
-    }
   })
 
   let localRegistry: string[] = []

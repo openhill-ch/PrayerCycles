@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { X, Trash2 } from 'lucide-react'
 import { useT } from '../i18n'
-import { db } from '../db/db'
 import type { Prayer } from '../db/types'
 import { updatePrayer, deletePrayer } from '../features/prayers/prayer-operations'
 
@@ -18,35 +17,7 @@ export function PrayerDetailModal({ prayer, onClose, onUpdated }: PrayerDetailMo
   const [confirmDelete, setConfirmDelete] = useState(false)
   const descRef = useRef<HTMLTextAreaElement>(null)
 
-  const [todayCount, setTodayCount] = useState(0)
-  const [todayDuration, setTodayDuration] = useState(0)
 
-  useEffect(() => {
-    const todayStart = new Date()
-    todayStart.setHours(0, 0, 0, 0)
-    const todayMs = todayStart.getTime()
-
-    db.prayerLogs
-      .where('prayerId')
-      .equals(prayer.id)
-      .toArray()
-      .then((logs) => {
-        const todayLogs = logs.filter((log) => {
-          const startTime = log.prayedAt - (log.duration ?? 0) * 1000
-          return startTime >= todayMs
-        })
-        setTodayCount(todayLogs.length)
-        setTodayDuration(todayLogs.reduce((sum, log) => sum + (log.duration ?? 0), 0))
-      })
-  }, [prayer.id])
-
-  const startDate = new Date(prayer.createdAt)
-  const tallyLabel =
-    prayer.prayerTally > 0
-      ? `${prayer.prayerTally} · since ${startDate.toLocaleDateString()}`
-      : null
-  const totalSeconds = prayer.totalTimePrayed ?? 0
-  const timeLabel = totalSeconds > 0 ? t.formatTimePrayed(totalSeconds) : null
 
   async function handleSave() {
     const changes: Partial<Prayer> = {}
@@ -101,21 +72,6 @@ export function PrayerDetailModal({ prayer, onClose, onUpdated }: PrayerDetailMo
               className="w-full rounded-lg bg-input px-3 py-2 text-text placeholder-text-tertiary outline-none focus:ring-2 focus:ring-text-muted resize-none"
             />
           </div>
-
-          {(tallyLabel || timeLabel || todayCount > 0) && (
-            <div className="space-y-1">
-              {tallyLabel && <div className="text-xs text-text-muted">{tallyLabel}</div>}
-              {timeLabel && <div className="text-xs text-text-muted">{t.totalTimePrayed}: {timeLabel}</div>}
-              {todayCount > 0 && (
-                <div className="flex gap-4 pt-1">
-                  <div className="text-xs text-text-muted">{t.timesPrayedToday}: <span className="text-accent-text">{todayCount}</span></div>
-                  {todayDuration > 0 && (
-                    <div className="text-xs text-text-muted">{t.timePrayedToday}: <span className="text-accent-text">{t.formatDuration(todayDuration)}</span></div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
 
           <div className="flex items-center justify-between pt-2">
             {!confirmDelete ? (
