@@ -13,6 +13,12 @@ type ActiveTap = { key: string; prayerId: string; listId: string; startedAt: num
 /** ~30fps, enough for the hundredths to read as running without churning renders. */
 const TICK_MS = 33
 
+/**
+ * Below this a tap-tap is a misfire, not a prayer. Without a floor, fractional
+ * seconds mean any stray double-tap would log a session and bump the count.
+ */
+const MIN_RECORDED_SECONDS = 1
+
 export function TapPrayPage() {
   const { t } = useT()
   const { surfacedPrayers, selectedListId } = useTimer()
@@ -51,10 +57,12 @@ export function TapPrayPage() {
   const stopActive = useCallback(() => {
     const a = activeRef.current
     if (!a) return
-    const secs = Math.round(Math.max(0, Date.now() - a.startedAt) / 1000)
+    // Seconds, but fractional: rounding to a whole second made the total jump
+    // forward on release. Existing whole-second data stays valid either way.
+    const secs = Math.max(0, Date.now() - a.startedAt) / 1000
     activeRef.current = null
     setActive(null)
-    if (secs > 0) {
+    if (secs >= MIN_RECORDED_SECONDS) {
       // completePrayer records the session for history; addTimePrayed keeps the
       // list's own total in step. They're separate stores, so both are needed.
       completePrayer(a.prayerId, a.listId, secs)
@@ -84,8 +92,8 @@ export function TapPrayPage() {
     () => () => {
       const a = activeRef.current
       if (!a) return
-      const secs = Math.round(Math.max(0, Date.now() - a.startedAt) / 1000)
-      if (secs > 0) {
+      const secs = Math.max(0, Date.now() - a.startedAt) / 1000
+      if (secs >= MIN_RECORDED_SECONDS) {
         completePrayer(a.prayerId, a.listId, secs)
         addTimePrayed(a.prayerId, secs)
       }

@@ -172,7 +172,7 @@ export const gsw: Translations = {
   formatDuration: (seconds) => {
     const h = Math.floor(seconds / 3600)
     const m = Math.floor((seconds % 3600) / 60)
-    const s = seconds % 60
+    const s = Math.floor(seconds % 60)
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   },
 
@@ -182,7 +182,7 @@ export const gsw: Translations = {
     const days = Math.floor((totalSeconds % 604800) / 86400)
     const h = Math.floor((totalSeconds % 86400) / 3600)
     const m = Math.floor((totalSeconds % 3600) / 60)
-    const s = totalSeconds % 60
+    const s = Math.floor(totalSeconds % 60)
     const time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
     if (weeks > 0) return `${weeks} ${weeks === 1 ? 'Wuche' : 'Wuche'}, ${days} ${days === 1 ? 'Tag' : 'Täg'} ${time}`
     if (days > 0) return `${days} ${days === 1 ? 'Tag' : 'Täg'} ${time}`
