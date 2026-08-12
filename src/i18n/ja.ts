@@ -22,6 +22,7 @@ export const ja: Translations = {
   deletedLists: '削除した祈りのリスト',
   resetPrayerData: 'データをリセット',
   languages: '言語',
+  privacyPolicy: 'プライバシーポリシー',
   themes: 'テーマ',
 
   praying: '祈り中',

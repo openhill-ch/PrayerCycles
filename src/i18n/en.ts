@@ -22,6 +22,7 @@ export const en: Translations = {
   deletedLists: 'Deleted Prayer Lists',
   resetPrayerData: 'Reset Prayer Data',
   languages: 'Languages',
+  privacyPolicy: 'Privacy Policy',
   themes: 'Themes',
 
   praying: 'Praying',

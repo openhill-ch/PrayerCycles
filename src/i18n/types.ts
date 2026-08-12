@@ -25,6 +25,7 @@ export type Translations = {
   deletedLists: string
   resetPrayerData: string
   languages: string
+  privacyPolicy: string
   themes: string
 
   // Timer bar

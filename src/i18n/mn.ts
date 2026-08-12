@@ -22,6 +22,7 @@ export const mn: Translations = {
   deletedLists: 'Устгасан залбирлын жагсаалт',
   resetPrayerData: 'Өгөгдлийг Шинэчлэх',
   languages: 'Хэл',
+  privacyPolicy: 'Нууцлалын бодлого',
   themes: 'Загвар',
 
   praying: 'Залбирч байна',

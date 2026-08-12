@@ -22,6 +22,7 @@ export const de: Translations = {
   deletedLists: 'Gelöschte Gebetslisten',
   resetPrayerData: 'Gebetsdaten zurücksetzen',
   languages: 'Sprachen',
+  privacyPolicy: 'Datenschutz',
   themes: 'Designs',
 
   praying: 'Im Gebet',

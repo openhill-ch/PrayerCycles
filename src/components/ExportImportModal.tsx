@@ -1,5 +1,8 @@
 import { useState, useRef } from 'react'
 import { X, Download, Upload, Check, AlertCircle } from 'lucide-react'
+import { Capacitor } from '@capacitor/core'
+import { Share } from '@capacitor/share'
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 import { useT } from '../i18n'
 import { useTimer } from '../context/TimerContext'
 import { exportData, importData } from '../features/backup/backup-operations'
@@ -23,19 +26,43 @@ export function ExportImportModal({ open, onClose }: ExportImportModalProps) {
   }
 
   async function handleExport() {
+    const filename = `prayercycles-backup-${new Date().toISOString().slice(0, 10)}.json`
     try {
       const json = await exportData()
-      const blob = new Blob([json], { type: 'application/json' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `prayercycles-backup-${new Date().toISOString().slice(0, 10)}.json`
-      a.click()
-      URL.revokeObjectURL(url)
+
+      if (Capacitor.isNativePlatform()) {
+        // An <a download> click does nothing inside a WKWebView, so on the
+        // phone the old path reported success while leaving no file anywhere
+        // reachable. Write it out, then hand it to the system share sheet so it
+        // can go to Files, Messages, Mail or anywhere else.
+        const { uri } = await Filesystem.writeFile({
+          path: filename,
+          data: json,
+          directory: Directory.Cache,
+          encoding: Encoding.UTF8,
+        })
+        await Share.share({ title: filename, files: [uri] })
+      } else {
+        const blob = new Blob([json], { type: 'application/json' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = filename
+        a.click()
+        URL.revokeObjectURL(url)
+      }
+
       localStorage.setItem('prayercycles_last_export', String(Date.now()))
       setStatus('success')
       setStatusMsg(t.backupDownloaded)
-    } catch {
+    } catch (err) {
+      // Dismissing the share sheet rejects, which isn't a failure worth shouting about.
+      const msg = err instanceof Error ? err.message : String(err)
+      if (/cancel/i.test(msg)) {
+        setStatus('idle')
+        setStatusMsg('')
+        return
+      }
       setStatus('error')
       setStatusMsg(t.exportFailed)
     }

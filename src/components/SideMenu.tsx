@@ -1,4 +1,4 @@
-import { X, Download, Trash2, Globe, Palette } from 'lucide-react'
+import { X, Download, Trash2, Globe, Palette, ShieldCheck } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useT } from '../i18n'
 
@@ -81,6 +81,21 @@ export function SideMenu({ open, onClose, onExportImport, onLanguages, onThemes,
           >
             <Trash2 size={18} />
             {t.deletedLists}
+          </button>
+
+          <button
+            onClick={() => {
+              // A real navigation, not a router one: /privacy is a static page
+              // outside the SPA, and the router's catch-all would bounce it home.
+              // The filename is explicit because nothing resolves a directory
+              // index here -- bare /privacy falls through to the app shell.
+              onClose()
+              window.location.assign('/privacy/index.html')
+            }}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-text-secondary hover:bg-input transition-colors"
+          >
+            <ShieldCheck size={18} />
+            {t.privacyPolicy}
           </button>
 
           <button

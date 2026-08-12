@@ -22,6 +22,7 @@ export const gsw: Translations = {
   deletedLists: 'Glöschti Gebätslischte',
   resetPrayerData: 'Gebetsdate zruggsetze',
   languages: 'Sprache',
+  privacyPolicy: 'Dateschutz',
   themes: 'Themes',
 
   praying: 'Am Bäte',
