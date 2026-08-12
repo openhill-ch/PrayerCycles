@@ -65,21 +65,28 @@
   <main>
     <p><a href="/">&larr; Back to Prayer Cycles</a></p>
     <h1>Privacy Policy for Prayer Cycles</h1>
-    <p class="updated">Last updated: 2 July 2026</p>
+    <p class="updated">Last updated: 12 August 2026</p>
 
-    <p class="lead">Prayer Cycles (&ldquo;the app&rdquo;) is designed to be private by default. This policy explains what the app does and does not do with your information.</p>
+    <p class="lead">Prayer Cycles (&ldquo;the app&rdquo;) is designed to be private by default. It is meant to be a quiet place, not a record of your achievements. This policy explains what the app does and does not do with your information.</p>
 
     <h2>The short version</h2>
-    <p><strong>Prayer Cycles does not collect, transmit, sell, or share any of your data.</strong> Everything you enter — prayer lists, prayers, descriptions, and tags — stays on your device. There are no accounts, no servers, no analytics, and no third-party tracking.</p>
+    <p><strong>Prayer Cycles does not collect, transmit, sell, or share any of your data.</strong> Everything you enter stays on your device. There are no accounts, no servers, no analytics, and no third-party tracking. The app makes no network requests of its own at all.</p>
 
-    <h2>What data the app stores</h2>
-    <p>The app stores the following <strong>locally on your device only</strong>:</p>
+    <h2>What the app stores</h2>
+    <p>The app stores the following <strong>on your device only</strong>:</p>
     <ul>
-      <li>Prayer lists and their settings (cadence, schedule, tags)</li>
-      <li>Individual prayers, including titles, descriptions, and tags</li>
-      <li>App preferences (theme, language, sound, and similar settings)</li>
+      <li>Prayer lists and their settings — name, description, how often the list comes round, tags, and whether the list is active</li>
+      <li>Individual prayers, including their titles, descriptions and tags</li>
+      <li>A count of how many times each prayer has come up. This is never shown to you; it exists so the app can surface whoever you have prayed for least recently, rather than repeating the same name.</li>
+      <li>Your preferences — theme, language, sound, sort order and timebox settings</li>
+      <li>A recent copy of your lists and prayers, kept in the app&rsquo;s own storage so your data can be recovered if the main database is cleared</li>
     </ul>
-    <p>This information is saved in your device&rsquo;s local storage. It is <strong>encrypted at rest</strong> using a key stored in your device&rsquo;s secure storage (Apple Keychain on iOS). The app cannot read your data without that key, and the key never leaves your device except through Apple&rsquo;s own iCloud Keychain sync, if you have that enabled.</p>
+    <p>The app does <strong>not</strong> keep a history of when you prayed, or how long you prayed for. Earlier versions did; that was removed, and the stored history was deleted with it.</p>
+
+    <h2>How your data is protected</h2>
+    <p>Your lists and prayers are <strong>encrypted at rest</strong> on your device. The app cannot read them without the encryption key.</p>
+    <p>On iPhone and iPad, that key is held in the system keychain. Keychain syncing is enabled, so if you use iCloud Keychain the key may be synced to your other Apple devices by Apple — that is the one way it can leave the device, and it is governed by Apple&rsquo;s privacy policy rather than this one.</p>
+    <p>If you use the app in a web browser instead, the key is held in the browser&rsquo;s own storage, which is less strongly protected than the keychain. Anyone with access to your unlocked computer and browser profile could reach it.</p>
 
     <h2>What the app does NOT do</h2>
     <ul>
@@ -87,13 +94,13 @@
       <li>It does <strong>not</strong> use analytics, advertising, or tracking tools.</li>
       <li>It does <strong>not</strong> require an account or any personal information.</li>
       <li>It does <strong>not</strong> share your data with third parties.</li>
+      <li>It does <strong>not</strong> record when or how long you pray.</li>
     </ul>
 
-    <h2>Bible verse feature</h2>
-    <p>The app includes a King James Version (KJV) Bible text bundled inside the app for the verse-autocomplete feature. Looking up a verse happens entirely on your device — no network request is made, and your searches are not recorded or sent anywhere.</p>
-
-    <h2>Backups</h2>
-    <p>You can export your data to a backup file from within the app. This file is created on your device and is yours to keep. The app does not upload it anywhere. Where you choose to store that backup file (for example, in iCloud Drive or another service) is governed by that service&rsquo;s own privacy policy, not this one.</p>
+    <h2>Backups and sharing</h2>
+    <p>You can export your data to a backup file from within the app. The file is created on your device, and the app never uploads it anywhere.</p>
+    <p><strong>The backup file is not encrypted.</strong> It is plain text, and anyone who opens it can read every prayer, description and tag in it. This is deliberate, so that you are never locked out of your own data — but it means you should treat the file the way you would treat a written prayer journal.</p>
+    <p>On iPhone, exporting opens the standard iOS share sheet so you can choose where the file goes — saving it to Files, sending it to yourself, or passing it to another app. Once you send it somewhere, it is covered by that service&rsquo;s privacy policy, not this one.</p>
 
     <h2>Children&rsquo;s privacy</h2>
     <p>The app does not knowingly collect any personal information from anyone, including children.</p>
