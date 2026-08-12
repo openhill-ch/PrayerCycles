@@ -184,17 +184,9 @@ export type Translations = {
   // Themes
   themeSlate: string
   themeNuudelchin: string
-  themeTal: string
-  themeKhentii: string
   themeAdelboden: string
-  themeFruehling: string
-  themeThun: string
   themeSakura: string
-  themeKyoto: string
-  themeChikurin: string
   themeNewSmyrna: string
-  themeBirch: string
-  themeBoulderField: string
   themeGroupMongolian: string
   themeGroupSwiss: string
   themeGroupJapanese: string

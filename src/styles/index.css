@@ -98,33 +98,6 @@
    Deep greens, earth, grazing yaks,
    endless grassland under soft light
    ═══════════════════════════════════════ */
-[data-theme="tal"] {
-  --t-base: #6ea860;
-  --t-card: #162118;
-  --t-input: #233428;
-  --t-input-hover: #314636;
-  --t-overlay: rgba(4,8,5,0.50);
-  --t-border: #233428;
-  --t-border-light: #314636;
-  --t-text: #e8efe6;
-  --t-text-secondary: #b8c9b2;
-  --t-text-tertiary: #839c7a;
-  --t-text-muted: #d0e8c8;
-  --t-accent: #6aad5a;
-  --t-accent-text: #92ce84;
-  --t-accent-hover: #bce4b2;
-  --t-accent-glow: rgba(106,173,90,0.30);
-  --t-danger: #b04030;
-  --t-danger-hover: #cc5040;
-  --t-danger-text: #e08070;
-  --t-danger-bg: rgba(100,28,18,0.35);
-  --t-success-text: #a0d4b0;
-  --t-success-alt: #6cc090;
-  --t-success-border: rgba(108,192,144,0.75);
-  --t-success-glow: rgba(108,192,144,0.30);
-  --t-success-bg: rgba(20,60,36,0.35);
-  --t-toggle: #6cc090;
-}
 
 
 /* ═══════════════════════════════════════
@@ -132,33 +105,6 @@
    Taiga forests, Onon River, mountain
    valleys, deep greens & cool river blue
    ═══════════════════════════════════════ */
-[data-theme="khentii"] {
-  --t-base: #4a90c4;
-  --t-card: #1a4a80;
-  --t-input: #2a5a90;
-  --t-input-hover: #366aa0;
-  --t-overlay: rgba(4,8,14,0.50);
-  --t-border: #143a68;
-  --t-border-light: #3a6a9c;
-  --t-text: #ffffff;
-  --t-text-secondary: #e8f0f8;
-  --t-text-tertiary: #c0d4e8;
-  --t-text-muted: #d8e8f4;
-  --t-accent: #e8c020;
-  --t-accent-text: #f0d040;
-  --t-accent-hover: #f8e068;
-  --t-accent-glow: rgba(232,192,32,0.30);
-  --t-danger: #e04040;
-  --t-danger-hover: #f06060;
-  --t-danger-text: #f08080;
-  --t-danger-bg: rgba(180,30,30,0.30);
-  --t-success-text: #88d0a8;
-  --t-success-alt: #58b880;
-  --t-success-border: rgba(88,184,128,0.75);
-  --t-success-glow: rgba(88,184,128,0.30);
-  --t-success-bg: rgba(18,56,36,0.35);
-  --t-toggle: #e8c020;
-}
 
 /* ═══════════════════════════════════════
    Adelboden — Winter in Adelboden
@@ -198,66 +144,12 @@
    Light grass-green background, wooden
    fence borders, soft floral cards
    ═══════════════════════════════════════ */
-[data-theme="fruehling"] {
-  --t-base: #c8e0a0;
-  --t-card: #fdf5e6;
-  --t-input: #d6e4c0;
-  --t-input-hover: #c8dab0;
-  --t-overlay: rgba(0,0,0,0.28);
-  --t-border: #8b7355;
-  --t-border-light: #a48e6e;
-  --t-text: #1c1c14;
-  --t-text-secondary: #3a3828;
-  --t-text-tertiary: #5e5c44;
-  --t-text-muted: #807c60;
-  --t-accent: #b07c18;
-  --t-accent-text: #8e6410;
-  --t-accent-hover: #6e4e08;
-  --t-accent-glow: rgba(176,124,24,0.18);
-  --t-danger: #b82c2c;
-  --t-danger-hover: #9c2020;
-  --t-danger-text: #9c1e1e;
-  --t-danger-bg: rgba(184,44,44,0.12);
-  --t-success-text: #2a7a3a;
-  --t-success-alt: #328844;
-  --t-success-border: rgba(50,136,68,0.50);
-  --t-success-glow: rgba(50,136,68,0.15);
-  --t-success-bg: rgba(50,136,68,0.10);
-  --t-toggle: #f0c800;
-}
 
 /* ═══════════════════════════════════════
    Thun — Lake Thun
    Stone gray background, dusky blue-gray
    cards, lake teal accent
    ═══════════════════════════════════════ */
-[data-theme="thun"] {
-  --t-base: #8a8e92;
-  --t-card: #4a5668;
-  --t-input: #5c6878;
-  --t-input-hover: #6e7a8a;
-  --t-overlay: rgba(0,0,0,0.40);
-  --t-border: #3e4a5a;
-  --t-border-light: #6a7080;
-  --t-text: #f0ede8;
-  --t-text-secondary: #e0dcd6;
-  --t-text-tertiary: #d0ccc6;
-  --t-text-muted: #dedad4;
-  --t-accent: #38b0b8;
-  --t-accent-text: #60d0d8;
-  --t-accent-hover: #90e4e8;
-  --t-accent-glow: rgba(56,176,184,0.25);
-  --t-danger: #cc3838;
-  --t-danger-hover: #e04848;
-  --t-danger-text: #f08080;
-  --t-danger-bg: rgba(140,30,30,0.30);
-  --t-success-text: #7ad0a0;
-  --t-success-alt: #4eb87c;
-  --t-success-border: rgba(78,184,124,0.60);
-  --t-success-glow: rgba(78,184,124,0.20);
-  --t-success-bg: rgba(16,56,34,0.20);
-  --t-toggle: #4eb87c;
-}
 
 /* ═══════════════════════════════════════
    桜 (Sakura) — Cherry Blossom
@@ -297,66 +189,12 @@
    Dark temple wood, vermillion torii,
    gold leaf accent, deep ceremony
    ═══════════════════════════════════════ */
-[data-theme="kyoto"] {
-  --t-base: #1a1008;
-  --t-card: #2c1e10;
-  --t-input: #3e2c18;
-  --t-input-hover: #503a22;
-  --t-overlay: rgba(8,4,2,0.55);
-  --t-border: #3e2c18;
-  --t-border-light: #584020;
-  --t-text: #f4ede4;
-  --t-text-secondary: #d4c8b4;
-  --t-text-tertiary: #a89878;
-  --t-text-muted: #806850;
-  --t-accent: #c83028;
-  --t-accent-text: #e04838;
-  --t-accent-hover: #f08070;
-  --t-accent-glow: rgba(200,48,40,0.30);
-  --t-danger: #cc3030;
-  --t-danger-hover: #e04040;
-  --t-danger-text: #f07070;
-  --t-danger-bg: rgba(140,24,24,0.35);
-  --t-success-text: #a0c878;
-  --t-success-alt: #80b058;
-  --t-success-border: rgba(128,176,88,0.70);
-  --t-success-glow: rgba(128,176,88,0.25);
-  --t-success-bg: rgba(40,60,20,0.30);
-  --t-toggle: #d4a020;
-}
 
 /* ═══════════════════════════════════════
    竹林 (Chikurin) — Bamboo Grove
    Deep forest floor, bamboo-green stalks,
    filtered golden light through canopy
    ═══════════════════════════════════════ */
-[data-theme="chikurin"] {
-  --t-base: #0c1a0e;
-  --t-card: #1a2e18;
-  --t-input: #253a22;
-  --t-input-hover: #324830;
-  --t-overlay: rgba(4,8,4,0.55);
-  --t-border: #2a3c24;
-  --t-border-light: #3e5238;
-  --t-text: #e8f0e4;
-  --t-text-secondary: #c0d0b8;
-  --t-text-tertiary: #88a07c;
-  --t-text-muted: #607856;
-  --t-accent: #c8b040;
-  --t-accent-text: #dcc860;
-  --t-accent-hover: #f0e088;
-  --t-accent-glow: rgba(200,176,64,0.25);
-  --t-danger: #cc3030;
-  --t-danger-hover: #e04040;
-  --t-danger-text: #f07070;
-  --t-danger-bg: rgba(140,24,24,0.35);
-  --t-success-text: #88cc88;
-  --t-success-alt: #60b860;
-  --t-success-border: rgba(96,184,96,0.70);
-  --t-success-glow: rgba(96,184,96,0.25);
-  --t-success-bg: rgba(20,60,20,0.30);
-  --t-toggle: #60b860;
-}
 
 /* ═══════════════════════════════════════
    New Smyrna Beach — Florida Atlantic
@@ -396,66 +234,12 @@
    Dark bark base, forest green depth,
    papery white birch bark cards
    ═══════════════════════════════════════ */
-[data-theme="birch"] {
-  --t-base: #2e6a57;
-  --t-card: #f4f2eb;
-  --t-input: #c4d8c8;
-  --t-input-hover: #b0c8b4;
-  --t-overlay: rgba(0,0,0,0.45);
-  --t-border: #2a2a25;
-  --t-border-light: #3a3a34;
-  --t-text: #1e1e1a;
-  --t-text-secondary: #3a3830;
-  --t-text-tertiary: #4a4840;
-  --t-text-muted: #6a8a78;
-  --t-accent: #c8b860;
-  --t-accent-text: #6a6020;
-  --t-accent-hover: #f0e8a0;
-  --t-accent-glow: rgba(200,184,96,0.25);
-  --t-danger: #cc3838;
-  --t-danger-hover: #e04848;
-  --t-danger-text: #f08080;
-  --t-danger-bg: rgba(140,30,30,0.30);
-  --t-success-text: #88cc98;
-  --t-success-alt: #60b870;
-  --t-success-border: rgba(96,184,112,0.60);
-  --t-success-glow: rgba(96,184,112,0.20);
-  --t-success-bg: rgba(20,56,30,0.25);
-  --t-toggle: #60b870;
-}
 
 /* ═══════════════════════════════════════
    The Boulder Field — Boulder field at sunrise
    Warm clay-brown rock, orange dawn
    light on granite, alpine glow
    ═══════════════════════════════════════ */
-[data-theme="boulderfield"] {
-  --t-base: #c8843c;
-  --t-card: #584838;
-  --t-input: #4a3c30;
-  --t-input-hover: #5e4e40;
-  --t-overlay: rgba(10,6,4,0.50);
-  --t-border: #2e2420;
-  --t-border-light: #6a5848;
-  --t-text: #f4ece4;
-  --t-text-secondary: #d8ccc0;
-  --t-text-tertiary: #b0a090;
-  --t-text-muted: #887868;
-  --t-accent: #d89030;
-  --t-accent-text: #e8a848;
-  --t-accent-hover: #f4c870;
-  --t-accent-glow: rgba(216,144,48,0.28);
-  --t-danger: #cc3838;
-  --t-danger-hover: #e04848;
-  --t-danger-text: #f08080;
-  --t-danger-bg: rgba(140,30,30,0.30);
-  --t-success-text: #98c880;
-  --t-success-alt: #70b058;
-  --t-success-border: rgba(112,176,88,0.60);
-  --t-success-glow: rgba(112,176,88,0.20);
-  --t-success-bg: rgba(34,56,20,0.25);
-  --t-toggle: #70b058;
-}
 
 html {
   overflow-y: scroll;
