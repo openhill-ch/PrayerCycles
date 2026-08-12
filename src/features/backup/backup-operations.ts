@@ -31,7 +31,7 @@ export async function exportData(): Promise<string> {
   let tagRegistry: string[] = []
   try {
     let raw = localStorage.getItem(TAG_REGISTRY_KEY)
-    if (raw && hasCryptoKey() && isEncrypted(raw)) raw = decryptBlob(raw)
+    if (raw && hasCryptoKey() && isEncrypted(raw)) raw = await decryptBlob(raw)
     tagRegistry = raw ? JSON.parse(raw) : []
   } catch {
     tagRegistry = []
@@ -70,14 +70,14 @@ export async function importData(json: string): Promise<void> {
   let localRegistry: string[] = []
   try {
     let raw = localStorage.getItem(TAG_REGISTRY_KEY)
-    if (raw && hasCryptoKey() && isEncrypted(raw)) raw = decryptBlob(raw)
+    if (raw && hasCryptoKey() && isEncrypted(raw)) raw = await decryptBlob(raw)
     localRegistry = raw ? JSON.parse(raw) : []
   } catch {
     localRegistry = []
   }
   const mergedRegistry = [...new Set([...localRegistry, ...tagRegistry])]
   const registryJson = JSON.stringify(mergedRegistry)
-  localStorage.setItem(TAG_REGISTRY_KEY, hasCryptoKey() ? encryptBlob(registryJson) : registryJson)
+  localStorage.setItem(TAG_REGISTRY_KEY, hasCryptoKey() ? await encryptBlob(registryJson) : registryJson)
 
   snapshotToLocalStorage()
 }

@@ -43,11 +43,11 @@ export function TagsPage() {
     return () => window.removeEventListener('prayercycles:refresh', load)
   }, [load])
 
-  function handleCreateTag(e: React.FormEvent) {
+  async function handleCreateTag(e: React.FormEvent) {
     e.preventDefault()
     const trimmed = newTagName.trim()
     if (!trimmed) return
-    const created = createStandaloneTag(trimmed)
+    const created = await createStandaloneTag(trimmed)
     if (created) {
       setNewTagName('')
       load()
@@ -174,8 +174,7 @@ export function TagsPage() {
                     if (val.endsWith('  ')) {
                       const trimmed = val.trimEnd()
                       if (trimmed) {
-                        const created = createStandaloneTag(trimmed)
-                        if (created) load()
+                        void createStandaloneTag(trimmed).then((created) => { if (created) load() })
                         setNewTagName('')
                         return
                       }
@@ -187,8 +186,7 @@ export function TagsPage() {
                       e.preventDefault()
                       const trimmed = newTagName.trim()
                       if (trimmed) {
-                        const created = createStandaloneTag(trimmed)
-                        if (created) load()
+                        void createStandaloneTag(trimmed).then((created) => { if (created) load() })
                         setNewTagName('')
                       }
                     }

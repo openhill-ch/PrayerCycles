@@ -4,20 +4,20 @@ import { encryptBlob, decryptBlob, hasCryptoKey, isEncrypted } from '../../lib/c
 
 const TAG_REGISTRY_KEY = 'prayercycles_tag_registry'
 
-function getRegistryTags(): string[] {
+async function getRegistryTags(): Promise<string[]> {
   try {
     let raw = localStorage.getItem(TAG_REGISTRY_KEY)
     if (!raw) return []
-    if (hasCryptoKey() && isEncrypted(raw)) raw = decryptBlob(raw)
+    if (hasCryptoKey() && isEncrypted(raw)) raw = await decryptBlob(raw)
     return JSON.parse(raw)
   } catch {
     return []
   }
 }
 
-function saveRegistryTags(tags: string[]): void {
+async function saveRegistryTags(tags: string[]): Promise<void> {
   const json = JSON.stringify(tags)
-  localStorage.setItem(TAG_REGISTRY_KEY, hasCryptoKey() ? encryptBlob(json) : json)
+  localStorage.setItem(TAG_REGISTRY_KEY, hasCryptoKey() ? await encryptBlob(json) : json)
 }
 
 /** Wipe the standalone tag registry. Tags also live on lists/prayers, so a
@@ -27,13 +27,13 @@ export function clearTagRegistry(): void {
 }
 
 /** Create a standalone tag (stored in registry until assigned to a list/prayer) */
-export function createStandaloneTag(name: string): boolean {
+export async function createStandaloneTag(name: string): Promise<boolean> {
   const trimmed = name.trim()
   if (!trimmed) return false
-  const registry = getRegistryTags()
+  const registry = await getRegistryTags()
   if (registry.includes(trimmed)) return false
   registry.push(trimmed)
-  saveRegistryTags(registry)
+  await saveRegistryTags(registry)
   return true
 }
 
@@ -45,7 +45,7 @@ export async function getAllTags(): Promise<string[]> {
   ])
   const set = new Set<string>()
   // Include registry tags
-  for (const t of getRegistryTags()) set.add(t)
+  for (const t of await getRegistryTags()) set.add(t)
   for (const l of lists) {
     for (const t of l.tags ?? []) set.add(t)
   }
@@ -61,11 +61,11 @@ export async function renameTag(oldName: string, newName: string): Promise<void>
   if (!trimmed || oldName === trimmed) return
 
   // Update registry
-  const registry = getRegistryTags()
+  const registry = await getRegistryTags()
   const regIdx = registry.indexOf(oldName)
   if (regIdx !== -1) {
     registry[regIdx] = trimmed
-    saveRegistryTags([...new Set(registry)])
+    await saveRegistryTags([...new Set(registry)])
   }
 
   await db.transaction('rw', [db.prayerLists, db.prayers], async () => {
@@ -90,8 +90,8 @@ export async function renameTag(oldName: string, newName: string): Promise<void>
 
 /** Remove a tag from every list, prayer, and registry */
 export async function deleteTag(tagName: string): Promise<void> {
-  const registry = getRegistryTags()
-  saveRegistryTags(registry.filter((t) => t !== tagName))
+  const registry = await getRegistryTags()
+  await saveRegistryTags(registry.filter((t) => t !== tagName))
 
   await db.transaction('rw', [db.prayerLists, db.prayers], async () => {
     const lists = await db.prayerLists.toArray()

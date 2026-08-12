@@ -19,7 +19,7 @@ export function snapshotToLocalStorage(): void {
         prayerLists,
         prayers,
       })
-      const stored = hasCryptoKey() ? encryptBlob(snapshot) : snapshot
+      const stored = hasCryptoKey() ? await encryptBlob(snapshot) : snapshot
       localStorage.setItem(STORAGE_KEY, stored)
     } catch {
       // Silently fail — localStorage might be full or unavailable
@@ -38,7 +38,7 @@ export async function checkAndRestoreFromLocalStorage(): Promise<boolean> {
     if (!raw) return false
 
     if (hasCryptoKey() && isEncrypted(raw)) {
-      raw = decryptBlob(raw)
+      raw = await decryptBlob(raw)
     }
 
     const data = JSON.parse(raw)

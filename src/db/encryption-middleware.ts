@@ -8,7 +8,10 @@ const FIELDS_BY_TABLE: Record<string, string[]> = {
 
 const ARRAY_FIELDS = new Set(['tags'])
 
-function encryptRecord(tableName: string, obj: any): any {
+// Web Crypto is promise-based, so these are async where they used to be plain
+// calls. Dexie keeps its transaction alive across the await, so mutating inside
+// a db.transaction() still commits as one unit.
+async function encryptRecord(tableName: string, obj: any): Promise<any> {
   const fields = FIELDS_BY_TABLE[tableName]
   if (!fields || !hasCryptoKey() || !obj) return obj
   const copy = { ...obj }
@@ -17,9 +20,9 @@ function encryptRecord(tableName: string, obj: any): any {
     if (val === null || val === undefined || val === '') continue
     try {
       if (Array.isArray(val) && val.length > 0) {
-        copy[field] = encryptString(JSON.stringify(val))
+        copy[field] = await encryptString(JSON.stringify(val))
       } else if (typeof val === 'string' && !isEncrypted(val)) {
-        copy[field] = encryptString(val)
+        copy[field] = await encryptString(val)
       }
     } catch {
       // If encryption fails for any reason, store the value as-is
@@ -29,7 +32,7 @@ function encryptRecord(tableName: string, obj: any): any {
   return copy
 }
 
-function decryptRecord(tableName: string, obj: any): any {
+async function decryptRecord(tableName: string, obj: any): Promise<any> {
   const fields = FIELDS_BY_TABLE[tableName]
   if (!fields || !hasCryptoKey() || !obj) return obj
   const copy = { ...obj }
@@ -39,7 +42,7 @@ function decryptRecord(tableName: string, obj: any): any {
       // A record that fails to decrypt (key drift, corruption) must NEVER
       // kill the whole query — degrade per-field instead.
       try {
-        const decrypted = decryptString(val)
+        const decrypted = await decryptString(val)
         if (ARRAY_FIELDS.has(field)) {
           try { copy[field] = JSON.parse(decrypted) } catch { copy[field] = [] }
         } else {
@@ -67,13 +70,13 @@ export const encryptionMiddleware = {
         return {
           ...downTable,
 
-          mutate(req: DBCoreMutateRequest) {
+          async mutate(req: DBCoreMutateRequest) {
             if (!hasCryptoKey()) return downTable.mutate(req)
             if (req.type === 'add' || req.type === 'put') {
-              return downTable.mutate({
-                ...req,
-                values: req.values.map((v: any) => encryptRecord(tableName, v)),
-              })
+              const values = await Promise.all(
+                req.values.map((v: any) => encryptRecord(tableName, v)),
+              )
+              return downTable.mutate({ ...req, values })
             }
             return downTable.mutate(req)
           },
@@ -88,16 +91,16 @@ export const encryptionMiddleware = {
           getMany(req: DBCoreGetManyRequest) {
             return downTable.getMany(req).then((results) => {
               if (!hasCryptoKey()) return results
-              return results.map((r: any) => decryptRecord(tableName, r))
+              return Promise.all(results.map((r: any) => decryptRecord(tableName, r)))
             })
           },
 
           query(req: DBCoreQueryRequest) {
-            return downTable.query(req).then((res) => {
+            return downTable.query(req).then(async (res) => {
               if (!hasCryptoKey()) return res
               return {
                 ...res,
-                result: res.result.map((r: any) => decryptRecord(tableName, r)),
+                result: await Promise.all(res.result.map((r: any) => decryptRecord(tableName, r))),
               }
             })
           },

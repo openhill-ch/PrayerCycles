@@ -77,5 +77,5 @@ async function doInitEncryption(): Promise<void> {
     }
   }
 
-  setCryptoKey(key)
+  await setCryptoKey(key)
 }

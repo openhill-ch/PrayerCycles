@@ -13,8 +13,13 @@ import type { db as DbType } from './db'
 export async function migrateUnencryptedData(db: typeof DbType): Promise<void> {
   if (!hasCryptoKey()) return
 
-  const MIGRATION_KEY = 'prayercycles-encrypted'
-  if (localStorage.getItem(MIGRATION_KEY) === '1') return
+  // Tracks the scheme the stored records are written in, not merely whether
+  // they are encrypted. Records written by the old tweetnacl scheme decrypt on
+  // read and come back out as AES-GCM, so the same read-then-put pass that
+  // once encrypted plaintext now also upgrades them.
+  const SCHEME_KEY = 'prayercycles-enc-scheme'
+  const CURRENT_SCHEME = 'aes-gcm'
+  if (localStorage.getItem(SCHEME_KEY) === CURRENT_SCHEME) return
 
   await db.transaction('rw', db.prayerLists, db.prayers, async () => {
     const lists = await db.prayerLists.toArray()
@@ -28,5 +33,5 @@ export async function migrateUnencryptedData(db: typeof DbType): Promise<void> {
     }
   })
 
-  localStorage.setItem(MIGRATION_KEY, '1')
+  localStorage.setItem(SCHEME_KEY, CURRENT_SCHEME)
 }
