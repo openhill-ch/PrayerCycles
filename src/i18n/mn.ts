@@ -167,10 +167,6 @@ export const mn: Translations = {
   themeAdelboden: 'Adelboden Winter',
   themeSakura: 'Cherry Blossom',
   themeNewSmyrna: 'New Smyrna',
-  themeGroupMongolian: 'Монгол',
-  themeGroupSwiss: 'Швейцар',
-  themeGroupJapanese: 'Япон',
-  themeGroupAmerican: 'Америк',
 
   resetAll: 'Бүх залбирлын өгөгдлийг устгах',
   resetAllDesc: 'Бүрэн шинэчлэл — бүх жагсаалт, залбирал, шошгыг устгана.',

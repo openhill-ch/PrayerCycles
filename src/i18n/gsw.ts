@@ -167,10 +167,6 @@ export const gsw: Translations = {
   themeAdelboden: 'Adelboden Winter',
   themeSakura: 'Cherry Blossom',
   themeNewSmyrna: 'New Smyrna',
-  themeGroupMongolian: 'Mongolisch',
-  themeGroupSwiss: 'Schwiz',
-  themeGroupJapanese: 'Japanisch',
-  themeGroupAmerican: 'Amerikanisch',
 
   resetAll: 'Alli Gebetsdate lösche',
   resetAllDesc: 'Komplett-Reset — löscht alli Lischte, Gebät und Tags.',

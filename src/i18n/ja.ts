@@ -167,10 +167,6 @@ export const ja: Translations = {
   themeAdelboden: 'Adelboden Winter',
   themeSakura: 'Cherry Blossom',
   themeNewSmyrna: 'New Smyrna',
-  themeGroupMongolian: 'モンゴル',
-  themeGroupSwiss: 'スイス',
-  themeGroupJapanese: '日本',
-  themeGroupAmerican: 'アメリカ',
 
   resetAll: 'すべての祈りデータを削除',
   resetAllDesc: '完全リセット — すべてのリスト、祈り、タグを削除します。',

@@ -164,10 +164,6 @@ export const de: Translations = {
   themeAdelboden: 'Adelboden Winter',
   themeSakura: 'Cherry Blossom',
   themeNewSmyrna: 'New Smyrna',
-  themeGroupMongolian: 'Mongolisch',
-  themeGroupSwiss: 'Schweizerisch',
-  themeGroupJapanese: 'Japanisch',
-  themeGroupAmerican: 'Amerikanisch',
 
   resetAll: 'Alle Gebetsdaten entfernen',
   resetAllDesc: 'Vollständiger Reset – entfernt alle Listen, Gebete und Tags.',

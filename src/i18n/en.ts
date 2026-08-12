@@ -167,10 +167,6 @@ export const en: Translations = {
   themeAdelboden: 'Adelboden Winter',
   themeSakura: 'Cherry Blossom',
   themeNewSmyrna: 'New Smyrna',
-  themeGroupMongolian: 'Mongolian',
-  themeGroupSwiss: 'Swiss',
-  themeGroupJapanese: 'Japanese',
-  themeGroupAmerican: 'American',
 
   resetAll: 'Remove All Prayer Data',
   resetAllDesc: 'Complete reset — removes all lists, prayers, and tags.',

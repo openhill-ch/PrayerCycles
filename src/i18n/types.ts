@@ -187,10 +187,6 @@ export type Translations = {
   themeAdelboden: string
   themeSakura: string
   themeNewSmyrna: string
-  themeGroupMongolian: string
-  themeGroupSwiss: string
-  themeGroupJapanese: string
-  themeGroupAmerican: string
 
   // Reset data
   resetAll: string
