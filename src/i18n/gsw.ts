@@ -26,7 +26,7 @@ export const gsw: Translations = {
   themes: 'Themes',
 
   praying: 'Am Bäte',
-  todaysPrayers: 'Hauptgebätslischte',
+  todaysPrayers: 'Hauptlischte',
   selectAList: 'Lischte uuswähle',
   noOtherLists: 'Kei anderi Lischte',
   openMenu: 'Menü ufmache',
@@ -98,7 +98,7 @@ export const gsw: Translations = {
   next: 'Wiiter',
   stepOf: (c: number, t: number) => `Schritt ${c} vo ${t}`,
   qListName: 'Wie heisst die Gebetslischte?',
-  qHowOften: 'Wie oft söll es Gebet us dere Lischte i d Hauptgebätslischte cho?',
+  qHowOften: 'Wie oft söll es Gebet us dere Lischte i d Hauptlischte cho?',
   qWhoInList: 'Wär ghört i die Lischte?',
   qAnythingElse: 'Wotsch no öppis dezuefüege?',
   qWhichList: 'I welli Lischte söll das?',

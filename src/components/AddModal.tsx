@@ -218,11 +218,19 @@ export function AddModal({ open, onClose, onAdded, initialListId, editListId }: 
     const rect = el.getBoundingClientRect()
     const x = (rect.left + rect.width / 2) / window.innerWidth
     const y = (rect.top + rect.height / 2) / window.innerHeight
-    // above the sheet's own z-index so it reads over the card
-    const defaults = { origin: { x, y }, zIndex: 70, ticks: 160 }
-    confetti({ ...defaults, particleCount: 150, spread: 360, startVelocity: 36, scalar: 1.3 })
-    confetti({ ...defaults, particleCount: 100, spread: 180, startVelocity: 46, angle: 60 })
-    confetti({ ...defaults, particleCount: 100, spread: 180, startVelocity: 46, angle: 120 })
+    // One modest puff rather than three overlapping bursts: 350 particles
+    // filling the screen read as a celebration of the app rather than of the
+    // list you just made. Above the sheet's z-index so it still shows over it.
+    confetti({
+      origin: { x, y },
+      zIndex: 70,
+      ticks: 90,
+      particleCount: 45,
+      spread: 60,
+      startVelocity: 24,
+      scalar: 0.9,
+      gravity: 1.2,
+    })
   }
 
   async function handleSubmit(e: React.FormEvent) {

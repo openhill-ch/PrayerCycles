@@ -26,7 +26,7 @@ export const mn: Translations = {
   themes: 'Загвар',
 
   praying: 'Залбирч байна',
-  todaysPrayers: 'Үндсэн залбирлын жагсаалт',
+  todaysPrayers: 'Үндсэн жагсаалт',
   selectAList: 'Жагсаалт сонгох',
   noOtherLists: 'Бусад жагсаалт байхгүй',
   openMenu: 'Цэс нээх',
@@ -98,7 +98,7 @@ export const mn: Translations = {
   next: 'Дараах',
   stepOf: (c: number, t: number) => `Алхам ${c} / ${t}`,
   qListName: 'Энэ залбирлын жагсаалтын нэр юу вэ?',
-  qHowOften: 'Энэ жагсаалтын залбирал Үндсэн залбирлын жагсаалтад хэр олон удаа орох вэ?',
+  qHowOften: 'Энэ жагсаалтын залбирал Үндсэн жагсаалтад хэр олон удаа орох вэ?',
   qWhoInList: 'Энэ жагсаалтад хэн багтах вэ?',
   qAnythingElse: 'Өөр нэмэх зүйл байна уу?',
   qWhichList: 'Аль жагсаалтад нэмэх вэ?',

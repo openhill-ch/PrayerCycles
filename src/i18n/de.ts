@@ -26,7 +26,7 @@ export const de: Translations = {
   themes: 'Designs',
 
   praying: 'Im Gebet',
-  todaysPrayers: 'Hauptgebetsliste',
+  todaysPrayers: 'Hauptliste',
   selectAList: 'Liste auswählen',
   noOtherLists: 'Keine weiteren Listen',
   openMenu: 'Menü öffnen',
@@ -97,7 +97,7 @@ export const de: Translations = {
   next: 'Weiter',
   stepOf: (c: number, t: number) => `Schritt ${c} von ${t}`,
   qListName: 'Wie soll diese Gebetsliste heißen?',
-  qHowOften: 'Wie oft soll ein Gebet aus dieser Gebetsliste in die Hauptgebetsliste wandern?',
+  qHowOften: 'Wie oft soll ein Gebet aus dieser Gebetsliste in die Hauptliste wandern?',
   qWhoInList: 'Wer gehört zu dieser Liste?',
   qAnythingElse: 'Möchtest du noch etwas hinzufügen?',
   qWhichList: 'In welche Liste soll das?',

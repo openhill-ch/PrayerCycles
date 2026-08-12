@@ -26,7 +26,7 @@ export const en: Translations = {
   themes: 'Themes',
 
   praying: 'Praying',
-  todaysPrayers: 'Main Prayer List',
+  todaysPrayers: 'Main List',
   selectAList: 'Select a list',
   noOtherLists: 'No other lists',
   openMenu: 'Open menu',
@@ -98,7 +98,7 @@ export const en: Translations = {
   next: 'Next',
   stepOf: (c: number, t: number) => `Step ${c} of ${t}`,
   qListName: 'What is the name of this prayer list?',
-  qHowOften: 'How frequently do you want a prayer from this prayer list to cycle onto the Main Prayer List?',
+  qHowOften: 'How frequently do you want a prayer from this prayer list to cycle onto the Main List?',
   qWhoInList: "Who's in this list?",
   qAnythingElse: 'Anything else you want to add?',
   qWhichList: 'Which list should this go in?',

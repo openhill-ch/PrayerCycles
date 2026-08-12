@@ -26,7 +26,7 @@ export const ja: Translations = {
   themes: 'テーマ',
 
   praying: '祈り中',
-  todaysPrayers: 'メインの祈りリスト',
+  todaysPrayers: 'メインリスト',
   selectAList: 'リストを選択',
   noOtherLists: '他のリストなし',
   openMenu: 'メニューを開く',
@@ -98,7 +98,7 @@ export const ja: Translations = {
   next: '次へ',
   stepOf: (c: number, t: number) => `ステップ ${c} / ${t}`,
   qListName: 'この祈りリストの名前は？',
-  qHowOften: 'このリストの祈りを、どのくらいの頻度でメインの祈りリストに送りますか？',
+  qHowOften: 'このリストの祈りを、どのくらいの頻度でメインリストに送りますか？',
   qWhoInList: 'このリストには誰が入りますか？',
   qAnythingElse: '他に追加したいことはありますか？',
   qWhichList: 'どのリストに追加しますか？',

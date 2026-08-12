@@ -1,3 +1,4 @@
+import Dexie from 'dexie'
 import type { DBCore, DBCoreTable, DBCoreMutateRequest, DBCoreGetRequest, DBCoreGetManyRequest, DBCoreQueryRequest } from 'dexie'
 import { encryptString, decryptString, hasCryptoKey, isEncrypted } from '../lib/crypto'
 
@@ -9,8 +10,12 @@ const FIELDS_BY_TABLE: Record<string, string[]> = {
 const ARRAY_FIELDS = new Set(['tags'])
 
 // Web Crypto is promise-based, so these are async where they used to be plain
-// calls. Dexie keeps its transaction alive across the await, so mutating inside
-// a db.transaction() still commits as one unit.
+// calls. Every await on a crypto promise goes through Dexie.waitFor: an
+// IndexedDB transaction commits as soon as the event loop turns without a
+// pending IDB request, and WebKit enforces that far more strictly than
+// Chromium does. Without waitFor, a db.transaction() that writes two records
+// dies on the second one with InvalidStateError on an iPhone while passing
+// in a desktop browser.
 async function encryptRecord(tableName: string, obj: any): Promise<any> {
   const fields = FIELDS_BY_TABLE[tableName]
   if (!fields || !hasCryptoKey() || !obj) return obj
@@ -73,8 +78,8 @@ export const encryptionMiddleware = {
           async mutate(req: DBCoreMutateRequest) {
             if (!hasCryptoKey()) return downTable.mutate(req)
             if (req.type === 'add' || req.type === 'put') {
-              const values = await Promise.all(
-                req.values.map((v: any) => encryptRecord(tableName, v)),
+              const values = await Dexie.waitFor(
+                Promise.all(req.values.map((v: any) => encryptRecord(tableName, v))),
               )
               return downTable.mutate({ ...req, values })
             }
@@ -84,14 +89,14 @@ export const encryptionMiddleware = {
           get(req: DBCoreGetRequest) {
             return downTable.get(req).then((res) => {
               if (!hasCryptoKey()) return res
-              return decryptRecord(tableName, res)
+              return Dexie.waitFor(decryptRecord(tableName, res))
             })
           },
 
           getMany(req: DBCoreGetManyRequest) {
             return downTable.getMany(req).then((results) => {
               if (!hasCryptoKey()) return results
-              return Promise.all(results.map((r: any) => decryptRecord(tableName, r)))
+              return Dexie.waitFor(Promise.all(results.map((r: any) => decryptRecord(tableName, r))))
             })
           },
 
@@ -100,7 +105,7 @@ export const encryptionMiddleware = {
               if (!hasCryptoKey()) return res
               return {
                 ...res,
-                result: await Promise.all(res.result.map((r: any) => decryptRecord(tableName, r))),
+                result: await Dexie.waitFor(Promise.all(res.result.map((r: any) => decryptRecord(tableName, r)))),
               }
             })
           },
