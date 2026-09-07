@@ -26,7 +26,6 @@ export const ja: Translations = {
   themes: 'テーマ',
 
   praying: '祈り中',
-  todaysPrayers: 'メインリスト',
   selectAList: 'リストを選択',
   noOtherLists: '他のリストなし',
   openMenu: 'メニューを開く',
@@ -40,9 +39,6 @@ export const ja: Translations = {
   searchPrayers: '祈りを検索...',
   noListsYet: 'リストはまだありません。',
   deactivated: '無効',
-  surfacedLabel: '浮上 | 毎日',
-  todaysPrayersDesc: 'すべての祈りリストが、祈りを順番にこのリストへ送ります。',
-  noPrayersSurfaced: '今日浮上した祈りはありません',
   expand: '展開',
   noPrayersYet: '祈りはまだありません',
   prayerCount: (count) => `${count}件の祈り`,

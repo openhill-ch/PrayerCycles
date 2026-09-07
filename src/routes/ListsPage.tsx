@@ -7,8 +7,6 @@ import type { PrayerList, Prayer } from '../db/types'
 import { getAllLists, UNSCHEDULED_ID } from '../features/cycles/list-operations'
 import { getPrayersByList } from '../features/prayers/prayer-operations'
 import { getAllTags } from '../features/tags/tag-operations'
-import { getSurfacedPrayers, type SurfacedPrayer } from '../lib/surfacing'
-import { useTimer, TODAY_ID } from '../context/TimerContext'
 
 function Highlight({ text, query }: { text: string; query: string }): ReactNode {
   if (!query) return text
@@ -26,7 +24,7 @@ function Highlight({ text, query }: { text: string; query: string }): ReactNode 
  * unmounts the copy that slid in and mounts a fresh one, so without this the
  * page you just swiped to blanks to Loading... at the moment it arrives.
  */
-let lastLoad: { data: ListWithPrayers[]; todayPrayers: SurfacedPrayer[]; allTags: string[] } | null = null
+let lastLoad: { data: ListWithPrayers[]; allTags: string[] } | null = null
 
 type ListWithPrayers = {
   list: PrayerList
@@ -44,7 +42,6 @@ export function ListsPage() {
     return () => clearTimeout(id)
   }, [focusId, setSearchParams])
   const [data, setData] = useState<ListWithPrayers[]>(() => lastLoad?.data ?? [])
-  const [todayPrayers, setTodayPrayers] = useState<SurfacedPrayer[]>(() => lastLoad?.todayPrayers ?? [])
   // Only the very first load of the session has nothing to show.
   const [loading, setLoading] = useState(lastLoad === null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -53,12 +50,10 @@ export function ListsPage() {
   const [tagsExpanded, setTagsExpanded] = useState(false)
   const [tagsOverflow, setTagsOverflow] = useState(false)
   const tagsRef = useRef<HTMLDivElement>(null)
-  const { setSelectedListId } = useTimer()
 
   const load = useCallback(async () => {
-    const [lists, surfaced, tags] = await Promise.all([
+    const [lists, tags] = await Promise.all([
       getAllLists(),
-      getSurfacedPrayers(),
       getAllTags(),
     ])
     const withPrayers = await Promise.all(
@@ -67,9 +62,8 @@ export function ListsPage() {
         prayers: await getPrayersByList(list.id),
       })),
     )
-    lastLoad = { data: withPrayers, todayPrayers: surfaced, allTags: tags }
+    lastLoad = { data: withPrayers, allTags: tags }
     setData(withPrayers)
-    setTodayPrayers(surfaced)
     setAllTags(tags)
     setLoading(false)
   }, [])
@@ -132,16 +126,6 @@ export function ListsPage() {
     })
   }
 
-  // Filter today's prayers for search
-  const todayFiltered = lower
-    ? todayPrayers.filter((s) =>
-        'today\'s prayers'.includes(lower) ||
-        s.prayer.title.toLowerCase().includes(lower) ||
-        s.prayer.description.toLowerCase().includes(lower)
-      )
-    : todayPrayers
-  const showTodayCard = !lower || todayFiltered.length > 0 || 'today\'s prayers'.includes(lower)
-
   return (
     <div className="flex-1 overflow-y-auto px-4 pb-nav pt-4">
       <div className="mx-auto max-w-5xl">
@@ -199,14 +183,11 @@ export function ListsPage() {
           </div>
         )}
 
-        {active.length === 0 && archived.length === 0 && !showTodayCard && (
+        {active.length === 0 && archived.length === 0 && (
           <p className="pt-20 text-center text-text-tertiary">{t.noListsYet}</p>
         )}
 
         <MasonryColumns>
-          {showTodayCard && (
-            <TodayCard key="today" prayers={todayPrayers} onSelect={() => setSelectedListId(TODAY_ID)} query={searchQuery} />
-          )}
           {active.map(({ list, prayers }) => (
             <ListCard key={list.id} list={list} prayers={prayers} query={searchQuery} focused={list.id === focusId} />
           ))}
@@ -224,46 +205,6 @@ export function ListsPage() {
             </MasonryColumns>
           </>
         )}
-      </div>
-    </div>
-  )
-}
-
-function TodayCard({ prayers, onSelect, query }: { prayers: SurfacedPrayer[]; onSelect: () => void; query: string }) {
-  const { t } = useT()
-  const navigate = useNavigate()
-  const MAX_VISIBLE = 30
-  const visible = prayers.slice(0, MAX_VISIBLE)
-  const overflow = prayers.length - MAX_VISIBLE
-
-  return (
-    <div
-      className="rounded-lg pt-2 px-4 pb-4 shadow-md break-inside-avoid cursor-pointer bg-card hover:bg-input transition border-2 border-success-border shadow-[0_0_14px_var(--color-success-glow)]"
-      onClick={() => { onSelect(); navigate('/timer') }}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter') { onSelect(); navigate('/timer') } }}
-    >
-      <p className="text-xs text-success-alt leading-tight">{t.surfacedLabel}</p>
-      <h3 className="text-lg font-semibold text-text -mt-0.5">{t.todaysPrayers}</h3>
-      <p className="text-sm text-text-secondary mt-1">{t.todaysPrayersDesc}</p>
-
-      <div className="mt-2 space-y-1">
-        {visible.map((s) => (
-          <div key={`${s.prayer.id}-${s.listId}`} className="text-sm text-text-secondary">
-            <Highlight text={s.prayer.title} query={query} />
-          </div>
-        ))}
-        {overflow > 0 && (
-          <div className="text-xs text-text-tertiary">{t.expand}</div>
-        )}
-        {prayers.length === 0 && (
-          <div className="text-xs text-text-tertiary italic">{t.noPrayersSurfaced}</div>
-        )}
-      </div>
-
-      <div className="mt-3 text-xs text-success-text text-right">
-        {t.prayerCount(prayers.length)}
       </div>
     </div>
   )
@@ -312,7 +253,7 @@ function ListCard({ list, prayers, query, focused }: { list: PrayerList; prayers
       onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/lists/${list.id}`) }}
     >
       {!isUnscheduled && (
-        <p className="text-xs text-text-tertiary leading-tight"><span className="capitalize">{list.cycle.cadence}</span> | {freqLabel}</p>
+        <p className="text-xs text-text-tertiary leading-tight"><span className="capitalize">{list.cycle.cadence}</span> | {freqLabel} | {t.prayerCount(prayers.length)}</p>
       )}
       <h3 className="text-lg font-semibold text-text -mt-0.5"><Highlight text={displayName} query={query} /></h3>
       {list.description && (

@@ -26,7 +26,6 @@ export const gsw: Translations = {
   themes: 'Themes',
 
   praying: 'Am Bäte',
-  todaysPrayers: 'Hauptlischte',
   selectAList: 'Lischte uuswähle',
   noOtherLists: 'Kei anderi Lischte',
   openMenu: 'Menü ufmache',
@@ -40,9 +39,6 @@ export const gsw: Translations = {
   searchPrayers: 'Gebät sueche...',
   noListsYet: 'No kei Lischte.',
   deactivated: 'Deaktiviert',
-  surfacedLabel: 'Uuftaucht | Täglic',
-  todaysPrayersDesc: 'Alli Gebätslischte lönd ihri Gebät i die Lischte rotiere.',
-  noPrayersSurfaced: 'Hüt si kei Gebät uuftaucht',
   expand: 'erweitere',
   noPrayersYet: 'No kei Gebät',
   prayerCount: (count) => `${count} ${count === 1 ? 'Gebet' : 'Gebät'}`,

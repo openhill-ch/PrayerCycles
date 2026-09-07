@@ -204,7 +204,7 @@ export function ListDetailPage() {
               {/* Active/Deactivated toggle — top right */}
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs text-text-tertiary leading-tight"><span className="capitalize">{list.cycle.cadence}</span> | {freqLabel}</p>
+                  <p className="text-xs text-text-tertiary leading-tight"><span className="capitalize">{list.cycle.cadence}</span> | {freqLabel} | {t.prayerCount(prayers.length)}</p>
                   <h2 className="text-xl font-semibold text-text -mt-0.5">{list.name}</h2>
                 </div>
                 <button

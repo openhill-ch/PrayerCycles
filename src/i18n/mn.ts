@@ -26,7 +26,6 @@ export const mn: Translations = {
   themes: 'Загвар',
 
   praying: 'Залбирч байна',
-  todaysPrayers: 'Үндсэн жагсаалт',
   selectAList: 'Жагсаалт сонгох',
   noOtherLists: 'Бусад жагсаалт байхгүй',
   openMenu: 'Цэс нээх',
@@ -40,9 +39,6 @@ export const mn: Translations = {
   searchPrayers: 'Залбирал хайх...',
   noListsYet: 'Жагсаалт байхгүй байна.',
   deactivated: 'Идэвхгүй',
-  surfacedLabel: 'Гарсан | Өдөр бүр',
-  todaysPrayersDesc: 'Бүх залбирлын жагсаалт залбирлаа энэ жагсаалт руу ээлжлэн оруулна.',
-  noPrayersSurfaced: 'Өнөөдөр гарсан залбирал байхгүй',
   expand: 'дэлгэх',
   noPrayersYet: 'Залбирал байхгүй байна',
   prayerCount: (count) => `${count} залбирал`,

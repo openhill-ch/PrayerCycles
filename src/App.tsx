@@ -205,7 +205,7 @@ function AppContent() {
 
   return (
       <TimerProvider>
-      <div className="flex min-h-screen flex-col bg-base text-text">
+      <div className="flex h-dvh flex-col overflow-hidden bg-base text-text">
         <TimerBar onMenuOpen={() => setMenuOpen(true)} />
         <SideMenu
           open={menuOpen}
@@ -216,7 +216,7 @@ function AppContent() {
           onResetData={() => { setMenuOpen(false); setResetOpen(true) }}
         />
         <div
-          className={`relative flex flex-1 flex-col ${swiping ? 'overflow-hidden' : ''}`}
+          className={`relative flex min-h-0 flex-1 flex-col ${swiping ? 'overflow-hidden' : ''}`}
           style={{ touchAction: 'pan-y' }}
           onTouchStart={onPageTouchStart}
           onTouchMove={onPageTouchMove}
@@ -224,7 +224,7 @@ function AppContent() {
           onTouchCancel={resetGesture}
         >
           <div
-            className="flex flex-1 flex-col"
+            className="flex min-h-0 flex-1 flex-col"
             // No transform at rest: any transform makes this a containing block
             // for position:fixed descendants, which would anchor a page's modals
             // to this element instead of the viewport.

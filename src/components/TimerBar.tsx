@@ -1,6 +1,6 @@
 import { useState, useRef, forwardRef, useImperativeHandle } from 'react'
 import { Menu, ChevronDown, Play, Pause, RotateCcw } from 'lucide-react'
-import { useTimer, TODAY_ID } from '../context/TimerContext'
+import { useTimer } from '../context/TimerContext'
 import { UNSCHEDULED_ID } from '../features/cycles/list-operations'
 import { useT } from '../i18n'
 
@@ -138,10 +138,9 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
     handleReset,
   } = useTimer()
 
-  const isToday = selectedListId === TODAY_ID
-  const selectedList = isToday ? null : lists.find((l) => l.id === selectedListId)
-  const displayName = isToday ? t.todaysPrayers : (selectedList ? (selectedList.id === UNSCHEDULED_ID ? t.unscheduled : selectedList.name) : t.selectAList)
-  const hasSelection = isToday || !!selectedList
+  const selectedList = lists.find((l) => l.id === selectedListId)
+  const displayName = selectedList ? (selectedList.id === UNSCHEDULED_ID ? t.unscheduled : selectedList.name) : t.selectAList
+  const hasSelection = !!selectedList
 
   const midSession = timeLeft > 0 && timeLeft < totalTime
   const bigTimerValue = (running || midSession) ? incrementTimeLeft : prayerIncrement
@@ -219,17 +218,6 @@ export function TimerBar({ onMenuOpen }: TimerBarProps) {
             <>
               <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
               <div className="absolute left-0 top-full z-50 mt-1 w-full rounded-lg bg-card border border-border shadow-lg overflow-y-auto max-h-64">
-                <button
-                  onClick={() => { setSelectedListId(TODAY_ID); setDropdownOpen(false) }}
-                  className={`w-full text-left px-4 py-3 text-sm hover:bg-input transition-colors ${
-                    isToday ? 'text-accent-text' : 'text-text-secondary'
-                  }`}
-                >
-                  {t.todaysPrayers}
-                </button>
-                {lists.length > 0 && (
-                  <div className="border-t border-border" />
-                )}
                 {lists.map((list) => (
                   <button
                     key={list.id}

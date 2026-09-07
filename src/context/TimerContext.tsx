@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useRef, useCallback, ty
 import type { PrayerList, Prayer } from '../db/types'
 import { getAllLists } from '../features/cycles/list-operations'
 import { getPrayersByList } from '../features/prayers/prayer-operations'
-import { getSurfacedPrayers, completePrayer, type SurfacedPrayer } from '../lib/surfacing'
+import { completePrayer } from '../lib/surfacing'
 
 type TimerMode = 'custom' | 'until-done'
 
@@ -23,13 +23,10 @@ function playTransitionSound(sound: TransitionSound) {
   audio.play().catch(() => {})
 }
 
-export const TODAY_ID = '__today__'
-
 type TimerState = {
   lists: PrayerList[]
   selectedListId: string | null
   prayers: Prayer[]
-  surfacedPrayers: SurfacedPrayer[]
   dropdownOpen: boolean
   prayerIncrement: number
   timerMode: TimerMode
@@ -59,9 +56,8 @@ const TimerContext = createContext<TimerState | null>(null)
 
 export function TimerProvider({ children }: { children: ReactNode }) {
   const [lists, setLists] = useState<PrayerList[]>([])
-  const [selectedListId, setSelectedListId] = useState<string | null>(TODAY_ID)
+  const [selectedListId, setSelectedListId] = useState<string | null>(null)
   const [prayers, setPrayers] = useState<Prayer[]>([])
-  const [surfacedPrayers, setSurfacedPrayers] = useState<SurfacedPrayer[]>([])
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
   const [prayerIncrement, setPrayerIncrement] = useState(60)
@@ -96,22 +92,9 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   }, [refreshLists])
 
   const loadPrayers = useCallback(() => {
-    if (!selectedListId) { setPrayers([]); setSurfacedPrayers([]); return }
-    if (selectedListId === TODAY_ID) {
-      getSurfacedPrayers().then((surfaced) => {
-        setSurfacedPrayers(surfaced)
-        setPrayers(surfaced.map((s) => s.prayer))
-      })
-    } else {
-      getPrayersByList(selectedListId).then((p) => {
-        const active = p
-        setPrayers(active)
-        const list = lists.find((l) => l.id === selectedListId)
-        const listName = list?.name ?? ''
-        setSurfacedPrayers(active.map((prayer) => ({ prayer, listId: selectedListId, listName })))
-      })
-    }
-  }, [selectedListId, lists])
+    if (!selectedListId) { setPrayers([]); return }
+    getPrayersByList(selectedListId).then(setPrayers)
+  }, [selectedListId])
 
   // Load prayers when list changes
   useEffect(() => {
@@ -158,22 +141,18 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
   // Track time per prayer and record completions when timer advances
   const prayersRef = useRef(prayers)
-  const surfacedPrayersRef = useRef(surfacedPrayers)
   const selectedListIdRef = useRef(selectedListId)
   const prayerIncrementRef = useRef(prayerIncrement)
   const totalTimeRef = useRef(totalTime)
   useEffect(() => { prayersRef.current = prayers }, [prayers])
-  useEffect(() => { surfacedPrayersRef.current = surfacedPrayers }, [surfacedPrayers])
   useEffect(() => { selectedListIdRef.current = selectedListId }, [selectedListId])
   useEffect(() => { prayerIncrementRef.current = prayerIncrement }, [prayerIncrement])
   useEffect(() => { totalTimeRef.current = totalTime }, [totalTime])
 
-  // Get the correct listId for a prayer at an index (handles Today's Prayers which has mixed listIds)
-  function getListIdForIndex(idx: number): string | null {
-    const sp = surfacedPrayersRef.current
-    if (sp[idx]) return sp[idx].listId
-    const listId = selectedListIdRef.current
-    return listId === TODAY_ID ? null : listId
+  // Every prayer in the timebox comes from the one selected list now, so a
+  // prayer's index no longer has to be mapped back to a list of its own.
+  function currentListId(): string | null {
+    return selectedListIdRef.current
   }
 
   useEffect(() => {
@@ -197,7 +176,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
               if (!completedIndicesRef.current.has(lastIdx)) {
                 completedIndicesRef.current.add(lastIdx)
                 const lastPrayer = pp[lastIdx]
-                const listId = getListIdForIndex(lastIdx)
+                const listId = currentListId()
                 if (listId) {
                   completePrayer(lastPrayer.id, listId)
                 }
@@ -230,7 +209,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
                 if (!completedIndicesRef.current.has(i)) {
                   completedIndicesRef.current.add(i)
                   const prayer = pp[i]
-                  const listId = getListIdForIndex(i)
+                  const listId = currentListId()
                   if (prayer && listId) {
                     completePrayer(prayer.id, listId)
                   }
@@ -280,7 +259,6 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       lists,
       selectedListId,
       prayers,
-      surfacedPrayers,
       dropdownOpen,
       prayerIncrement,
       timerMode,

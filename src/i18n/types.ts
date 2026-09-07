@@ -30,7 +30,6 @@ export type Translations = {
 
   // Timer bar
   praying: string
-  todaysPrayers: string
   selectAList: string
   noOtherLists: string
   openMenu: string
@@ -46,9 +45,6 @@ export type Translations = {
   searchPrayers: string
   noListsYet: string
   deactivated: string
-  surfacedLabel: string
-  todaysPrayersDesc: string
-  noPrayersSurfaced: string
   expand: string
   noPrayersYet: string
   prayerCount: (count: number) => string

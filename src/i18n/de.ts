@@ -26,7 +26,6 @@ export const de: Translations = {
   themes: 'Designs',
 
   praying: 'Im Gebet',
-  todaysPrayers: 'Hauptliste',
   selectAList: 'Liste auswählen',
   noOtherLists: 'Keine weiteren Listen',
   openMenu: 'Menü öffnen',
@@ -39,9 +38,6 @@ export const de: Translations = {
   searchPrayers: 'Gebete suchen ...',
   noListsYet: 'Noch keine Listen.',
   deactivated: 'Deaktiviert',
-  surfacedLabel: 'Angezeigt | Täglich',
-  todaysPrayersDesc: 'Alle Gebetslisten lassen ihre Gebete in diese Liste rotieren.',
-  noPrayersSurfaced: 'Heute werden keine Gebete angezeigt',
   expand: 'mehr',
   noPrayersYet: 'Noch keine Gebete',
   prayerCount: (count) => `${count} ${count === 1 ? 'Gebet' : 'Gebete'}`,

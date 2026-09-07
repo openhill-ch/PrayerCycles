@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHand
 import { Play, Pause, RotateCcw, Dices, ChevronDown, Volume2, VolumeX } from 'lucide-react'
 import { FormattedText } from '../components/FormattedText'
 import confetti from 'canvas-confetti'
-import { useTimer, TODAY_ID } from '../context/TimerContext'
+import { useTimer } from '../context/TimerContext'
 import { useT } from '../i18n'
 
 type EditableTimeHandle = {
@@ -220,10 +220,9 @@ export function TimerPage() {
     prevTimeLeftRef.current = timeLeft
   }, [timeLeft, running, prayers.length, fireConfetti])
 
-  const isToday = selectedListId === TODAY_ID
-  const selectedList = isToday ? null : lists.find((l) => l.id === selectedListId)
-  const displayName = isToday ? t.todaysPrayers : (selectedList?.name ?? t.selectAPrayerList)
-  const hasSelection = isToday || !!selectedList
+  const selectedList = lists.find((l) => l.id === selectedListId)
+  const displayName = selectedList?.name ?? t.selectAPrayerList
+  const hasSelection = !!selectedList
   const currentPrayer = prayers.length > 0 ? (prayers[currentIndex] ?? prayers[0]) : null
 
   // Big timer: shows per-prayer countdown when running or paused mid-session
@@ -270,13 +269,6 @@ export function TimerPage() {
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setLocalDropdown(false)} />
                   <div className="absolute z-50 mt-1 max-h-72 w-full overflow-y-auto rounded-lg border border-border bg-card shadow-lg">
-                    <button
-                      onClick={() => { setSelectedListId(TODAY_ID); setLocalDropdown(false) }}
-                      className={`w-full px-4 py-3 text-left text-sm transition-colors hover:bg-input ${isToday ? 'text-accent-text' : 'text-text-secondary'}`}
-                    >
-                      {t.todaysPrayers}
-                    </button>
-                    {lists.length > 0 && <div className="border-t border-border" />}
                     {lists.map((list) => (
                       <button
                         key={list.id}
@@ -390,7 +382,15 @@ export function TimerPage() {
           </div>
 
           {/* ---- Current prayer, full width ---- */}
-          <div className="flex max-h-[60vh] min-h-[220px] flex-col overflow-y-auto break-words p-4">
+          {/* data-no-page-swipe keeps the page-swipe handler off this
+              gesture: without it a drag here is a candidate for changing pages,
+              and the description never gets to scroll. overscroll-contain stops
+              the drag continuing into the page behind once it hits the end. */}
+          <div
+            data-no-page-swipe
+            className="flex max-h-[60vh] min-h-[220px] flex-col overflow-y-auto overscroll-contain break-words p-4"
+            style={{ touchAction: 'pan-y' }}
+          >
             {currentPrayer ? (
               <>
                 <div className="flex-1">

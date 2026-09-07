@@ -26,7 +26,6 @@ export const en: Translations = {
   themes: 'Themes',
 
   praying: 'Praying',
-  todaysPrayers: 'Main List',
   selectAList: 'Select a list',
   noOtherLists: 'No other lists',
   openMenu: 'Open menu',
@@ -40,9 +39,6 @@ export const en: Translations = {
   searchPrayers: 'Search prayers...',
   noListsYet: 'No lists yet.',
   deactivated: 'Deactivated',
-  surfacedLabel: 'Surfaced | Daily',
-  todaysPrayersDesc: 'All prayer lists rotate their prayers into this prayer list.',
-  noPrayersSurfaced: 'No prayers surfaced today',
   expand: 'expand',
   noPrayersYet: 'No prayers yet',
   prayerCount: (count) => `${count} ${count === 1 ? 'prayer' : 'prayers'}`,
