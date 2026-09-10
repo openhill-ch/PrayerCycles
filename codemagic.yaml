@@ -3,12 +3,13 @@ workflows:
     name: iOS Release
     max_build_duration: 30
     instance_type: mac_mini_m2
-    # The value below MUST exactly match the name of the App Store Connect
-    # API key you add in Codemagic: Team settings -> Integrations ->
-    # App Store Connect. Rename the integration there to match this, or
-    # change this string to match the integration's name.
+    # MUST exactly match the App Store Connect integration name in Codemagic
+    # (Team settings -> Integrations -> App Store Connect). It is named for the
+    # account rather than this app because the key authenticates the ACCOUNT
+    # and is shared with the other apps here, so renaming it means renaming
+    # the integration and every repo that references it, together.
     integrations:
-      app_store_connect: "Prayer Cycles ASC"
+      app_store_connect: "Joshua Schwarting ASC"
     environment:
       groups:
         # Codemagic UI group that holds CERTIFICATE_PRIVATE_KEY (secure).
